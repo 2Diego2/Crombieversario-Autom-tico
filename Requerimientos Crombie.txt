@@ -1,0 +1,20 @@
+Funcion: Automatizar "Area de marketing" de crombie. Ahorrar tiempo.
+
+
+
+
+
+
+ 
+Mail siempre con 1 semana de anticipación. 
+
+Programa que automatize los mails. Con preguntas si quieren publicar algo sobre su aniversario.
+No tiene que ser estatico. Se tiene que editar (Cumpleaños/Aniversario).
+
+Utilizan peopleforce, donde les avisa: Aniversario, hace cuanto tiempo están (Años, dias, ¿semanas?), Nombre, apellido, edad. Tiene en cuenta Feriados.
+
+¿Se va a utilizar la plantilla con la foto del colaborador para el crombieversario?
+CUMPLE NO.
+De dónde sacamos la información? Cómo accedemos a la base de datos?
+PeopleForce tiene una API?
+
