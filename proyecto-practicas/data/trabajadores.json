@@ -3,12 +3,15 @@
     "nombre": "Juan",
     "apellido": "Pérez",
     "fechaEntrada": "2020-06-15",
-    "cumpleanios": "1990-08-20"
+    "cumpleanios": "1990-08-20",
+    "mail": "juan@gmail.com"
+
   },
   {
     "nombre": "Ana",
     "apellido": "García",
-    "fechaEntrada": "2019-03-10",
-    "cumpleanios": "1985-12-05"
+    "fechaEntrada": "2019-06-26",
+    "cumpleanios": "1985-12-05",
+    "mail": "anita@gmail.com"
   }
 ]
