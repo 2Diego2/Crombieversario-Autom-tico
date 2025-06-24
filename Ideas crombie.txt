@@ -120,3 +120,22 @@ Con esta configuración, puedes manejar tareas programadas de manera eficiente e
 
 
 
+
+
+//¿Que sigue?
+
+¿Qué sigue ahora? (Siguientes pasos recomendados)
+1. Persistencia y Escritura de Resultados
+Guarda en un archivo nuevo (por ejemplo, aniversarios-proximos.json o un log .txt) los empleados que cumplen aniversario en 3 días.
+Así practicas la escritura de archivos con fs.writeFileSync o fs.promises.writeFile.
+2. Agregar Más Eventos
+Emite eventos para otros casos, como cumpleaños, aniversarios de 5 o 10 años, o cuando se agregue un nuevo trabajador.
+Puedes crear eventos como "cumpleanios" o "aniversarioEspecial".
+3. Validaciones y Utilidades
+Usa el archivo utils.js para agregar funciones auxiliares, por ejemplo, para validar fechas o mails antes de procesar los datos.
+4. Manejo de Errores
+Agrega manejo de errores para la lectura y escritura de archivos, y para datos faltantes o mal formateados.
+5. Asincronía Real
+Convierte la lectura y escritura de archivos a funciones asíncronas usando async/await y promesas, para practicar asincronía real.
+6. Documentación
+Escribe un pequeño README con instrucciones de uso y explicación del flujo.

@@ -1,49 +1,54 @@
 /*Define y exporta los eventos personalizados usando 
 EventEmitter. Aquí puedes manejar lo que ocurre cuando se detecta un aniversario */
-
-
-const fs = require("fs");
-const path = require("path");
+const EventEmitter = require("events");
 const dayjs = require("dayjs");
-const  EventEmitter = require("events");
-const ruta = path.join(__dirname, "../data/trabajadores.json");
-const personas = fs.readFileSync(ruta,"utf-8");
+const path = require("path");
 
+class AniversarioEmitter extends EventEmitter {}
+const aniversarioEmitter = new AniversarioEmitter();
 
-let trabajadores = JSON.parse(personas);
+const imagenesAniversario = { //Busca las imagenes en la direccion
+  1: path.join(__dirname, "img", "aniversario-1.png"),
+  2: path.join(__dirname, "img", "aniversario-2.png"),
+  3: path.join(__dirname, "img", "aniversario-3.png"),
+  // … añadir todas las necesarias
+};
 
-function AniversarioPersonas(trabajadores){
- const hoy=dayjs();
- const enTresDias = hoy.add(3,"day");
-
- const cantAniversario = [] ;
-for (let i=0; i<trabajadores.length; i++){
-    const trabajador = trabajadores[i];
-    const { nombre, fechaEntrada, mail } = trabajador;
- const fechaIngreso = dayjs(fechaEntrada); //Sirve para cambiar de String a Fecha :) 
-   
-
-
-let fechaAniversario = fechaIngreso.year(enTresDias.year());
-
- const Aniversario = fechaAniversario.diff(fechaIngreso,'year');
-
-
-if (fechaAniversario.isSame(enTresDias, 'day')) {
-            console.log(`El trabajador ${nombre} cumplira su aniversario numero ${Aniversario}° en 3 dias.`);
-
-        cantAniversario.push({
-          nombre,
-          fechaEntrada,
-          mail
-        });
-         //evento?-->
-          }
+async function buscarAniversarios(trabajadores) {
+  console.log ( new Promise((resolve) => { //Hacemos una promesa
+    console.log("Buscando proximos aniversarios de trabajadores..");
+    setTimeout(() => { 
+      const hoy = dayjs();
+      const enTresDias = hoy.add(3, "day");
+      let encontrados = [];
+      for (const trabajador of trabajadores) {
+        if (!trabajador.fechaEntrada) continue;
+        const fechaIngreso = dayjs(trabajador.fechaEntrada);
+        let fechaAniversario = fechaIngreso.year(enTresDias.year());
+        const nroAniversario = fechaAniversario.diff(fechaIngreso, 'year');
+        if (fechaAniversario.isSame(enTresDias, 'day')) {
+          const imagen = imagenesAniversario[nroAniversario];
+          const info = {
+            nombre: trabajador.nombre,
+            mail: trabajador.mail,
+            fechaEntrada: trabajador.fechaEntrada,
+            nroAniversario,
+            imagen
+          };
+          aniversarioEmitter.emit("aniversario", info);
+          encontrados.push(info);
+        }
+      }
+      if (encontrados.length === 0) {
+  aniversarioEmitter.emit("sinAniversarios");
 }
-  return cantAniversario;
- };
+      resolve(encontrados); // <-- ahora la promesa se resuelve
+    }, 2000);
+  }));
+}
 
-function MensajeMail(nombre){
+
+ function MensajeMail(nombre,imagen) {
   return `¡Hola, ${nombre}!
 
 Se viene una fecha muy especial... ¡tu Crombieversario! 🎂
@@ -54,35 +59,10 @@ Si lo compartís, no te olvides de etiquetarnos para poder celebrarte también d
 ¡Gracias por ser parte de Crombie!
 
 Abrazo,
-Equipo de Marketing`;
-
+Equipo de Marketing
+ ${imagen ? imagen : "No disponible"} `;
 }
 
-
-function Mail (cantTotalAniversario){
-   for(i=0; i<cantTotalAniversario.length;i++){
-   const empleado= cantTotalAniversario[i];
-   const { nombre, fechaEntrada, mail } = empleado;
-   console.log(nombre);
-   const mensaje=MensajeMail(nombre);
-   }
-
-}
+module.exports = { aniversarioEmitter, buscarAniversarios, MensajeMail };
 
 
-
-const cantTotalAniversario= AniversarioPersonas(trabajadores);
-Mail(cantTotalAniversario);
-
-
-/*
-aniversarioPersona.on("aniversario",(fechaEntrada) => {
-console.log(`El trabajador: ${nombre} cumplira en 3 dias su aniversario numero: ${aniversarioPersona}`);
-
-});
-
-aniversarioPersona.emit("aniversario", trabajadores.fechaEntrada);
-
-//Llamar de la BD la fecha de ingreso
-
-*/
