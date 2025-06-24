@@ -30,19 +30,6 @@ Empieza creando y manipulando archivos JSON.
 Practica eventos y promesas con ejemplos concretos.
 Ve sumando lógica según avances.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 1. Simulación vs. Realidad
 Ahora: Lees datos de un archivo JSON (simulación).
 Proyecto real: Leerías datos desde una API o una base de datos real (por ejemplo, usando fetch, axios, o un cliente de base de datos como pg para PostgreSQL o mysql2 para MySQL).
@@ -55,3 +42,81 @@ Documentación: Mejorar el README con instrucciones de uso.
 3. ¿Ya está listo?
 Para practicar la lógica: Sí, ya tienes una buena base.
 Para producción: Faltaría la integración real con la API/BD y robustecer el código.
+
+
+
+
+//NestJs Explicacion
+
+En NestJS, puedes implementar tareas programadas utilizando el paquete @nestjs/schedule, que está diseñado específicamente para manejar cron jobs y tareas recurrentes en aplicaciones Node.js. A continuación, te explico cómo configurarlo y usarlo:
+1. Instalación del paquete necesario
+Primero, instala el paquete @nestjs/schedule y su dependencia cron:
+Copiar el códigonpm install @nestjs/schedule
+npm install cron
+2. Configuración básica
+Importa y configura el módulo ScheduleModule en tu aplicación principal o en el módulo donde lo necesites.
+Copiar el código// app.module.ts
+import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksModule } from './tasks/tasks.module';
+
+@Module({
+  imports: [
+    ScheduleModule.forRoot(), // Habilita el soporte para tareas programadas
+    TasksModule,
+  ],
+})
+export class AppModule {}
+3. Creación de un servicio para las tareas programadas
+Crea un servicio donde definirás las tareas programadas. Por ejemplo, en un módulo llamado TasksModule:
+Copiar el código// tasks.service.ts
+import { Injectable } from '@nestjs/common';
+import { Cron, CronExpression, Interval, Timeout } from '@nestjs/schedule';
+
+@Injectable()
+export class TasksService {
+  // Tarea programada con una expresión cron
+  @Cron(CronExpression.EVERY_10_SECONDS) // Ejecuta cada 10 segundos
+  handleCron() {
+    console.log('Tarea ejecutada cada 10 segundos:', new Date());
+  }
+
+  // Tarea que se ejecuta en intervalos regulares
+  @Interval(5000) // Cada 5 segundos
+  handleInterval() {
+    console.log('Tarea ejecutada cada 5 segundos:', new Date());
+  }
+
+  // Tarea que se ejecuta una sola vez después de un tiempo
+  @Timeout(10000) // Después de 10 segundos
+  handleTimeout() {
+    console.log('Tarea ejecutada una vez después de 10 segundos:', new Date());
+  }
+}
+4. Registro del servicio en el módulo
+Asegúrate de registrar el servicio en el módulo correspondiente:
+// tasks.module.ts
+import { Module } from '@nestjs/common';
+import { TasksService } from './tasks.service';
+
+@Module({
+  providers: [TasksService],
+})
+export class TasksModule {}
+5. Expresiones Cron
+Puedes usar expresiones cron estándar o las predefinidas en CronExpression. Algunos ejemplos:
+•	CronExpression.EVERY_MINUTE: Cada minuto.
+•	CronExpression.EVERY_HOUR: Cada hora.
+•	CronExpression.EVERY_DAY_AT_MIDNIGHT: Cada medianoche.
+•	Personalizado: "0 0 * * *" (a las 00:00 todos los días).
+6. Ejemplo práctico
+Supongamos que necesitas enviar un correo diario a las 8:00 AM. Podrías hacerlo así:
+@Cron('0 8 * * *') // A las 8:00 AM todos los días
+sendDailyEmail() {
+  console.log('Enviando correo diario:', new Date());
+  // Lógica para enviar el correo
+}
+Con esta configuración, puedes manejar tareas programadas de manera eficiente en tu aplicación NestJS. Si necesitas algo más avanzado, como manejar zonas horarias o tareas distribuidas, puedes integrar herramientas adicionales como Bull para colas de trabajo. ¡Espero que te sea útil! 😊
+
+
+
