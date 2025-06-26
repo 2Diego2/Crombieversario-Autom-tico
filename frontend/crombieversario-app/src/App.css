@@ -1,42 +1,108 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+:root{
+  --colorFondo: #f6f6f3;  
+  --colorCaja: #FFFFFF;
+  --colorAdmin: #FFCD71;
+  --colorMailError: #fff7e8;
+  --colorLogOut: #BA3030; 
+}
+.parent {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 8px;
+    background-color: var(--colorFondo);
+    padding: 15px;
+    
+}
+    
+.div1 {
+    grid-row: span 5 / span 5;
+    height: 900px;
+    width: 300px;
+    background-color: var(--colorCaja);
+    border-radius: 25px;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
+.buscador {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    padding: 8px;
+    border-radius: 30px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    width: 250px;
+    height: 25px;
+    margin-left: 15px;
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+    .buscador input {
+    border: none;
+    padding: 8px;
+    font-size: 16px;
+    outline: none;
+}
+}
+.side-bar {
+  display: grid;
+  gap: 25px;
+  margin-top: 15px;
+  padding: 20px;
+
+  .perfiles {
+    display: grid;
+    margin-top: 220px;
+    gap: 25px;
+
+    .perfil{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .persona {
+      height: 40px;
+      width: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .logout {
+      width: 97px;
+    }
+
+    .logout2 {
+      color: var(--colorLogOut);
+      cursor: pointer;
+    }
   }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.div6 {
+    grid-column: span 4 / span 4;
+    grid-row: span 2 / span 2;
 }
 
-.card {
-  padding: 2em;
+.div9 {
+    grid-column: span 2 / span 2;
+    grid-column-start: 2;
+    grid-row-start: 3;
 }
 
-.read-the-docs {
-  color: #888;
+.div12 {
+    grid-column: span 2 / span 2;
+    grid-column-start: 4;
+    grid-row-start: 3;
+}
+
+.div13 {
+    grid-column: span 2 / span 2;
+    grid-row: span 2 / span 2;
+    grid-column-start: 4;
+    grid-row-start: 4;
+}
+
+.div14 {
+    grid-column: span 2 / span 2;
+    grid-row: span 2 / span 2;
+    grid-column-start: 2;
+    grid-row-start: 4;
 }
