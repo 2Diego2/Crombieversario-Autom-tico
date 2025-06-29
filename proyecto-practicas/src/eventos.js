@@ -3,21 +3,34 @@ EventEmitter. Aquí puedes manejar lo que ocurre cuando se detecta un aniversari
 const EventEmitter = require("events");
 const dayjs = require("dayjs");
 const path = require("path");
+require('dotenv').config();
+
+const mongoService = require('./db.js');
 
 class AniversarioEmitter extends EventEmitter {}
 const aniversarioEmitter = new AniversarioEmitter();
 
-const imagenesAniversario = { //Busca las imagenes en la direccion
-  1: path.join(__dirname, "img", "aniversario-1.png"),
-  2: path.join(__dirname, "img", "aniversario-2.png"),
-  3: path.join(__dirname, "img", "aniversario-3.png"),
-  // … añadir todas las necesarias
+const imagenesAniversario = {
+  1: [
+    path.join(__dirname, "img", "Crombieversario", "aniversario-1.png"),
+    path.join(__dirname, "img", "Crombieversario", "aniversario-1-2.png")
+  ],
+  2: [
+    path.join(__dirname, "img", "Crombieversario", "aniversario-1-2.png")
+  ],
+  3: [
+    path.join(__dirname, "img", "Crombieversario", "aniversario-1.png")
+  ],
 };
 
+async function inicializarDB() {
+  await mongoService.connectDB();
+}
+
 async function buscarAniversarios(trabajadores) {
-  console.log ( new Promise((resolve) => { //Hacemos una promesa
+  return new Promise((resolve) => {
     console.log("Buscando proximos aniversarios de trabajadores..");
-    setTimeout(() => { 
+    setTimeout(() => {
       const hoy = dayjs();
       const enTresDias = hoy.add(3, "day");
       let encontrados = [];
@@ -40,15 +53,14 @@ async function buscarAniversarios(trabajadores) {
         }
       }
       if (encontrados.length === 0) {
-  aniversarioEmitter.emit("sinAniversarios");
-}
-      resolve(encontrados); // <-- ahora la promesa se resuelve
+        aniversarioEmitter.emit("sinAniversarios");
+      }
+      resolve(encontrados);
     }, 2000);
-  }));
+  });
 }
 
-
- function MensajeMail(nombre,imagen) {
+function MensajeMail(nombre, imagen) {
   return `¡Hola, ${nombre}!
 
 Se viene una fecha muy especial... ¡tu Crombieversario! 🎂
@@ -60,9 +72,9 @@ Si lo compartís, no te olvides de etiquetarnos para poder celebrarte también d
 
 Abrazo,
 Equipo de Marketing
- ${imagen ? imagen : "No disponible"} `;
+${imagen ? imagen : "No disponible"}
+`;
 }
 
-module.exports = { aniversarioEmitter, buscarAniversarios, MensajeMail };
-
+module.exports = { aniversarioEmitter, buscarAniversarios, MensajeMail, inicializarDB };
 

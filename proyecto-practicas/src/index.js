@@ -3,10 +3,13 @@ Es el archivo principal. Lee los datos, usa las utilidades y emite eventos segú
 
 const fs = require("fs");
 const path = require("path");
-const { aniversarioEmitter, buscarAniversarios, MensajeMail } = require("./eventos");
+const { aniversarioEmitter, buscarAniversarios, MensajeMail, inicializarDB } = require("./eventos");
 
 const ruta = path.join(__dirname, "../data/trabajadores.json");
 const trabajadores = JSON.parse(fs.readFileSync(ruta, "utf-8"));
+
+
+
 
 aniversarioEmitter.on("sinAniversarios", () => {
   console.log("No hay trabajadores que cumplan aniversario en 3 días.");
@@ -21,5 +24,7 @@ aniversarioEmitter.on("aniversario", (empleado) => {
   console.log("--------------------------------------------------");
 });
 
-// Ejecuta la búsqueda de aniversarios
-buscarAniversarios(trabajadores);
+(async () => {
+  await inicializarDB();
+  await buscarAniversarios(trabajadores);
+})();

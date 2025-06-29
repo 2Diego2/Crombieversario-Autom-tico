@@ -1,5 +1,9 @@
 import { useState } from 'react'
+<<<<<<< HEAD
 import LogoCrombie from './assets/Logo.png'
+=======
+import reactLogo from './assets/react.svg'
+>>>>>>> 0f19c91 (Se realizo una BD en MongoDB Compass y se realizo la conexion.)
 import viteLogo from '/vite.svg'
 import './App.css'
 
@@ -8,6 +12,7 @@ function App() {
 
   return (
     <>
+<<<<<<< HEAD
     
 <div class="parent">
     <div class="div1">
@@ -39,14 +44,24 @@ function App() {
 </div>
     
       {/* <div>
+=======
+      <div>
+>>>>>>> 0f19c91 (Se realizo una BD en MongoDB Compass y se realizo la conexion.)
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
         <a href="https://react.dev" target="_blank">
+<<<<<<< HEAD
           <img src={LogoCrombie} className="logo react" alt="React logo" />
         </a>
       </div>
       <h1>Vite + Crombie</h1>
+=======
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
+>>>>>>> 0f19c91 (Se realizo una BD en MongoDB Compass y se realizo la conexion.)
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
@@ -57,7 +72,11 @@ function App() {
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
+<<<<<<< HEAD
       </p> */}
+=======
+      </p>
+>>>>>>> 0f19c91 (Se realizo una BD en MongoDB Compass y se realizo la conexion.)
     </>
   )
 }

@@ -139,3 +139,10 @@ Agrega manejo de errores para la lectura y escritura de archivos, y para datos f
 Convierte la lectura y escritura de archivos a funciones asíncronas usando async/await y promesas, para practicar asincronía real.
 6. Documentación
 Escribe un pequeño README con instrucciones de uso y explicación del flujo.
+
+
+//MongoDb
+Correos 
+aniversario del dia
+Imagenes 
+Mensaje
