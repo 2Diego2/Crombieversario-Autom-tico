@@ -4,8 +4,9 @@ const EventEmitter = require("events");
 const dayjs = require("dayjs");
 const path = require("path");
 require('dotenv').config();
-
 const mongoService = require('./db.js');
+
+const { connectDB, obtenerTrabajadores } = require('./db');
 
 class AniversarioEmitter extends EventEmitter {}
 const aniversarioEmitter = new AniversarioEmitter();
@@ -23,8 +24,25 @@ const imagenesAniversario = {
   ],
 };
 
+
 async function inicializarDB() {
+  // Conecta al servicio de MongoDB
   await mongoService.connectDB();
+}
+/*función para buscar por mail:
+async function buscarTrabajadorPorMail(mail) {
+  await connectDB(); // Solo si no está conectada aún
+  const trabajador = await obtenerTrabajadores({ mail: mail });
+  return trabajador;
+}
+
+// Uso de ejemplo:
+(async () => {
+  const resultado = await buscarTrabajadorPorMail("juan@gmail.com");
+  console.log(resultado);
+})();*/ 
+async function buscarTrabajadoresdelaAPI(){
+ 
 }
 
 async function buscarAniversarios(trabajadores) {
@@ -78,3 +96,12 @@ ${imagen ? imagen : "No disponible"}
 
 module.exports = { aniversarioEmitter, buscarAniversarios, MensajeMail, inicializarDB };
 
+
+
+/*Lo que tendria que hacer es:
+//Extraer informacion desde la API de PeopleForce
+// Luego se emiten los eventos y se envian los email
+// Antes de enviar los emails, tiene que buscar en la base de datos el mensaje y la imagen correspondiente al trabajador.
+// Lo que se envia y se emite se guarda en la base de datos mongoDB compass para guardar un registro de los aniversarios
+// Luego se crea un endpoint para consultar los aniversarios pasados y futuros
+// También se puede crear un endpoint para consultar los aniversarios de un trabajador específico por su mail*/

@@ -1,14 +1,14 @@
 /*3. index.js
 Es el archivo principal. Lee los datos, usa las utilidades y emite eventos según la lógica. */
-
+require('dotenv').config();
 const fs = require("fs");
 const path = require("path");
 const { aniversarioEmitter, buscarAniversarios, MensajeMail, inicializarDB } = require("./eventos");
+const { connectDB, obtenerTrabajadores } = require("./db");
+
 
 const ruta = path.join(__dirname, "../data/trabajadores.json");
 const trabajadores = JSON.parse(fs.readFileSync(ruta, "utf-8"));
-
-
 
 
 aniversarioEmitter.on("sinAniversarios", () => {
@@ -25,6 +25,7 @@ aniversarioEmitter.on("aniversario", (empleado) => {
 });
 
 (async () => {
-  await inicializarDB();
+  await connectDB();
+  const trabajadores = await obtenerTrabajadores(); // <-- Ahora viene de MongoDB
   await buscarAniversarios(trabajadores);
 })();
