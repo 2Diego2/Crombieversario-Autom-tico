@@ -1,0 +1,23 @@
+Boton Search: Se puede buscar "Empleados", Botones,etc.
+
+Boton izquierda "Mails enviados": Se pueden ver los mails enviados mediante ¿Columnas?. Filtro para ver la cantidad de enviados por ¿Dias? ¿Semanas? ¿Meses? ¿Total desde que se creo?
+
+Boton izquierda "Empleados": Cantidad total de empleados mediante ¿columnas?.
+
+Boton izquierda "Mails Error":   Se pueden ver los mails enviados que FALLARON mediante ¿Column'as?. Filtro para ver la cantidad por ¿Dias? ¿Semanas? ¿Meses? ¿Total desde que se creo?
+
+
+"Mensaje mail": Se da una vista al cuerpo del mail que se envia automáticamente, además se agrega una función de "Renovar Mensaje" por si en un futuro se quiere editar algo del mensaje.
+
+Mail Error: Se da un vistazo de los 3 últimos mails que fallaron, con un icono rojo de "Advertencia". Se agrega un botón de ver mas para ir y a la función de la lista de los Mails que fallaron y poder reenviarlo o poder contactarlo de otra forma. Se puede agregar un botón de "REENVIAR TODO" para mayor facilidad.
+Mails Error:
+*Agregar una opción dentro de los tres puntos que permita ir al perfil del empleado para tener acceso a otro tipo de contacto por si el error persiste.
+*Agregar un círculo rojo con la cantidad de mails rebotados como vista previa.
+
+Mails enviados: Aparece el ultimo mail que se envió del "Crombie aniversario", con un boton de "Ver mas" para ver la cantidad de mails enviados durante la ¿ultima semana? ¿Dias? ¿Meses? ¿Año? ¿Total desde que se creo?
+*Agregar dentro de la opción "Ver más", un filtro de hasta 1 semana para ver mails previos ya enviados.
+
+Próximos eventos:
+*Abarca Crombieversarios y cumpleaños.
+Muestra una cantidad de 4 eventos próximos a cumplirse. Nos dice con un icono especial ¿"Regalo"?=Cumpleaños
+ "¿Confeti?"=Aniversario

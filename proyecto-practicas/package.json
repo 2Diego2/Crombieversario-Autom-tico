@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "axios": "^1.10.0",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.5.0",
+<<<<<<< HEAD
+=======
+    "express": "^5.1.0",
+>>>>>>> 0f19c91 (Se realizo una BD en MongoDB Compass y se realizo la conexion.)
+    "nodemailer": "^7.0.3"
+  }
+}

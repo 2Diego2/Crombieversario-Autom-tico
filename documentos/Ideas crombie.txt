@@ -1,0 +1,148 @@
+Utilizar Formato JSON, donde crearemos información de trabajadores: Nombre, apellido, fecha de entrada, cumpleaños,etc.Para poder empezar a hacer funciones y pruebas.
+
+Utilizar el modulo EVENT y Encadenar Promesas y async wait.js para por ejemplo crear un evento de que en 3 días un trabajador cumple un aniversario, entonces empieza a funcionar el script?
+
+
+
+
+Tu enfoque en el archivo Ideas crombie.txt es correcto para empezar a practicar sin acceso a una base de datos real. Aquí tienes algunos consejos para mejorar y organizar tu práctica:
+
+1. Simulación de Datos
+Crear un archivo JSON con información de trabajadores es una excelente idea. Así puedes simular la base de datos y practicar lectura/escritura de archivos.
+
+2. Practicar con Módulos Node.js
+Usa el módulo fs para leer y escribir archivos JSON (como ya practicaste en Modulos Principales NodeJS/modulo fs/app.js).
+Usa el módulo events para emitir eventos, por ejemplo, cuando un trabajador cumple un aniversario (como en modulo events/app.js).
+Practica promesas y async/await para operaciones asincrónicas, como leer archivos o procesar eventos (ver ejemplos en la carpeta Promesas).
+
+3. Ejemplo de Flujo de Trabajo
+Lee el archivo JSON de trabajadores.
+Calcula si algún trabajador cumple aniversario en 3 días.
+Si es así, emite un evento usando EventEmitter.
+Maneja ese evento mostrando un mensaje o ejecutando una función.
+
+4. Siguiente Paso
+Crea un pequeño script en una nueva carpeta, por ejemplo, proyecto-practica/, y empieza con estos pasos básicos. Así puedes ir sumando complejidad (más eventos, más lógica, etc.) a medida que avances.
+
+Resumen
+Lo anotado en el TXT está bien como punto de partida.
+Empieza creando y manipulando archivos JSON.
+Practica eventos y promesas con ejemplos concretos.
+Ve sumando lógica según avances.
+
+1. Simulación vs. Realidad
+Ahora: Lees datos de un archivo JSON (simulación).
+Proyecto real: Leerías datos desde una API o una base de datos real (por ejemplo, usando fetch, axios, o un cliente de base de datos como pg para PostgreSQL o mysql2 para MySQL).
+2. Qué faltaría para un proyecto real
+Conexión a la API o base de datos: Reemplazar la lectura del archivo JSON por una consulta a la API o a la base de datos.
+Manejo de errores: Agregar manejo de errores para conexiones fallidas, datos incompletos, etc.
+Automatización: Quizás programar la ejecución automática (por ejemplo, con un cron job).
+Tests: Agregar pruebas unitarias para tus funciones.
+Documentación: Mejorar el README con instrucciones de uso.
+3. ¿Ya está listo?
+Para practicar la lógica: Sí, ya tienes una buena base.
+Para producción: Faltaría la integración real con la API/BD y robustecer el código.
+
+
+
+
+//NestJs Explicacion
+
+En NestJS, puedes implementar tareas programadas utilizando el paquete @nestjs/schedule, que está diseñado específicamente para manejar cron jobs y tareas recurrentes en aplicaciones Node.js. A continuación, te explico cómo configurarlo y usarlo:
+1. Instalación del paquete necesario
+Primero, instala el paquete @nestjs/schedule y su dependencia cron:
+Copiar el códigonpm install @nestjs/schedule
+npm install cron
+2. Configuración básica
+Importa y configura el módulo ScheduleModule en tu aplicación principal o en el módulo donde lo necesites.
+Copiar el código// app.module.ts
+import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksModule } from './tasks/tasks.module';
+
+@Module({
+  imports: [
+    ScheduleModule.forRoot(), // Habilita el soporte para tareas programadas
+    TasksModule,
+  ],
+})
+export class AppModule {}
+3. Creación de un servicio para las tareas programadas
+Crea un servicio donde definirás las tareas programadas. Por ejemplo, en un módulo llamado TasksModule:
+Copiar el código// tasks.service.ts
+import { Injectable } from '@nestjs/common';
+import { Cron, CronExpression, Interval, Timeout } from '@nestjs/schedule';
+
+@Injectable()
+export class TasksService {
+  // Tarea programada con una expresión cron
+  @Cron(CronExpression.EVERY_10_SECONDS) // Ejecuta cada 10 segundos
+  handleCron() {
+    console.log('Tarea ejecutada cada 10 segundos:', new Date());
+  }
+
+  // Tarea que se ejecuta en intervalos regulares
+  @Interval(5000) // Cada 5 segundos
+  handleInterval() {
+    console.log('Tarea ejecutada cada 5 segundos:', new Date());
+  }
+
+  // Tarea que se ejecuta una sola vez después de un tiempo
+  @Timeout(10000) // Después de 10 segundos
+  handleTimeout() {
+    console.log('Tarea ejecutada una vez después de 10 segundos:', new Date());
+  }
+}
+4. Registro del servicio en el módulo
+Asegúrate de registrar el servicio en el módulo correspondiente:
+// tasks.module.ts
+import { Module } from '@nestjs/common';
+import { TasksService } from './tasks.service';
+
+@Module({
+  providers: [TasksService],
+})
+export class TasksModule {}
+5. Expresiones Cron
+Puedes usar expresiones cron estándar o las predefinidas en CronExpression. Algunos ejemplos:
+•	CronExpression.EVERY_MINUTE: Cada minuto.
+•	CronExpression.EVERY_HOUR: Cada hora.
+•	CronExpression.EVERY_DAY_AT_MIDNIGHT: Cada medianoche.
+•	Personalizado: "0 0 * * *" (a las 00:00 todos los días).
+6. Ejemplo práctico
+Supongamos que necesitas enviar un correo diario a las 8:00 AM. Podrías hacerlo así:
+@Cron('0 8 * * *') // A las 8:00 AM todos los días
+sendDailyEmail() {
+  console.log('Enviando correo diario:', new Date());
+  // Lógica para enviar el correo
+}
+Con esta configuración, puedes manejar tareas programadas de manera eficiente en tu aplicación NestJS. Si necesitas algo más avanzado, como manejar zonas horarias o tareas distribuidas, puedes integrar herramientas adicionales como Bull para colas de trabajo. ¡Espero que te sea útil! 😊
+
+
+
+
+
+//¿Que sigue?
+
+¿Qué sigue ahora? (Siguientes pasos recomendados)
+1. Persistencia y Escritura de Resultados
+Guarda en un archivo nuevo (por ejemplo, aniversarios-proximos.json o un log .txt) los empleados que cumplen aniversario en 3 días.
+Así practicas la escritura de archivos con fs.writeFileSync o fs.promises.writeFile.
+2. Agregar Más Eventos
+Emite eventos para otros casos, como cumpleaños, aniversarios de 5 o 10 años, o cuando se agregue un nuevo trabajador.
+Puedes crear eventos como "cumpleanios" o "aniversarioEspecial".
+3. Validaciones y Utilidades
+Usa el archivo utils.js para agregar funciones auxiliares, por ejemplo, para validar fechas o mails antes de procesar los datos.
+4. Manejo de Errores
+Agrega manejo de errores para la lectura y escritura de archivos, y para datos faltantes o mal formateados.
+5. Asincronía Real
+Convierte la lectura y escritura de archivos a funciones asíncronas usando async/await y promesas, para practicar asincronía real.
+6. Documentación
+Escribe un pequeño README con instrucciones de uso y explicación del flujo.
+
+
+//MongoDb
+Correos 
+aniversario del dia
+Imagenes 
+Mensaje
