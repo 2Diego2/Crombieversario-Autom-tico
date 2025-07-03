@@ -1,4 +1,4 @@
-//Se conecta a la base de datos y
+//Se conecta a la base de datos y guarda informacion de los aniversarios que se cumplieron.
 const mongoose = require('mongoose');
 
 const aniversarioSchema = new mongoose.Schema({
