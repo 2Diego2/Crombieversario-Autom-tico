@@ -10,7 +10,7 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(5, 1fr);
-  gap: 8px;
+  gap: 20px;
   background-color: var(--colorFondo);
   padding: 15px;
 }
@@ -69,7 +69,7 @@
 }
 
 .logout {
-  width: 115px;
+  width: 117px;
 }
 
 .logout2 {
@@ -81,24 +81,56 @@
 .div2 {
   grid-column: span 4 / span 4;
   grid-row: span 2 / span 2;
-  height: 900px;
-  width: 300px;
+  height: 300px;
+  width: 900px;
+  background-color: var(--colorCaja);
+  border-radius: 25px;
+  align-items: center;
+  gap: 20px;
+  padding: 40px;
+}
+
+.estadistica { /*recepcion de mails*/
+  width: 260px;
+  object-fit: cover;
+  align-items: center;
+  margin-right: 70px;
+  margin-left: 70px;
+}
+
+.estadistica2{ /*informe mensual*/
+  width: 320px;
+  object-fit: cover;
+  align-items: center;
+  margin-right: 70px;
+  margin-left: 70px;
+}
+
+
+
+.div3 {
+  grid-column: span 2 / span 2;
+  grid-row: span 5 / span 5;
+  grid-column-start: 2;
+  grid-row-start: 3;
+  height: 300px;
+  width: 450px;
   background-color: var(--colorCaja);
   border-radius: 25px;
 }
 
-.estadistica {
+/*.perfil-info2 {
   display: flex;
-  width: 200px;
-  height: 200px;
+  margin-top: 10px;
+  gap: 25px;
 }
-
-.div9 {
-  grid-column: span 2 / span 2;
-  grid-column-start: 2;
-  grid-row-start: 3;
-}
-
+.persona2 {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+} a chekear OwO 
+*/
 .div12 {
   grid-column: span 2 / span 2;
   grid-column-start: 4;
