@@ -1,1 +1,10 @@
 mongosh-2.5.3-win32-x64/
+**/node_modules/
+**/dist/
+**/build/
+
+*.log
+*.env
+
+/frontend/crombieversario-app/.env
+/frontend/crombieversario-app/.vite
