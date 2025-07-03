@@ -38,7 +38,6 @@ async function guardarAniversario(data) {
     console.error('Error guardando aniversario:', error.message);
   }
 }
-
 module.exports = {
   connectDB,
   guardarAniversario
