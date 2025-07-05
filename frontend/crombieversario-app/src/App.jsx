@@ -10,6 +10,7 @@ import { LuLogOut } from "react-icons/lu";
 import estadistica1 from './assets/Recibidos.jpg';
 import estadistica2 from './assets/estadistica2.PNG';
 import gaelMailEnviado from './assets/gael.PNG';
+import coloresCrombie from './assets/coloresCrombie.png';
 import './App.css'
 
 function App() {
@@ -68,12 +69,20 @@ function App() {
             <img src={estadistica2} alt="estadistica2" className="estadistica2"/>
           </div>
         </div>
-        <div className="div3">Mails enviados
-          <div className='perfil-info2'>
-            <img src={gaelMailEnviado} alt="gaelMailEnviado" className='persona2'/>
+        <div className="div3">Mails enviados<div>
+         <div className='perfil-info2'>
+            <img src={gaelMailEnviado} alt="persona2" className='persona2'/>
+            <div>
+            <label htmlFor="empleado">nombreEmpleado apellidoEmpleado</label>
+            <label htmlFor="ciudadYLugar" className='ciudadYLugar'>ciudadYLugarDeTrabajo</label>
+            </div>
+            </div>
+          <button className='verMas'>Ver más</button>
           </div>
         </div>
-        <div className="div12">12</div>
+        <div className="imagenCrombie">
+          <img src={coloresCrombie} alt="coloresCrombie" className='coloresCrombie' /> <img src={coloresCrombie} alt="coloresCrombie" className='coloresCrombie' /> <img src={coloresCrombie} alt="coloresCrombie" className='coloresCrombie' />
+        </div>
         <div className="div13">13</div>
         <div className="div14">14</div>
       </div>
