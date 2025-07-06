@@ -1,16 +1,23 @@
+:root {
+  --colorFondo: #f6f6f3;  
+  --colorCaja: #FFFFFF;
+  --hover: #f0f0f0;
+  --colorAdmin: #FFCD71;
+  --colorMailError: #fff7e8;
+  --colorLogOut: #BA3030; 
+  --colorVerMas: #734A00;
+  --border-radius: 25px;
+  --padding-box: 20px;
+}
+
 *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-:root {
-  --colorFondo: #f6f6f3;  
-  --colorCaja: #FFFFFF;
-  --colorAdmin: #FFCD71;
-  --colorMailError: #fff7e8;
-  --colorLogOut: #BA3030; 
-  --colorVerMas: #734A00;
+img {
+  max-width: 100%;
 }
 
 body{
@@ -23,34 +30,53 @@ body{
 
 .parent {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(5, 1fr);
+  grid-template-columns: 280px repeat(4, 1fr); /* Ajusta 280px si es necesario */
+  grid-template-rows: auto auto auto auto auto; /* O ajusta según tu contenido para alturas más fijas */
   gap: 20px;
   padding: 15px;
   width: 100%;
+  max-width: 1200px;
+  margin: 20px;
+  min-height: calc(100vh - 40px);
+
+  grid-template-areas:
+    "sidebar stats stats stats stats"
+    "sidebar stats stats stats stats"
+    "sidebar mails-sent mails-sent mail-imgs mail-imgs"
+    "sidebar events events mail-message mail-message"
+    "sidebar events events mail-message mail-message";
 }
+
 /*caja side-bar*/
-.div1 {
-  grid-row: span 5 / span 5;
-  height: 900px;
-  width: 300px;
+aside.div1 {
+  grid-area: sidebar;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  padding: var(--padding-box);
+  gap: 20px;
   background-color: var(--colorCaja);
-  border-radius: 25px;
+  border-radius: var(--border-radius);
+  height: 100%;
+}
+
+.logo.crombie {
+  width: 300px; /* Ajusta el tamaño del logo */
 }
 
 .buscador {
   display: flex;
   align-items: center;
   background-color: white;
-  padding: 8px;
+  padding: 10px;
   border-radius: 30px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   width: 250px;
-  height: 25px;
-  margin-left: 15px;
+  height: 40px;
 }
 
 .buscador input {
+  background: transparent;
   border: none;
   padding: 8px;
   font-size: 16px;
@@ -64,9 +90,43 @@ body{
   padding: 20px;
 }
 
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none; 
+  color: var(--text-color-primary); 
+  background: none;
+  border: none; 
+  cursor: pointer; 
+  width: 100%; 
+  text-align: left;
+  border-radius: 8px; 
+  font-weight: 500; 
+  font-size: 1rem; 
+  transition: background-color 0.2s ease, color 0.2s ease; 
+}
+
+.menu-item:hover {
+  background-color: var(--hover); 
+}
+
+.menu-item.active-menu-item,
+.menu-item:focus {
+  background-color: var(--hover);
+  outline: none;
+}
+
+.footer-aside { 
+  margin-top: auto; 
+  padding: var(--padding-box);
+  border-top: 1px solid #eee;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .perfil-info {
   display: flex;
-  margin-top: 320px;
   gap: 25px;
 }
 
@@ -84,50 +144,44 @@ body{
 }
 
 .logout {
+  margin-top: 15px;
   width: 117px;
 }
 
 .logout2 {
-  width: 100px;
   color: var(--colorLogOut);
   cursor: pointer;
 }
+
 /*caja estadísticas*/
 .div2 {
-  grid-column: span 4 / span 4;
-  grid-row: span 2 / span 2;
-  height: 300px;
-  width: 900px;
+  grid-area: stats;
+  padding: var(--padding-box);
   background-color: var(--colorCaja);
   border-radius: 25px;
+}
+
+.estadisticas {
+  display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 10px;
-  padding: 20px;
+  gap: 70px;
 }
 
 .estadistica { /*recepcion de mails*/
-  width: 260px;
+  width: 300px;
   object-fit: cover;
-  align-items: center;
-  margin-right: 70px;
-  margin-left: 70px;
 }
 
 .estadistica2{ /*informe mensual*/
-  width: 320px;
+  width: 400px;
   object-fit: cover;
-  align-items: center;
-  margin-right: 70px;
-  margin-left: 70px;
 }
+
 /*caja mails enviados*/
 .div3 {
-  grid-column: span 2 / span 2;
-  grid-row: span 5 / span 5;
-  grid-column-start: 2;
-  grid-row-start: 3;
-  height: 130px;
-  width: 450px;
+  grid-area: mails-sent;
+  padding: var(--padding-box);
   background-color: var(--colorCaja);
   border-radius: 25px;
   align-items: center;
@@ -141,6 +195,7 @@ body{
   gap: 25px;
   margin-top: 20px;
 }
+
 .persona2 {
   display: flex;
   height: 40px;
@@ -148,7 +203,6 @@ body{
   border-radius: 50%;
   object-fit: cover;
   margin-left: 20px;
- 
 } 
 
 .ciudadYLugar {
@@ -164,13 +218,13 @@ body{
 }
 
 .imagenCrombie {
-  grid-column: span 2 / span 2;
-  grid-column-start: 4;
-  grid-row-start: 3;
+  grid-area: mail-imgs;
+  padding: var(--padding-box);
   display: flex;
-  gap: 10px;
-  align-items: center;
+  flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 .coloresCrombie {
@@ -178,16 +232,19 @@ body{
   margin: auto;
 }
 
-.div13 {
-  grid-column: span 2 / span 2;
-  grid-row: span 2 / span 2;
-  grid-column-start: 4;
-  grid-row-start: 4;
+.div4 {
+  grid-area: events;
+  padding: var(--padding-box);
+  background-color: var(--colorCaja);
+  padding: 20px;
+  border-radius: 25px;
 }
 
-.div14 {
-  grid-column: span 2 / span 2;
-  grid-row: span 2 / span 2;
-  grid-column-start: 2;
-  grid-row-start: 4;
+.div5 {
+  grid-area: mail-message;
+  padding: var(--padding-box);
+  background-color: var(--colorCaja);
+  border-radius: 25px;
+  padding: 20px;
 }
+
