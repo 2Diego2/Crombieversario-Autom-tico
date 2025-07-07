@@ -1,66 +1,67 @@
 /*Define y exporta los eventos personalizados usando 
 EventEmitter. Aquí puedes manejar lo que ocurre cuando se detecta un aniversario */
+
+require('dotenv').config();
+const mongoService = require('./db.js');
+
+/*import { Injectable, Logger } from '@nestjs/common';
+import { Cron } from 'nestjs/schedule';*/
+
+const { connectDB, obtenerTrabajadores } = require('./db');
+
 const EventEmitter = require("events");
 const dayjs = require("dayjs");
 const path = require("path");
-require('dotenv').config();
-
-const mongoService = require('./db.js');
+const nodemailer = require("nodemailer");
+const fs = require("fs");
+const imagenesData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/imagenes.json'), 'utf-8'));
 
 class AniversarioEmitter extends EventEmitter {}
 const aniversarioEmitter = new AniversarioEmitter();
 
-const imagenesAniversario = {
-  1: [
-    path.join(__dirname, "img", "Crombieversario", "aniversario-1.png"),
-    path.join(__dirname, "img", "Crombieversario", "aniversario-1-2.png")
-  ],
-  2: [
-    path.join(__dirname, "img", "Crombieversario", "aniversario-1-2.png")
-  ],
-  3: [
-    path.join(__dirname, "img", "Crombieversario", "aniversario-1.png")
-  ],
-};
-
-async function inicializarDB() {
-  await mongoService.connectDB();
+function obtenerImagenesParaAniversario(nroAniversario) {
+  // Si quieres enviar solo una imagen por aniversario:
+  const img = imagenesData.find(img => img.nombre === `${nroAniversario}.png`);
+  return img ? [img.ruta] : [];
+  // Si quieres enviar varias imágenes por aniversario, ajusta aquí
 }
 
-async function buscarAniversarios(trabajadores) {
-  return new Promise((resolve) => {
-    console.log("Buscando proximos aniversarios de trabajadores..");
-    setTimeout(() => {
-      const hoy = dayjs();
-      const enTresDias = hoy.add(3, "day");
-      let encontrados = [];
-      for (const trabajador of trabajadores) {
-        if (!trabajador.fechaEntrada) continue;
-        const fechaIngreso = dayjs(trabajador.fechaEntrada);
-        let fechaAniversario = fechaIngreso.year(enTresDias.year());
-        const nroAniversario = fechaAniversario.diff(fechaIngreso, 'year');
-        if (fechaAniversario.isSame(enTresDias, 'day')) {
-          const imagen = imagenesAniversario[nroAniversario];
-          const info = {
-            nombre: trabajador.nombre,
-            mail: trabajador.mail,
-            fechaEntrada: trabajador.fechaEntrada,
-            nroAniversario,
-            imagen
-          };
-          aniversarioEmitter.emit("aniversario", info);
-          encontrados.push(info);
-        }
-      }
-      if (encontrados.length === 0) {
-        aniversarioEmitter.emit("sinAniversarios");
-      }
-      resolve(encontrados);
-    }, 2000);
-  });
+async function buscarAniversarios(trabajadores) { 
+  const hoy = dayjs();
+  const enTresDias = hoy.add(3, "day");
+  let encontrados = [];
+
+  for (const trabajador of trabajadores) {
+    if (!trabajador.fechaEntrada) continue;
+    const fechaIngreso = dayjs(trabajador.fechaEntrada);
+    let fechaAniversario = fechaIngreso.year(enTresDias.year());
+    const nroAniversario = fechaAniversario.diff(fechaIngreso, 'year');
+    if (fechaAniversario.isSame(enTresDias, 'day')) {
+      const imagen = obtenerImagenesParaAniversario(nroAniversario);
+      const info = {
+        ...trabajador,
+        nroAniversario,
+        imagen
+      };
+      aniversarioEmitter.emit("aniversario", info);
+      encontrados.push(info);
+    }
+  }
+
+  if (encontrados.length === 0) {
+    aniversarioEmitter.emit("sinAniversarios");
+  }
+  return encontrados;
 }
 
 function MensajeMail(nombre, imagen) {
+  
+  let imagenesTexto = "No disponible";
+  if (Array.isArray(imagen) && imagen.length > 0) {
+    imagenesTexto = imagen.join("\n");
+  } else if (typeof imagen === "string") {
+    imagenesTexto = imagen;
+  }
   return `¡Hola, ${nombre}!
 
 Se viene una fecha muy especial... ¡tu Crombieversario! 🎂
