@@ -4,29 +4,29 @@ EventEmitter. Aquí puedes manejar lo que ocurre cuando se detecta un aniversari
 require('dotenv').config();
 const mongoService = require('./db.js');
 
+/*import { Injectable, Logger } from '@nestjs/common';
+import { Cron } from 'nestjs/schedule';*/
+
 const { connectDB, obtenerTrabajadores } = require('./db');
 
 const EventEmitter = require("events");
 const dayjs = require("dayjs");
 const path = require("path");
+const nodemailer = require("nodemailer");
+const fs = require("fs");
+const imagenesData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/imagenes.json'), 'utf-8'));
 
 class AniversarioEmitter extends EventEmitter {}
 const aniversarioEmitter = new AniversarioEmitter();
 
-const imagenesAniversario = {
-  1: [
-    path.join(__dirname, "img", "Crombieversario", "aniversario-1.png"),
-    path.join(__dirname, "img", "Crombieversario", "aniversario-1-2.png")
-  ],
-  2: [
-    path.join(__dirname, "img", "Crombieversario", "aniversario-1-2.png")
-  ],
-  3: [
-    path.join(__dirname, "img", "Crombieversario", "aniversario-1.png")
-  ],
-};
+function obtenerImagenesParaAniversario(nroAniversario) {
+  // Si quieres enviar solo una imagen por aniversario:
+  const img = imagenesData.find(img => img.nombre === `${nroAniversario}.png`);
+  return img ? [img.ruta] : [];
+  // Si quieres enviar varias imágenes por aniversario, ajusta aquí
+}
 
-async function buscarAniversarios(trabajadores) {
+async function buscarAniversarios(trabajadores) { 
   const hoy = dayjs();
   const enTresDias = hoy.add(3, "day");
   let encontrados = [];
@@ -37,7 +37,7 @@ async function buscarAniversarios(trabajadores) {
     let fechaAniversario = fechaIngreso.year(enTresDias.year());
     const nroAniversario = fechaAniversario.diff(fechaIngreso, 'year');
     if (fechaAniversario.isSame(enTresDias, 'day')) {
-      const imagen = imagenesAniversario[nroAniversario] || [];
+      const imagen = obtenerImagenesParaAniversario(nroAniversario);
       const info = {
         ...trabajador,
         nroAniversario,
@@ -55,6 +55,7 @@ async function buscarAniversarios(trabajadores) {
 }
 
 function MensajeMail(nombre, imagen) {
+  
   let imagenesTexto = "No disponible";
   if (Array.isArray(imagen) && imagen.length > 0) {
     imagenesTexto = imagen.join("\n");

@@ -29,7 +29,7 @@ app.use((req, res, next) => {
 
 
 const trabajadores = [
-{nombre: 'Juan',apellido: 'Perez',fechaEntrada:'2024-07-04',cumpleanios:'1990-08-27',mail:'juan@gmail.com'},
+{nombre: 'Juan',apellido: 'Perez',fechaEntrada:'2024-07-10',cumpleanios:'1990-08-27',mail:'diegoabelleyra74@gmail.com'},
 {nombre: 'Ana',apellido: 'Garcia',fechaEntrada:'2024-06-20',cumpleanios:'1985-12-05',mail:'anita@gmail.com'},
 ]; 
 

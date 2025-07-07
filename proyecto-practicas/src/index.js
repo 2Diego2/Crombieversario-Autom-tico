@@ -6,6 +6,7 @@ require('dotenv').config();
 const axios = require('axios');
 const { aniversarioEmitter, buscarAniversarios, MensajeMail } = require("./eventos");
 const { connectDB, guardarAniversario } = require("./db");
+const nodemailer = require("nodemailer");
 
 // Función para obtener trabajadores desde la API
 async function obtenerTrabajadoresDeAPI() {
@@ -25,15 +26,46 @@ async function obtenerTrabajadoresDeAPI() {
 aniversarioEmitter.on("sinAniversarios", () => {
   console.log("No hay trabajadores que cumplan aniversario en 3 días.");
 });
+console.log('GMAIL_USER:', process.env.GMAIL_USER);
+console.log('GMAIL_APP_PASSWORD:', process.env.GMAIL_APP_PASSWORD);
 
 // Escucha el evento y guarda el aniversario en la base de datos
 aniversarioEmitter.on("aniversario", async (empleado) => {
-  console.log(`El trabajador ${empleado.nombre} (${empleado.mail}) cumplirá su aniversario número ${empleado.nroAniversario}° en 3 días.`);
   const mensaje = MensajeMail(empleado.nombre, empleado.imagen);
   console.log("Mensaje para enviar por mail:");
   console.log(mensaje);
   console.log("--------------------------------------------------");
-  await guardarAniversario(empleado); // <-- Guarda el evento en MongoDB
+
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD
+    }
+  });
+
+  // Adjunta las imágenes
+  const attachments = (empleado.imagen || []).map(rutaRelativa => ({
+    filename: path.basename(rutaRelativa),
+    path: path.join(__dirname, '..', rutaRelativa)
+  }));
+
+  try {
+    const info = await transporter.sendMail({
+      from: `"CrombieVersario" <${process.env.GMAIL_USER}>`,
+      to: empleado.mail,
+      subject: "🎉 ¡Se viene tu Crombieversario!",
+      text: mensaje,
+      attachments
+    });
+    console.log('Email enviado:', info.messageId);
+  } catch (error) {
+    console.error('Error enviando email:', error);
+  }
+
+  await guardarAniversario(empleado);
 });
 
 (async () => {
@@ -41,3 +73,5 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
   const trabajadores = await obtenerTrabajadoresDeAPI();
   await buscarAniversarios(trabajadores);
 })();
+
+//1.Se usa nodemailer para enviar los correos electrónicos. 2.Se creo un JSON con las 19 imagenes de los aniversarios. 3.Se modifico eventos.js para que lea las imagenes desde el JSON y las envie por mail. 4.Se detecta un aniversario y se envia correctamente el texto y la imagen correspondiente.
