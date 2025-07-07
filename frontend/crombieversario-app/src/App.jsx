@@ -118,7 +118,6 @@ function App() {
           <div className="div5">
             <h2>Mensaje mail</h2>
             <p>
-              <br />
               ¡Hola [nombre]!<br />
               Se viene una fecha muy especial... ¡tu Crombieversario! 🎂{" "}<br />
               Queremos agradecerte por ser parte de este camino y por
