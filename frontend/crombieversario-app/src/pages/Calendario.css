@@ -1,0 +1,84 @@
+/* src/pages/CalendarioPage.css */
+
+.calendario-page-container {
+    padding: var(--padding-box);
+    background-color: var(--colorCaja);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    box-sizing: border-box;
+    width: 100%;
+    /* Puedes ajustar el display si quieres que el calendario y otros elementos se organicen de forma específica */
+}
+
+.calendario-page-container h1 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+}
+
+/* Estilo para el contenedor de FullCalendar */
+.fullcalendar-wrapper {
+    max-width: 900px; /* Limita el ancho del calendario para mejor visualización */
+    margin: 0 auto 30px auto; /* Centra el calendario y añade espacio inferior */
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius); /* Aplica tus bordes redondeados */
+    overflow: hidden; /* Importante para que los bordes redondeados se vean bien */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Puedes sobrescribir estilos de FullCalendar si es necesario.
+   Usa las clases de FullCalendar, por ejemplo: */
+/* .fc .fc-button-primary {
+  background-color: var(--colorAdmin);
+  border-color: var(--colorAdmin);
+}
+
+.fc .fc-button-primary:hover {
+  background-color: darken(var(--colorAdmin), 10%);
+  border-color: darken(var(--colorAdmin), 10%);
+}
+
+.fc-event {
+  border-radius: 5px;
+  padding: 2px 5px;
+  font-size: 0.85em;
+} */
+
+/* Estilos para la lista de eventos si la mantienes */
+.events-list {
+  margin-top: 40px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.events-list h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Reutiliza estilos del dashboard para los items de evento */
+.perfil-info2 {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.persona2 {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.empleado {
+    font-weight: 600;
+}
+
+.ciudadYLugar {
+    font-size: 0.9em;
+    color: #777;
+}

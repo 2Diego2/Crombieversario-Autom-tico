@@ -1,3 +1,22 @@
+.buscador2 {
+  display: flex;
+  align-items: center;
+  background-color: var(--colorCaja);
+  padding: 10px;
+  border-radius: 30px;
+  box-shadow: var(--box-shadow);
+  width: 100%;
+  height: 40px;
+}
+
+.buscador2 input {
+  background: transparent;
+  border: none;
+  padding: 8px;
+  font-size: 16px;
+  outline: none;
+}
+
 .empleados-toolbar {
   display: flex;
   justify-content: space-between;
@@ -11,11 +30,47 @@
 }
 
 .empleados-table th, .empleados-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+  
+  padding: 2px;
   text-align: left;
 }
 
-.empleados-table th {
-  background-color: #f2f2f2;
+.nombreEmpleado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fotoEmpleado {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.infoEmpleado {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.filaDato {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nombreApellido {
+  font-weight: bold;
+}
+
+.fechaIngreso {
+  font-size: 1em;
+  color: #777;
+  white-space: nowrap;
+}
+
+.empleadoEmail {
+  font-size: 0.9em;
+  color: #555;
 }

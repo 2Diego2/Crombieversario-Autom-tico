@@ -4,770 +4,879 @@
     "apellido": "Pérez",
     "fechaEntrada": "2024-06-29",
     "cumpleanios": "1990-08-27",
-    "mail": "juan@gmail.com"
-
+    "mail": "juan@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Ana",
     "apellido": "García",
     "fechaEntrada": "2024-06-20",
     "cumpleanios": "1985-12-05",
-    "mail": "anita@gmail.com"
+    "mail": "anita@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Juan",
     "apellido": "Pérez",
     "fechaEntrada": "2020-06-15",
     "cumpleanios": "1990-08-20",
-    "mail": "juan.perez@gmail.com"
+    "mail": "juan.perez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Ana",
     "apellido": "García",
     "fechaEntrada": "2019-06-26",
     "cumpleanios": "1985-12-05",
-    "mail": "ana.garcia@gmail.com"
+    "mail": "ana.garcia@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Carlos",
     "apellido": "Rodríguez",
     "fechaEntrada": "2021-03-10",
     "cumpleanios": "1988-01-15",
-    "mail": "carlos.rodriguez@gmail.com"
+    "mail": "carlos.rodriguez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "María",
     "apellido": "López",
     "fechaEntrada": "2018-11-22",
     "cumpleanios": "1992-09-03",
-    "mail": "maria.lopez@gmail.com"
+    "mail": "maria.lopez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Diego",
     "apellido": "Martínez",
     "fechaEntrada": "2022-01-08",
     "cumpleanios": "1987-04-12",
-    "mail": "diego.martinez@gmail.com"
+    "mail": "diego.martinez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Laura",
     "apellido": "González",
     "fechaEntrada": "2020-09-14",
     "cumpleanios": "1991-07-25",
-    "mail": "laura.gonzalez@gmail.com"
+    "mail": "laura.gonzalez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Pablo",
     "apellido": "Fernández",
     "fechaEntrada": "2019-12-03",
     "cumpleanios": "1989-11-08",
-    "mail": "pablo.fernandez@gmail.com"
+    "mail": "pablo.fernandez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Elena",
     "apellido": "Sánchez",
     "fechaEntrada": "2021-07-19",
     "cumpleanios": "1993-02-14",
-    "mail": "elena.sanchez@gmail.com"
+    "mail": "elena.sanchez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Miguel",
     "apellido": "Ruiz",
     "fechaEntrada": "2018-05-30",
     "cumpleanios": "1986-10-22",
-    "mail": "miguel.ruiz@gmail.com"
+    "mail": "miguel.ruiz@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Carmen",
     "apellido": "Jiménez",
     "fechaEntrada": "2020-04-06",
     "cumpleanios": "1994-06-17",
-    "mail": "carmen.jimenez@gmail.com"
+    "mail": "carmen.jimenez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Roberto",
     "apellido": "Morales",
     "fechaEntrada": "2022-08-25",
     "cumpleanios": "1990-03-09",
-    "mail": "roberto.morales@gmail.com"
+    "mail": "roberto.morales@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Sofía",
     "apellido": "Herrera",
     "fechaEntrada": "2019-02-11",
     "cumpleanios": "1988-12-30",
-    "mail": "sofia.herrera@gmail.com"
+    "mail": "sofia.herrera@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Andrés",
     "apellido": "Vargas",
     "fechaEntrada": "2021-10-17",
     "cumpleanios": "1985-05-21",
-    "mail": "andres.vargas@gmail.com"
+    "mail": "andres.vargas@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Isabel",
     "apellido": "Castro",
     "fechaEntrada": "2020-01-23",
     "cumpleanios": "1992-08-04",
-    "mail": "isabel.castro@gmail.com"
+    "mail": "isabel.castro@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Fernando",
     "apellido": "Ortega",
     "fechaEntrada": "2018-09-08",
     "cumpleanios": "1987-01-26",
-    "mail": "fernando.ortega@gmail.com"
+    "mail": "fernando.ortega@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Valeria",
     "apellido": "Mendoza",
     "fechaEntrada": "2021-05-14",
     "cumpleanios": "1991-11-13",
-    "mail": "valeria.mendoza@gmail.com"
+    "mail": "valeria.mendoza@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Javier",
     "apellido": "Ramos",
     "fechaEntrada": "2019-08-07",
     "cumpleanios": "1989-04-07",
-    "mail": "javier.ramos@gmail.com"
+    "mail": "javier.ramos@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Natalia",
     "apellido": "Torres",
     "fechaEntrada": "2022-03-21",
     "cumpleanios": "1993-09-18",
-    "mail": "natalia.torres@gmail.com"
+    "mail": "natalia.torres@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Sebastián",
     "apellido": "Flores",
     "fechaEntrada": "2020-11-12",
     "cumpleanios": "1986-07-02",
-    "mail": "sebastian.flores@gmail.com"
+    "mail": "sebastian.flores@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Gabriela",
     "apellido": "Rivera",
     "fechaEntrada": "2018-07-28",
     "cumpleanios": "1994-03-15",
-    "mail": "gabriela.rivera@gmail.com"
+    "mail": "gabriela.rivera@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Álvaro",
     "apellido": "Aguilar",
     "fechaEntrada": "2021-12-05",
     "cumpleanios": "1988-10-11",
-    "mail": "alvaro.aguilar@gmail.com"
+    "mail": "alvaro.aguilar@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Mónica",
     "apellido": "Guzmán",
     "fechaEntrada": "2019-04-16",
     "cumpleanios": "1990-01-28",
-    "mail": "monica.guzman@gmail.com"
+    "mail": "monica.guzman@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Ricardo",
     "apellido": "Medina",
     "fechaEntrada": "2020-08-09",
     "cumpleanios": "1987-06-23",
-    "mail": "ricardo.medina@gmail.com"
+    "mail": "ricardo.medina@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Alejandra",
     "apellido": "Vega",
     "fechaEntrada": "2022-06-13",
     "cumpleanios": "1992-12-07",
-    "mail": "alejandra.vega@gmail.com"
+    "mail": "alejandra.vega@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Emilio",
     "apellido": "Rojas",
     "fechaEntrada": "2018-12-01",
     "cumpleanios": "1985-08-29",
-    "mail": "emilio.rojas@gmail.com"
+    "mail": "emilio.rojas@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Cristina",
     "apellido": "Peña",
     "fechaEntrada": "2021-02-18",
     "cumpleanios": "1991-05-14",
-    "mail": "cristina.pena@gmail.com"
+    "mail": "cristina.pena@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Ramón",
     "apellido": "Silva",
     "fechaEntrada": "2019-10-24",
     "cumpleanios": "1989-02-19",
-    "mail": "ramon.silva@gmail.com"
+    "mail": "ramon.silva@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Paola",
     "apellido": "Cortés",
     "fechaEntrada": "2020-05-31",
     "cumpleanios": "1993-11-06",
-    "mail": "paola.cortes@gmail.com"
+    "mail": "paola.cortes@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Óscar",
     "apellido": "Delgado",
     "fechaEntrada": "2022-09-15",
     "cumpleanios": "1986-04-01",
-    "mail": "oscar.delgado@gmail.com"
+    "mail": "oscar.delgado@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Beatriz",
     "apellido": "Moreno",
     "fechaEntrada": "2018-03-26",
     "cumpleanios": "1994-07-24",
-    "mail": "beatriz.moreno@gmail.com"
+    "mail": "beatriz.moreno@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Adrián",
     "apellido": "Iglesias",
     "fechaEntrada": "2021-08-11",
     "cumpleanios": "1988-01-12",
-    "mail": "adrian.iglesias@gmail.com"
+    "mail": "adrian.iglesias@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Lucía",
     "apellido": "Cabrera",
     "fechaEntrada": "2019-01-07",
     "cumpleanios": "1990-09-27",
-    "mail": "lucia.cabrera@gmail.com"
+    "mail": "lucia.cabrera@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Gonzalo",
     "apellido": "Reyes",
     "fechaEntrada": "2020-12-20",
     "cumpleanios": "1987-03-16",
-    "mail": "gonzalo.reyes@gmail.com"
+    "mail": "gonzalo.reyes@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Victoria",
     "apellido": "Navarro",
     "fechaEntrada": "2022-04-04",
     "cumpleanios": "1992-06-08",
-    "mail": "victoria.navarro@gmail.com"
+    "mail": "victoria.navarro@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Mateo",
     "apellido": "León",
     "fechaEntrada": "2018-10-13",
     "cumpleanios": "1985-12-21",
-    "mail": "mateo.leon@gmail.com"
+    "mail": "mateo.leon@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Camila",
     "apellido": "Espinoza",
     "fechaEntrada": "2021-06-29",
     "cumpleanios": "1991-08-03",
-    "mail": "camila.espinoza@gmail.com"
+    "mail": "camila.espinoza@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Nicolás",
     "apellido": "Paredes",
     "fechaEntrada": "2019-11-16",
     "cumpleanios": "1989-05-10",
-    "mail": "nicolas.paredes@gmail.com"
+    "mail": "nicolas.paredes@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Daniela",
     "apellido": "Campos",
     "fechaEntrada": "2020-07-02",
     "cumpleanios": "1993-01-25",
-    "mail": "daniela.campos@gmail.com"
+    "mail": "daniela.campos@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Ignacio",
     "apellido": "Guerrero",
     "fechaEntrada": "2022-01-19",
     "cumpleanios": "1986-11-14",
-    "mail": "ignacio.guerrero@gmail.com"
+    "mail": "ignacio.guerrero@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Renata",
     "apellido": "Mendez",
     "fechaEntrada": "2018-08-05",
     "cumpleanios": "1994-04-09",
-    "mail": "renata.mendez@gmail.com"
+    "mail": "renata.mendez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Francisco",
     "apellido": "Cruz",
     "fechaEntrada": "2021-04-22",
     "cumpleanios": "1988-07-31",
-    "mail": "francisco.cruz@gmail.com"
+    "mail": "francisco.cruz@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Valentina",
     "apellido": "Domínguez",
     "fechaEntrada": "2019-12-10",
     "cumpleanios": "1990-02-17",
-    "mail": "valentina.dominguez@gmail.com"
+    "mail": "valentina.dominguez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Esteban",
     "apellido": "Molina",
     "fechaEntrada": "2020-03-15",
     "cumpleanios": "1987-09-05",
-    "mail": "esteban.molina@gmail.com"
+    "mail": "esteban.molina@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Julieta",
     "apellido": "Blanco",
     "fechaEntrada": "2022-07-08",
     "cumpleanios": "1992-12-12",
-    "mail": "julieta.blanco@gmail.com"
+    "mail": "julieta.blanco@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Tomás",
     "apellido": "Contreras",
     "fechaEntrada": "2018-05-21",
     "cumpleanios": "1985-06-28",
-    "mail": "tomas.contreras@gmail.com"
+    "mail": "tomas.contreras@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Florencia",
     "apellido": "Vásquez",
     "fechaEntrada": "2021-09-04",
     "cumpleanios": "1991-10-20",
-    "mail": "florencia.vasquez@gmail.com"
+    "mail": "florencia.vasquez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Maximiliano",
     "apellido": "Soto",
     "fechaEntrada": "2019-06-17",
     "cumpleanios": "1989-03-13",
-    "mail": "maximiliano.soto@gmail.com"
+    "mail": "maximiliano.soto@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Antonella",
     "apellido": "Ramírez",
     "fechaEntrada": "2020-10-30",
     "cumpleanios": "1993-08-06",
-    "mail": "antonella.ramirez@gmail.com"
+    "mail": "antonella.ramirez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Joaquín",
     "apellido": "Castillo",
     "fechaEntrada": "2022-02-14",
     "cumpleanios": "1986-05-02",
-    "mail": "joaquin.castillo@gmail.com"
+    "mail": "joaquin.castillo@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Amanda",
     "apellido": "Pereira",
     "fechaEntrada": "2018-11-09",
     "cumpleanios": "1994-01-19",
-    "mail": "amanda.pereira@gmail.com"
+    "mail": "amanda.pereira@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Lucas",
     "apellido": "Herrera",
     "fechaEntrada": "2021-01-25",
     "cumpleanios": "1988-11-15",
-    "mail": "lucas.herrera@gmail.com"
+    "mail": "lucas.herrera@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Agustina",
     "apellido": "Morales",
     "fechaEntrada": "2019-07-14",
     "cumpleanios": "1990-04-22",
-    "mail": "agustina.morales@gmail.com"
+    "mail": "agustina.morales@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Santiago",
     "apellido": "Fuentes",
     "fechaEntrada": "2020-09-27",
     "cumpleanios": "1987-12-08",
-    "mail": "santiago.fuentes@gmail.com"
+    "mail": "santiago.fuentes@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Jazmín",
     "apellido": "Acosta",
     "fechaEntrada": "2022-05-12",
     "cumpleanios": "1992-07-11",
-    "mail": "jazmin.acosta@gmail.com"
+    "mail": "jazmin.acosta@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Bruno",
     "apellido": "Romero",
     "fechaEntrada": "2018-04-18",
     "cumpleanios": "1985-09-24",
-    "mail": "bruno.romero@gmail.com"
+    "mail": "bruno.romero@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Amparo",
     "apellido": "Núñez",
     "fechaEntrada": "2021-11-06",
     "cumpleanios": "1991-02-05",
-    "mail": "amparo.nunez@gmail.com"
+    "mail": "amparo.nunez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Martín",
     "apellido": "Giménez",
     "fechaEntrada": "2019-03-01",
     "cumpleanios": "1989-06-18",
-    "mail": "martin.gimenez@gmail.com"
+    "mail": "martin.gimenez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Belén",
     "apellido": "Varela",
     "fechaEntrada": "2020-06-24",
     "cumpleanios": "1993-10-01",
-    "mail": "belen.varela@gmail.com"
+    "mail": "belen.varela@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Facundo",
     "apellido": "Miranda",
     "fechaEntrada": "2022-08-17",
     "cumpleanios": "1986-03-27",
-    "mail": "facundo.miranda@gmail.com"
+    "mail": "facundo.miranda@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Mariana",
     "apellido": "Díaz",
     "fechaEntrada": "2018-12-31",
     "cumpleanios": "1994-05-16",
-    "mail": "mariana.diaz@gmail.com"
+    "mail": "mariana.diaz@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Gastón",
     "apellido": "Benítez",
     "fechaEntrada": "2021-03-20",
     "cumpleanios": "1988-08-12",
-    "mail": "gaston.benitez@gmail.com"
+    "mail": "gaston.benitez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Rocío",
     "apellido": "Lara",
     "fechaEntrada": "2019-09-13",
     "cumpleanios": "1990-12-29",
-    "mail": "rocio.lara@gmail.com"
+    "mail": "rocio.lara@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Leandro",
     "apellido": "Cáceres",
     "fechaEntrada": "2020-04-26",
     "cumpleanios": "1987-01-04",
-    "mail": "leandro.caceres@gmail.com"
+    "mail": "leandro.caceres@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Constanza",
     "apellido": "Sandoval",
     "fechaEntrada": "2022-10-11",
     "cumpleanios": "1992-09-20",
-    "mail": "constanza.sandoval@gmail.com"
+    "mail": "constanza.sandoval@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Ezequiel",
     "apellido": "Ibáñez",
     "fechaEntrada": "2018-01-15",
     "cumpleanios": "1985-04-15",
-    "mail": "ezequiel.ibanez@gmail.com"
+    "mail": "ezequiel.ibanez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Micaela",
     "apellido": "Carrasco",
     "fechaEntrada": "2021-07-03",
     "cumpleanios": "1991-11-07",
-    "mail": "micaela.carrasco@gmail.com"
+    "mail": "micaela.carrasco@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Emanuel",
     "apellido": "Figueroa",
     "fechaEntrada": "2019-05-19",
     "cumpleanios": "1989-07-23",
-    "mail": "emanuel.figueroa@gmail.com"
+    "mail": "emanuel.figueroa@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Jimena",
     "apellido": "Arias",
     "fechaEntrada": "2020-11-08",
     "cumpleanios": "1993-03-10",
-    "mail": "jimena.arias@gmail.com"
+    "mail": "jimena.arias@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Axel",
     "apellido": "Villanueva",
     "fechaEntrada": "2022-12-22",
     "cumpleanios": "1986-08-26",
-    "mail": "axel.villanueva@gmail.com"
+    "mail": "axel.villanueva@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Celeste",
     "apellido": "Ponce",
     "fechaEntrada": "2018-06-04",
     "cumpleanios": "1994-02-13",
-    "mail": "celeste.ponce@gmail.com"
+    "mail": "celeste.ponce@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Matías",
     "apellido": "Godoy",
     "fechaEntrada": "2021-05-27",
     "cumpleanios": "1988-12-18",
-    "mail": "matias.godoy@gmail.com"
+    "mail": "matias.godoy@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Aldana",
     "apellido": "Paz",
     "fechaEntrada": "2019-08-20",
     "cumpleanios": "1990-05-25",
-    "mail": "aldana.paz@gmail.com"
+    "mail": "aldana.paz@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Bautista",
     "apellido": "Maldonado",
     "fechaEntrada": "2020-02-12",
     "cumpleanios": "1987-10-09",
-    "mail": "bautista.maldonado@gmail.com"
+    "mail": "bautista.maldonado@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Milagros",
     "apellido": "Ledesma",
     "fechaEntrada": "2022-06-05",
     "cumpleanios": "1992-01-31",
-    "mail": "milagros.ledesma@gmail.com"
+    "mail": "milagros.ledesma@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Cristian",
     "apellido": "Escobar",
     "fechaEntrada": "2018-09-28",
     "cumpleanios": "1985-07-17",
-    "mail": "cristian.escobar@gmail.com"
+    "mail": "cristian.escobar@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Delfina",
     "apellido": "Caballero",
     "fechaEntrada": "2021-12-16",
     "cumpleanios": "1991-04-03",
-    "mail": "delfina.caballero@gmail.com"
+    "mail": "delfina.caballero@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Thiago",
     "apellido": "Peralta",
     "fechaEntrada": "2019-02-09",
     "cumpleanios": "1989-11-26",
-    "mail": "thiago.peralta@gmail.com"
+    "mail": "thiago.peralta@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Magalí",
     "apellido": "Cano",
     "fechaEntrada": "2020-08-01",
     "cumpleanios": "1993-06-14",
-    "mail": "magali.cano@gmail.com"
+    "mail": "magali.cano@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Brian",
     "apellido": "Suárez",
     "fechaEntrada": "2022-03-14",
     "cumpleanios": "1986-12-02",
-    "mail": "brian.suarez@gmail.com"
+    "mail": "brian.suarez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Abigail",
     "apellido": "Rosas",
     "fechaEntrada": "2018-07-10",
     "cumpleanios": "1994-09-08",
-    "mail": "abigail.rosas@gmail.com"
+    "mail": "abigail.rosas@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Lautaro",
     "apellido": "Cabrera",
     "fechaEntrada": "2021-10-23",
     "cumpleanios": "1988-02-21",
-    "mail": "lautaro.cabrera@gmail.com"
+    "mail": "lautaro.cabrera@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Pilar",
     "apellido": "Gallardo",
     "fechaEntrada": "2019-04-05",
     "cumpleanios": "1990-08-15",
-    "mail": "pilar.gallardo@gmail.com"
+    "mail": "pilar.gallardo@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Rodrigo",
     "apellido": "Vera",
     "fechaEntrada": "2020-12-07",
     "cumpleanios": "1987-05-30",
-    "mail": "rodrigo.vera@gmail.com"
+    "mail": "rodrigo.vera@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Brenda",
     "apellido": "Sosa",
     "fechaEntrada": "2022-09-30",
     "cumpleanios": "1992-03-07",
-    "mail": "brenda.sosa@gmail.com"
+    "mail": "brenda.sosa@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Iván",
     "apellido": "Velasco",
     "fechaEntrada": "2018-03-17",
     "cumpleanios": "1985-11-12",
-    "mail": "ivan.velasco@gmail.com"
+    "mail": "ivan.velasco@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Guadalupe",
     "apellido": "Tapia",
     "fechaEntrada": "2021-06-10",
     "cumpleanios": "1991-07-28",
-    "mail": "guadalupe.tapia@gmail.com"
+    "mail": "guadalupe.tapia@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Damián",
     "apellido": "Moreno",
     "fechaEntrada": "2019-11-23",
     "cumpleanios": "1989-01-06",
-    "mail": "damian.moreno@gmail.com"
+    "mail": "damian.moreno@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Catalina",
     "apellido": "Herrera",
     "fechaEntrada": "2020-05-18",
     "cumpleanios": "1993-12-24",
-    "mail": "catalina.herrera@gmail.com"
+    "mail": "catalina.herrera@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Ramiro",
     "apellido": "Cardenas",
     "fechaEntrada": "2022-01-31",
     "cumpleanios": "1986-06-19",
-    "mail": "ramiro.cardenas@gmail.com"
+    "mail": "ramiro.cardenas@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Macarena",
     "apellido": "Robles",
     "fechaEntrada": "2018-10-06",
     "cumpleanios": "1994-10-05",
-    "mail": "macarena.robles@gmail.com"
+    "mail": "macarena.robles@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Agustín",
     "apellido": "Montoya",
     "fechaEntrada": "2021-02-21",
     "cumpleanios": "1988-04-18",
-    "mail": "agustin.montoya@gmail.com"
+    "mail": "agustin.montoya@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Julieta",
     "apellido": "Espinosa",
     "fechaEntrada": "2019-08-12",
     "cumpleanios": "1990-11-03",
-    "mail": "julieta.espinosa@gmail.com"
+    "mail": "julieta.espinosa@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Ian",
     "apellido": "Mendoza",
     "fechaEntrada": "2020-09-04",
     "cumpleanios": "1987-02-14",
-    "mail": "ian.mendoza@gmail.com"
+    "mail": "ian.mendoza@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Zoe",
     "apellido": "Aguirre",
     "fechaEntrada": "2022-04-28",
     "cumpleanios": "1992-08-21",
-    "mail": "zoe.aguirre@gmail.com"
+    "mail": "zoe.aguirre@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Kevin",
     "apellido": "Campos",
     "fechaEntrada": "2018-12-15",
     "cumpleanios": "1985-05-07",
-    "mail": "kevin.campos@gmail.com"
+    "mail": "kevin.campos@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Paloma",
     "apellido": "Luna",
     "fechaEntrada": "2021-08-08",
     "cumpleanios": "1991-09-16",
-    "mail": "paloma.luna@gmail.com"
+    "mail": "paloma.luna@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Exequiel",
     "apellido": "Ríos",
     "fechaEntrada": "2019-01-26",
     "cumpleanios": "1989-12-10",
-    "mail": "exequiel.rios@gmail.com"
+    "mail": "exequiel.rios@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Jazmín",
     "apellido": "Franco",
     "fechaEntrada": "2020-07-21",
     "cumpleanios": "1993-04-26",
-    "mail": "jazmin.franco@gmail.com"
+    "mail": "jazmin.franco@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Germán",
     "apellido": "Santana",
     "fechaEntrada": "2022-11-14",
     "cumpleanios": "1986-01-17",
-    "mail": "german.santana@gmail.com"
+    "mail": "german.santana@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Priscilla",
     "apellido": "Vidal",
     "fechaEntrada": "2018-05-09",
     "cumpleanios": "1994-07-01",
-    "mail": "priscilla.vidal@gmail.com"
+    "mail": "priscilla.vidal@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Nicolás",
     "apellido": "Bautista",
     "fechaEntrada": "2021-04-15",
     "cumpleanios": "1988-10-28",
-    "mail": "nicolas.bautista@gmail.com"
+    "mail": "nicolas.bautista@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Esperanza",
     "apellido": "Salinas",
     "fechaEntrada": "2019-12-02",
     "cumpleanios": "1990-03-22",
-    "mail": "esperanza.salinas@gmail.com"
+    "mail": "esperanza.salinas@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "César",
     "apellido": "Nieto",
     "fechaEntrada": "2020-10-19",
     "cumpleanios": "1987-11-09",
-    "mail": "cesar.nieto@gmail.com"
+    "mail": "cesar.nieto@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Tabitha",
     "apellido": "Valdez",
     "fechaEntrada": "2022-07-24",
     "cumpleanios": "1992-05-12",
-    "mail": "tabitha.valdez@gmail.com"
+    "mail": "tabitha.valdez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Emiliano",
     "apellido": "Ochoa",
     "fechaEntrada": "2018-08-18",
     "cumpleanios": "1985-12-15",
-    "mail": "emiliano.ochoa@gmail.com"
+    "mail": "emiliano.ochoa@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Azul",
     "apellido": "Bermúdez",
     "fechaEntrada": "2021-01-07",
     "cumpleanios": "1991-06-04",
-    "mail": "azul.bermudez@gmail.com"
+    "mail": "azul.bermudez@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Patricio",
     "apellido": "Barrera",
     "fechaEntrada": "2019-06-30",
     "cumpleanios": "1989-08-17",
-    "mail": "patricio.barrera@gmail.com"
+    "mail": "patricio.barrera@gmail.com",
+    "imagen": "sukuna.jpg"
   },
   {
     "nombre": "Lola",
     "apellido": "Moya",
     "fechaEntrada": "2020-03-12",
     "cumpleanios": "1993-02-08",
-    "mail": "lola.moya@gmail.co"
+    "mail": "lola.moya@gmail.com",
+    "imagen": "sukuna.jpg"
   }
-   ]
+]
