@@ -1,26 +1,27 @@
 :root {
-  --colorFondo: #f6f6f3;  
-  --colorCaja: #FFFFFF;
+  --colorFondo: #f6f6f3;
+  --colorCaja: #ffffff;
   --hover: #f0f0f0;
-  --colorAdmin: #FFCD71;
+  --colorAdmin: #ffcd71;
   --colorMailError: #fff7e8;
-  --colorLogOut: #BA3030; 
-  --colorVerMas: #734A00;
+  --colorLogOut: #ba3030;
+  --colorVerMas: #734a00;
   --border-radius: 25px;
   --padding-box: 20px;
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 img {
   max-width: 100%;
 }
 
-body{
+body {
   background-color: var(--colorFondo);
   display: flex;
   justify-content: center;
@@ -30,8 +31,8 @@ body{
 
 .parent {
   display: grid;
-  grid-template-columns: 280px repeat(4, 1fr); /* Ajusta 280px si es necesario */
-  grid-template-rows: auto auto auto auto auto; /* O ajusta según tu contenido para alturas más fijas */
+  grid-template-columns: 280px repeat(4, 1fr); 
+  grid-template-rows: auto auto auto auto auto; 
   gap: 20px;
   padding: 15px;
   width: 100%;
@@ -61,16 +62,16 @@ aside.div1 {
 }
 
 .logo.crombie {
-  width: 300px; /* Ajusta el tamaño del logo */
+  width: 300px;
 }
 
 .buscador {
   display: flex;
   align-items: center;
-  background-color: white;
+  background-color: var(--colorCaja);
   padding: 10px;
   border-radius: 30px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: var(--box-shadow);
   width: 250px;
   height: 40px;
 }
@@ -94,21 +95,21 @@ aside.div1 {
   display: flex;
   align-items: center;
   gap: 10px;
-  text-decoration: none; 
-  color: var(--text-color-primary); 
+  text-decoration: none;
+  color: var(--text-color-primary);
   background: none;
-  border: none; 
-  cursor: pointer; 
-  width: 100%; 
+  border: none;
+  cursor: pointer;
+  width: 100%;
   text-align: left;
-  border-radius: 8px; 
-  font-weight: 500; 
-  font-size: 1rem; 
-  transition: background-color 0.2s ease, color 0.2s ease; 
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .menu-item:hover {
-  background-color: var(--hover); 
+  background-color: var(--hover);
 }
 
 .menu-item.active-menu-item,
@@ -117,8 +118,8 @@ aside.div1 {
   outline: none;
 }
 
-.footer-aside { 
-  margin-top: auto; 
+.footer-aside {
+  margin-top: auto;
   padding: var(--padding-box);
   border-top: 1px solid #eee;
   width: 100%;
@@ -168,12 +169,14 @@ aside.div1 {
   gap: 70px;
 }
 
-.estadistica { /*recepcion de mails*/
+.estadistica {
+  /*recepcion de mails*/
   width: 300px;
   object-fit: cover;
 }
 
-.estadistica2{ /*informe mensual*/
+.estadistica2 {
+  /*informe mensual*/
   width: 400px;
   object-fit: cover;
 }
@@ -203,7 +206,7 @@ aside.div1 {
   border-radius: 50%;
   object-fit: cover;
   margin-left: 20px;
-} 
+}
 
 .ciudadYLugar {
   display: flex;
@@ -248,3 +251,13 @@ aside.div1 {
   padding: 20px;
 }
 
+.main-content-pages {
+  grid-area: stats / mails-sent / events / mail-message;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  background-color: var(--colorCaja);
+  border-radius: var(--border-radius);
+  padding: var(--padding-box);
+}

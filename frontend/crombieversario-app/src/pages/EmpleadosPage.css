@@ -1,0 +1,21 @@
+.empleados-toolbar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.empleados-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.empleados-table th, .empleados-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.empleados-table th {
+  background-color: #f2f2f2;
+}
