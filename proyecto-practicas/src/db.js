@@ -1,4 +1,4 @@
-// backend/src/db/mongoService.js
+// db.js
 const mongoose = require('mongoose');
 
 // *Definición de Esquemas y Modelos*
@@ -21,6 +21,18 @@ const sentLogSchema = new mongoose.Schema({
     sentDate: { type: Date, default: Date.now }, // Fecha de envío, por defecto la fecha actual
 }, { timestamps: true }); // 'timestamps: true' añade 'createdAt' y 'updatedAt' automáticamente
 const SentLog = mongoose.model('SentLog', sentLogSchema);
+
+const configSchema = new mongoose.Schema({
+    // Podrías tener un único documento de configuración, por eso el `name`
+    name: { type: String, required: true, unique: true, default: 'main_config' },
+    messageTemplate: { type: String, required: true },
+    // Si las imágenes son fijas y solo se seleccionan, guardas sus rutas aquí.
+    // Si la gestión es más dinámica (subir nuevas), necesitarías otro enfoque.
+    imagePaths: [{ type: String }], // Array de rutas de imágenes
+    lastUpdated: { type: Date, default: Date.now }
+}, { timestamps: true }); // Añade createdAt y updatedAt
+
+const Config = mongoose.model('Config', configSchema);
 
 // *Función de Conexión a la Base de Datos*
 
@@ -55,8 +67,7 @@ async function recordSentEmail(email, years) {
         await newLog.save();
         console.log(`Log de envío registrado en DB para ${email} (${years} años).`);
     } catch (error) {
-        console.error(`Error al registrar log de envío para ${email}:, error.message`);
-    }
+        console.error(`Error al registrar log de envío para ${email}: ${error.message}`);    }
 }
 
 /**
@@ -85,6 +96,42 @@ async function checkIfSentToday(email, years) {
     } catch (error) {
         console.error(`Error al verificar log de envío para ${email}:, error.message`);
         return false;
+    }
+}
+
+async function getConfig() {
+    try {
+        // Busca el único documento de configuración (o crea uno si no existe)
+        let config = await Config.findOne({ name: 'main_config' });
+        if (!config) {
+            // Si no existe, crea una configuración por defecto
+            config = new Config({
+                name: 'main_config',
+                messageTemplate: '¡Hola, {{nombre}}!\n\nSe viene una fecha muy especial... ¡tu Crombieversario! 🎂\nQueremos agradecerte por ser parte de este camino y por compartir un año más con nosotros. Cada aporte tuyo suma a lo que hacemos día a día y nos hace crecer como equipo 💜\nPara celebrarlo, armamos unas placas digitales que podés usar (si queres) para compartir en tus redes. Podés contar alguna reflexión sobre este tiempo en Crombie: aprendizajes, desafíos, alegrías o lo que más te haya marcado 💬 Te dejamos las imágenes abajo en este mail.\n\nSi lo compartís, no te olvides de etiquetarnos para poder celebrarte también desde nuestras redes 🎈\n¡Gracias por ser parte de Crombie!\n\nAbrazo,\nEquipo de Marketing',
+                imagePaths: [] // Puedes precargar algunas rutas si ya las tienes
+            });
+            await config.save();
+            console.log('Configuración por defecto creada en DB.');
+        }
+        return config;
+    } catch (error) {
+        console.error('Error al obtener/crear configuración:', error.message);
+        throw error;
+    }
+}
+
+async function updateConfig(messageTemplate, imagePaths) {
+    try {
+        const config = await Config.findOneAndUpdate(
+            { name: 'main_config' },
+            { messageTemplate, imagePaths, lastUpdated: Date.now() },
+            { new: true, upsert: true, setDefaultsOnInsert: true } // new: true devuelve el doc actualizado; upsert: true crea si no existe
+        );
+        console.log('Configuración actualizada en DB.');
+        return config;
+    } catch (error) {
+        console.error('Error al actualizar configuración:', error.message);
+        throw error;
     }
 }
 
@@ -138,13 +185,16 @@ module.exports = {
     connectDB,
     recordSentEmail,
     checkIfSentToday,
+    getConfig,
+    updateConfig,
+    SentLog,
+    Config
     // Puedes exportar estas si decides migrar los colaboradores a MongoDB
     //saveOrUpdateCollaborator,
     //getAllCollaborators,
     // Exportar los modelos directamente si otros servicios necesitan interactuar con ellos
     //
     // Collaborator,
-    SentLog
 };
 
 

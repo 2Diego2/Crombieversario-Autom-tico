@@ -1,11 +1,13 @@
-// src/pages/Calendario.jsx
+// src/pages/Mensaje.jsx
 
 import React from 'react';
+import EditorMensaje from '../componentes/EditorMensaje.jsx';
 
 const Mensaje = () => { // Asegúrate de que el nombre del componente coincida
   return (
     <div>
-      <h2>Página de Mensaje editable</h2>
+      <h2>Gestión de Mensaje y Contenido Visual</h2>
+      <EditorMensaje />
       {/* ... tu contenido ... */}
     </div>
   );

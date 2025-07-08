@@ -1,3 +1,4 @@
+// eventos.js
 /*Define y exporta los eventos personalizados usando 
 EventEmitter. Aquí puedes manejar lo que ocurre cuando se detecta un aniversario */
 
@@ -7,7 +8,7 @@ const mongoService = require('./db.js');
 /*import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from 'nestjs/schedule';*/
 
-const { connectDB, obtenerTrabajadores } = require('./db');
+// const { connectDB, obtenerTrabajadores } = require('./db');
 
 const EventEmitter = require("events");
 const dayjs = require("dayjs");
@@ -77,5 +78,5 @@ ${imagen ? imagen : "No disponible"}
 `;
 }
 
-module.exports = { aniversarioEmitter, buscarAniversarios, MensajeMail, inicializarDB };
+module.exports = { aniversarioEmitter, buscarAniversarios, MensajeMail };
 

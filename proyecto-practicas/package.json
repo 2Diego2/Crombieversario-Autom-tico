@@ -2,11 +2,13 @@
   "dependencies": {
     "@nestjs/schedule": "^6.0.0",
     "axios": "^1.10.0",
+    "crypto": "^1.0.1",
     "dayjs": "^1.11.13",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "mongodb": "^6.17.0",
     "mongoose": "^8.16.1",
+    "multer": "^2.0.1",
     "node-cron": "^4.2.0",
     "nodemailer": "^7.0.5"
   }
