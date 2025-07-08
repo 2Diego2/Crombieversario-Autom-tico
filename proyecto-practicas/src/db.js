@@ -9,6 +9,8 @@ const aniversarioSchema = new mongoose.Schema({
   mail: String,
   nroAniversario: Number,
   imagen: [String],
+  enviado: { type: Boolean,
+  default: false},
   fechaRegistro: {
   type: Date,
   default: () => new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }))

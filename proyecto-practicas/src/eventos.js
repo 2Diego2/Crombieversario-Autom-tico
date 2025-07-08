@@ -2,17 +2,9 @@
 EventEmitter. Aquí puedes manejar lo que ocurre cuando se detecta un aniversario */
 
 require('dotenv').config();
-const mongoService = require('./db.js');
-
-/*import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from 'nestjs/schedule';*/
-
-const { connectDB, obtenerTrabajadores } = require('./db');
-
 const EventEmitter = require("events");
 const dayjs = require("dayjs");
 const path = require("path");
-const nodemailer = require("nodemailer");
 const fs = require("fs");
 const imagenesData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/imagenes.json'), 'utf-8'));
 
@@ -87,10 +79,3 @@ module.exports = { aniversarioEmitter, buscarAniversarios, MensajeMail };
 // Lo que se envia y se emite se guarda en la base de datos mongoDB compass para guardar un registro de los aniversarios
 // Luego se crea un endpoint para consultar los aniversarios pasados y futuros
 // También se puede crear un endpoint para consultar los aniversarios de un trabajador específico por su mail*/
-
-
-
-
-
-
-
