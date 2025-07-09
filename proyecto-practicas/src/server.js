@@ -75,14 +75,22 @@ function requireApiKey(req, res, next) {
     next();
 }
 
-// ... (tu endpoint /trabajadores) ...
-const trabajadores = [
-    { nombre: 'Juan', apellido: 'Perez', fechaEntrada: '2024-07-10', cumpleanios: '1990-08-27', mail: 'diegoabelleyra74@gmail.com' },
-    { nombre: 'Ana', apellido: 'Garcia', fechaEntrada: '2024-06-20', cumpleanios: '1985-12-05', mail: 'anita@gmail.com' },
-];
-
+// ENDPOINT para obtener trabajadores desde el archivo JSON local
 app.get('/trabajadores', (req, res) => {
-    res.json(trabajadores);
+    const trabajadoresPath = path.join(__dirname, '../data/trabajadores.json');
+    fs.readFile(trabajadoresPath, 'utf-8', (err, data) => {
+        if (err) {
+            console.error('Error al leer trabajadores.json:', err);
+            return res.status(500).json({ error: 'No se pudo leer el archivo de trabajadores.' });
+        }
+        try {
+            const trabajadores = JSON.parse(data);
+            res.json(trabajadores);
+        } catch (parseErr) {
+            console.error('Error al parsear trabajadores.json:', parseErr);
+            res.status(500).json({ error: 'Error de formato en trabajadores.json.' });
+        }
+    });
 });
 
 // NUEVOS ENDPOINTS para la configuración

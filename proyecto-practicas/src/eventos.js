@@ -15,17 +15,14 @@ const dayjs = require("dayjs");
 const path = require("path");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
-const imagenesData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/imagenes.json'), 'utf-8'));
+// const imagenesData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/imagenes.json'), 'utf-8'));
 
 class AniversarioEmitter extends EventEmitter {}
 const aniversarioEmitter = new AniversarioEmitter();
 
-function obtenerImagenesParaAniversario(nroAniversario) {
-  // Si quieres enviar solo una imagen por aniversario:
-  const img = imagenesData.find(img => img.nombre === `${nroAniversario}.png`);
-  return img ? [img.ruta] : [];
-  // Si quieres enviar varias imágenes por aniversario, ajusta aquí
-}
+// Elimina la dependencia de imagenes.json para la gestión diaria
+// (Solo se usa para precarga inicial si se desea)
+// El resto de la lógica de imágenes se gestiona desde la base de datos y la interfaz
 
 async function buscarAniversarios(trabajadores) { 
   const hoy = dayjs();
@@ -38,7 +35,7 @@ async function buscarAniversarios(trabajadores) {
     let fechaAniversario = fechaIngreso.year(enTresDias.year());
     const nroAniversario = fechaAniversario.diff(fechaIngreso, 'year');
     if (fechaAniversario.isSame(enTresDias, 'day')) {
-      const imagen = obtenerImagenesParaAniversario(nroAniversario);
+      const imagen = await obtenerImagenesParaAniversario(nroAniversario);
       const info = {
         ...trabajador,
         nroAniversario,
@@ -55,27 +52,40 @@ async function buscarAniversarios(trabajadores) {
   return encontrados;
 }
 
-function MensajeMail(nombre, imagen) {
-  
+// MensajeMail ahora obtiene el mensaje editable desde la base de datos
+async function MensajeMail(nombre, imagen) {
+  const { getConfig } = require('./db.js');
   let imagenesTexto = "No disponible";
   if (Array.isArray(imagen) && imagen.length > 0) {
     imagenesTexto = imagen.join("\n");
   } else if (typeof imagen === "string") {
     imagenesTexto = imagen;
   }
-  return `¡Hola, ${nombre}!
+  // Obtiene el mensaje editable de la base de datos
+  let messageTemplate = '';
+  try {
+    const config = await getConfig();
+    messageTemplate = config.messageTemplate || '';
+  } catch (e) {
+    messageTemplate = `¡Hola, ${nombre}!\n\n(No se pudo obtener el mensaje editable de la base de datos)\n`;
+  }
+  // Reemplaza {{nombre}} por el nombre real
+  const mensajeFinal = messageTemplate.replace(/{{nombre}}/gi, nombre) + "\n" + (imagenesTexto || "No disponible");
+  return mensajeFinal;
+}
 
-Se viene una fecha muy especial... ¡tu Crombieversario! 🎂
-Queremos agradecerte por ser parte de este camino y por compartir un año más con nosotros. Cada aporte tuyo suma a lo que hacemos día a día y nos hace crecer como equipo 💜
-Para celebrarlo, armamos unas placas digitales que podés usar (si queres) para compartir en tus redes. Podés contar alguna reflexión sobre este tiempo en Crombie: aprendizajes, desafíos, alegrías o lo que más te haya marcado 💬 Te dejamos las imágenes abajo en este mail.
-
-Si lo compartís, no te olvides de etiquetarnos para poder celebrarte también desde nuestras redes 🎈
-¡Gracias por ser parte de Crombie!
-
-Abrazo,
-Equipo de Marketing
-${imagen ? imagen : "No disponible"}
-`;
+// Ahora, para los aniversarios, busca la imagen en la base de datos (config.imagePaths)
+async function obtenerImagenesParaAniversario(nroAniversario) {
+  const { getConfig } = require('./db.js');
+  try {
+    const config = await getConfig();
+    // Busca la imagen correspondiente por nombre
+    const nombreArchivo = `${nroAniversario}.png`;
+    const ruta = (config.imagePaths || []).find(ruta => ruta.includes(nombreArchivo));
+    return ruta ? [ruta] : [];
+  } catch (e) {
+    return [];
+  }
 }
 
 module.exports = { aniversarioEmitter, buscarAniversarios, MensajeMail };
