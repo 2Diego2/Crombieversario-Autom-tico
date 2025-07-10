@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { IoIosSearch } from "react-icons/io";
 import {
   IoPersonOutline,
   IoCalendarOutline,
@@ -7,10 +6,11 @@ import {
 } from "react-icons/io5";
 import { LuMailWarning, LuMail, LuLogOut } from "react-icons/lu";
 import { Link, Routes, Route, useLocation } from "react-router-dom";
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Legend } from 'recharts';
+
 
 // Imagenes
-import estadistica1 from "./assets/Recibidos.jpg";
-import estadistica2 from "./assets/estadistica2.PNG";
 import gaelMailEnviado from "./assets/gael.PNG";
 import coloresCrombie from "./assets/coloresCrombie.png";
 import LogoCrombie from "./assets/Logo.png";
@@ -21,12 +21,28 @@ import "./App.css";
 import EmpleadosPage from "./pages/EmpleadosPage";
 import MailsEnviadosPage from "./pages/MailsEnviadosPage";
 import MailErrorPage from "./pages/MailErrorPage";
-import CalendarioPage from "./pages/Calendario"; 
-import MensajePage from "./pages/Mensaje"; 
+import CalendarioPage from "./pages/Calendario";
+import MensajePage from "./pages/Mensaje";
+
+const data = [
+  { año: '2020', cantidad: 5 },
+  { año: '2021', cantidad: 10 },
+  { año: '2022', cantidad: 15 },
+  { año: '2023', cantidad: 20 },
+];
+
+const dataTorta = [
+  { nombre: '1 año', valor: 4 },
+  { nombre: '2 años', valor: 6 },
+  { nombre: '3 años', valor: 2 },
+  { nombre: '4 años o más', valor: 1 },
+];
+
+const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042'];
 
 function App() {
-  const [count, setCount] = useState(0); 
-  const location = useLocation(); 
+  const [count, setCount] = useState(0);
+  const location = useLocation();
   const isDashboard = location.pathname === '/';
 
   return (
@@ -49,7 +65,7 @@ function App() {
             <IoCalendarOutline size={14} /> Calendario
           </Link>
           <Link to="/mensaje" className="menu-item">
-            <IoImagesOutline size={14} /> Imágenes 
+            <IoImagesOutline size={14} /> Imágenes
           </Link>
         </div>
         <div className="footer-aside">
@@ -71,15 +87,48 @@ function App() {
 
       {isDashboard ? (
         <>
-          <div className="div2"> 
+          <div className="div2">
             <h2>Estadísticas</h2>
             <div className="estadisticas">
-              <img src={estadistica1} alt="estadistica" className="estadistica" />
-              <img src={estadistica2} alt="estadistica2" className="estadistica2" />
+              <div className="data">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={data}>
+                    <XAxis dataKey="año" />
+                    <YAxis />
+                    <Tooltip />
+                    <CartesianGrid stroke="#ccc" />
+                    <Line type="monotone" dataKey="cantidad" stroke="#8884d8" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+
+              <div className="data">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={dataTorta}
+                      dataKey="valor"
+                      nameKey="nombre"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      label
+                    >
+                      {dataTorta.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
             </div>
           </div>
 
-          <div className="div3"> 
+          <div className="div3">
             <h2>Mails enviados</h2>
             <div>
               <div className="perfil-info2">
@@ -148,8 +197,8 @@ function App() {
             <Route path="/empleados" element={<EmpleadosPage />} />
             <Route path="/mails-enviados" element={<MailsEnviadosPage />} />
             <Route path="/mail-error" element={<MailErrorPage />} />
-            <Route path="/calendario" element={<CalendarioPage />} /> 
-            <Route path="/mensaje" element={<MensajePage />} /> 
+            <Route path="/calendario" element={<CalendarioPage />} />
+            <Route path="/mensaje" element={<MensajePage />} />
           </Routes>
         </div>
       )}

@@ -168,17 +168,13 @@ aside.div1 {
 .estadisticas {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; 
-  align-items: center;
-  gap: 20px; 
+  justify-content: space-between;
 }
 
-.estadistica,
-.estadistica2 {
-  width: 100%; 
-  max-width: 350px; 
-  height: auto; 
-  object-fit: contain; 
+.data {
+  flex: 1 1 48%; /* Que ocupe casi la mitad y se ajuste si es necesario */
+  min-width: 350px;
+  height: 300px; /* 👈 ESTO ES CRUCIAL */
 }
 
 /*caja mails enviados*/
