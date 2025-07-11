@@ -1,30 +1,24 @@
-import React, { useState } from 'react';
-import FullCalendar from '@fullcalendar/react'; 
-import dayGridPlugin from '@fullcalendar/daygrid'; 
-import timeGridPlugin from '@fullcalendar/timegrid'; 
+import React from 'react'; // Ya no necesitamos useState ni useEffect aquí
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import listPlugin from '@fullcalendar/list'; 
+import listPlugin from '@fullcalendar/list';
 
 import './Calendario.css';
+import useUpcomingEvents from '../componentes/useEventosProximos'; 
 
 const CalendarioPage = () => {
-  const [events, setEvents] = useState([
-    { id: '1', title: 'Reunión de Equipo', date: '2025-07-10', color: '#FFCD71' },
-    { id: '2', title: 'Entrega Proyecto X', date: '2025-07-15', color: '#734A00' },
-    { id: '3', title: 'Charla de Marketing', start: '2025-07-18T10:00:00', end: '2025-07-18T12:00:00', color: '#BA3030' },
-    { id: '4', title: 'Crombieversario de Ana', date: '2025-07-30', color: '#007BFF' },
-  ]);
+  // Usar el custom hook para obtener los eventos
+  const { upcomingEvents, allEventsForCalendar } = useUpcomingEvents();
 
+  // Las funciones handleDateClick y handleEventClick se pueden mantener si las necesitas
   const handleDateClick = (arg) => {
     alert('Fecha clicada: ' + arg.dateStr);
   };
 
   const handleEventClick = (clickInfo) => {
     alert('Evento: ' + clickInfo.event.title + '\nID: ' + clickInfo.event.id);
-  };
-
-  const handleEventDrop = (dropInfo) => {
-    console.log('Evento movido:', dropInfo.event.title, 'a', dropInfo.event.startStr);
   };
 
   return (
@@ -41,28 +35,38 @@ const CalendarioPage = () => {
             right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
           }}
           locale="es"
-          editable={true}
-          selectable={true}
-          selectMirror={true}
+          editable={false}
+          selectable={false}
           dayMaxEvents={true}
           weekends={true}
-          events={events}
+          events={allEventsForCalendar} // Usar todos los eventos del hook
           dateClick={handleDateClick}
           eventClick={handleEventClick}
-          eventDrop={handleEventDrop}
         />
       </div>
 
       <div className="events-list">
-        <h2>Próximos Eventos (Listado)</h2>
-        <div className="perfil-info2">
-          <img src="/path/to/gaelMailEnviado.png" alt="Event participant" className="persona2" />
-          <div>
-            <span className="empleado">Reunión de Equipo</span>
-            <span className="ciudadYLugar">Fecha: 10/07/2025</span>
-            <span className="ciudadYLugar">Lugar: Sala de Juntas</span>
-          </div>
-        </div>
+        <h2>Próximos Eventos (7 Días)</h2>
+        {upcomingEvents.length > 0 ? (
+          upcomingEvents.map(event => (
+            <div className="perfil-info2" key={event.id}>
+              <img
+                src={event.empleadoImagen || (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
+                alt={event.empleado}
+                className="persona2"
+                style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+              />
+              <div>
+                <span className="empleado">{event.title}</span>
+                <span className="ciudadYLugar">
+                  Fecha: {new Date(event.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                </span>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p>No hay eventos próximos en los siguientes 7 días.</p>
+        )}
       </div>
     </div>
   );

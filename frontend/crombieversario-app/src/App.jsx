@@ -1,13 +1,8 @@
 import { useState } from "react";
-import {
-  IoPersonOutline,
-  IoCalendarOutline,
-  IoImagesOutline,
-} from "react-icons/io5";
+import {  IoPersonOutline,  IoCalendarOutline,  IoImagesOutline} from "react-icons/io5";
 import { LuMailWarning, LuMail, LuLogOut } from "react-icons/lu";
 import { Link, Routes, Route, useLocation } from "react-router-dom";
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
-import { PieChart, Pie, Cell, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
 
 // Imagenes
@@ -22,7 +17,10 @@ import EmpleadosPage from "./pages/EmpleadosPage";
 import MailsEnviadosPage from "./pages/MailsEnviadosPage";
 import MailErrorPage from "./pages/MailErrorPage";
 import CalendarioPage from "./pages/Calendario";
-import MensajePage from "./pages/Mensaje";
+import EditorMensaje from "./pages/EditorMensaje";
+import useConfig from './componentes/useConfig'; 
+import useUpcomingEvents from './componentes/useEventosProximos'; 
+
 
 const data = [
   { año: '2020', cantidad: 5 },
@@ -44,6 +42,10 @@ function App() {
   const [count, setCount] = useState(0);
   const location = useLocation();
   const isDashboard = location.pathname === '/';
+  const { config, loading, error } = useConfig();
+  const { upcomingEvents } = useUpcomingEvents();
+
+
 
   return (
     <div className="parent">
@@ -65,7 +67,7 @@ function App() {
             <IoCalendarOutline size={14} /> Calendario
           </Link>
           <Link to="/mensaje" className="menu-item">
-            <IoImagesOutline size={14} /> Imágenes
+            <IoImagesOutline size={14} /> Mensaje editable
           </Link>
         </div>
         <div className="footer-aside">
@@ -91,7 +93,7 @@ function App() {
             <h2>Estadísticas</h2>
             <div className="estadisticas">
               <div className="data">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer>
                   <LineChart data={data}>
                     <XAxis dataKey="año" />
                     <YAxis />
@@ -104,7 +106,7 @@ function App() {
 
 
               <div className="data">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer>
                   <PieChart>
                     <Pie
                       data={dataTorta}
@@ -151,44 +153,46 @@ function App() {
           </div>
 
           <div className="div4">
-            <h2>Proximos eventos</h2>
-            {[...Array(4)].map((_, index) => (
-              <div className="perfil-info2" key={index}>
-                <img src={gaelMailEnviado} alt="Event participant" className="persona2" />
-                <div>
-                  <span className="empleado">nombreEmpleado apellidoEmpleado</span>
-                  <span className="ciudadYLugar">LugarDeTrabajo</span>
-                  <span className="ciudadYLugar">*logo* dd/mm/aaaa</span>
-                </div>
+            <h2>Proximos eventos (7 Días)</h2>
+            {upcomingEvents.length > 0 ? (
+          upcomingEvents.map(event => (
+            <div className="perfil-info2" key={event.id}>
+              <img
+                src={event.empleadoImagen || (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
+                alt={event.empleado}
+                className="persona2"
+                style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+              />
+              <div>
+                <span className="empleado">{event.title}</span>
+                <span className="ciudadYLugar">
+                  Fecha: {new Date(event.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                </span>
               </div>
-            ))}
-          </div>
+            </div>
+          ))
+        ) : (
+          <p>No hay eventos próximos en los siguientes 7 días.</p>
+        )}
+      </div>
 
           <div className="div5">
-            <h2>Mensaje mail</h2>
-            <p>
-              ¡Hola [nombre]!<br />
-              Se viene una fecha muy especial... ¡tu Crombieversario! 🎂{" "}<br />
-              Queremos agradecerte por ser parte de este camino y por
-              compartir un año más con nosotros. Cada aporte tuyo suma a lo
-              que hacemos día a día y nos hace crecer como equipo 💜<br />
-              Para celebrarlo, armamos unas placas digitales que podés usar
-              (si queres) para compartir en tus redes. Podés contar alguna
-              reflexión sobre este tiempo en Crombie: aprendizajes,
-              desafíos, alegrías o lo que más te haya marcado 💬 Te dejamos
-              las imágenes abajo en este mail.<br />
-              <br />
-              Si lo compartís, no te olvides de etiquetarnos para poder
-              celebrarte también desde nuestras redes 🎈<br />
-              <br />
-              ¡Gracias por ser parte de Crombie!<br />
-              <br />
-              Abrazo,<br />
-              Equipo de Marketing
-            </p>
-            <Link to="/mensaje">
-              <button className="verMas">Renovar mensaje</button>
-            </Link>
+            <h2>Mensaje de Aniversario</h2>
+            {loading ? (<p>Cargando mensaje...</p>) : error ? (
+              <p style={{ color: 'red' }}>Error al cargar el mensaje: {error}</p>
+            ) : (
+              <>
+                {/* Usamos un div con estilo para mostrar el mensaje preformateado */}
+                <div className="mensajeEstilo">
+                  {config.messageTemplate || 'No hay mensaje configurado aún.'}
+                </div>
+                <Link to="/mensaje">
+                  <button className="verMas" style={{ marginTop: '15px' }}>
+                    Renovar mensaje
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
         </>
       ) : (
@@ -198,7 +202,7 @@ function App() {
             <Route path="/mails-enviados" element={<MailsEnviadosPage />} />
             <Route path="/mail-error" element={<MailErrorPage />} />
             <Route path="/calendario" element={<CalendarioPage />} />
-            <Route path="/mensaje" element={<MensajePage />} />
+            <Route path="/mensaje" element={<EditorMensaje />} />
           </Routes>
         </div>
       )}

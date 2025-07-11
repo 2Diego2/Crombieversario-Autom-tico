@@ -1,64 +1,45 @@
+// src/pages/EditorMensaje.jsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; 
+import axios from 'axios';
+import useConfig from '../componentes/useConfig'; // Asegúrate que la ruta sea correcta
 
 function EditorMensaje() {
+    // Usa el custom hook para obtener la configuración y los estados relacionados
+    const { 
+        config, 
+        loading, 
+        error, 
+        API_BASE_URL,
+        localApiKey,
+        setConfig, 
+        setLoading, 
+        setError    
+    } = useConfig();
+
+    // Estados internos para cambios locales antes de guardar, y para la selección de archivos
     const [messageTemplate, setMessageTemplate] = useState('');
     const [imagePaths, setImagePaths] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
-    const [localApiKey, setLocalApiKey] = useState('');
 
-    const API_BASE_URL = 'http://localhost:3033';
-
-    // Obtener la API Key al montar
+    // Inicializa los estados locales una vez que la configuración se carga desde el hook
     useEffect(() => {
-        const fetchApiKey = async () => {
-            try {
-                const apiKeyResponse = await axios.get(`${API_BASE_URL}/api/get-api-key`);
-                const fetchedApiKey = apiKeyResponse.data.apiKey;
-                setLocalApiKey(fetchedApiKey);
-                console.log('API Key obtenida del backend:', fetchedApiKey);
-            } catch (err) {
-                setError('Error al obtener la API Key: ' + (err.response?.data?.error || err.message));
-                setLoading(false);
-            }
-        };
-        fetchApiKey();
-    }, []);
-
-    // Obtener la configuración solo cuando la API Key esté lista
-    useEffect(() => {
-        if (!localApiKey) return;
-        const fetchConfig = async () => {
-            try {
-                const configResponse = await axios.get(`${API_BASE_URL}/api/config`, {
-                    headers: { 'x-api-key': localApiKey }
-                });
-                setMessageTemplate(configResponse.data.messageTemplate);
-                setImagePaths(configResponse.data.imagePaths || []);
-            } catch (err) {
-                setError('Error al cargar la configuración: ' + (err.response?.data?.error || err.message));
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchConfig();
-    }, [localApiKey]);
-
-    // Solo para depuración: mostrar la API Key en el render
-    // console.log('API Key en render:', localApiKey);
+        if (config) {
+            setMessageTemplate(config.messageTemplate || '');
+            setImagePaths(config.imagePaths || []);
+        }
+    }, [config]);
 
     const handleSaveMessage = async () => {
         setLoading(true);
         setError(null);
         setSuccessMessage('');
         try {
-            // Envía todo el array de imagePaths tal como está en el estado de React
             await axios.put(`${API_BASE_URL}/api/config`, { messageTemplate, imagePaths }, {
                 headers: { 'x-api-key': localApiKey, 'Content-Type': 'application/json' }
             });
+            // Si guardas correctamente, actualiza la configuración en el estado del hook
+            setConfig(prevConfig => ({ ...prevConfig, messageTemplate, imagePaths }));
             setSuccessMessage('Mensaje y configuración de imágenes guardados exitosamente!');
         } catch (err) {
             setError('Error al guardar la configuración: ' + (err.response?.data?.error || err.message));
@@ -67,12 +48,10 @@ function EditorMensaje() {
         }
     };
 
-     // --- Manejar selección de archivo ---
     const handleFileChange = (event) => {
         setSelectedFile(event.target.files[0]);
     };
 
-    // --- Manejar subida de imagen ---
     const handleUploadImage = async () => {
         if (!selectedFile) {
             setError('Por favor, selecciona una imagen para subir.');
@@ -84,18 +63,18 @@ function EditorMensaje() {
         setSuccessMessage('');
 
         const formData = new FormData();
-        formData.append('image', selectedFile); // 'image' debe coincidir con upload.single('image') en el backend
+        formData.append('image', selectedFile);
 
         try {
             const response = await axios.post(`${API_BASE_URL}/api/upload-image`, formData, {
                 headers: {
                     'x-api-key': localApiKey,
-                    'Content-Type': 'multipart/form-data' // ¡Importante para multer!
+                    'Content-Type': 'multipart/form-data'
                 }
             });
-            // Actualiza el estado de las rutas de imágenes con la nueva imagen
-            setImagePaths(response.data.updatedConfig.imagePaths);
-            setSelectedFile(null); // Limpia el input del archivo
+            // Si subes correctamente, actualiza la configuración en el estado del hook
+            setConfig(response.data.updatedConfig);
+            setSelectedFile(null);
             setSuccessMessage('Imagen subida y agregada!');
         } catch (err) {
             setError('Error al subir imagen: ' + (err.response?.data?.error || err.message));
@@ -104,7 +83,6 @@ function EditorMensaje() {
         }
     };
 
-    // --- Manejar eliminación de imagen ---
     const handleDeleteImage = async (imageUrlToDelete) => {
         setLoading(true);
         setError(null);
@@ -116,10 +94,13 @@ function EditorMensaje() {
                     'x-api-key': localApiKey,
                     'Content-Type': 'application/json'
                 },
-                data: { imageUrl: imageUrlToDelete } // Body para peticiones DELETE
+                data: { imageUrl: imageUrlToDelete }
             });
-            // Filtra la imagen eliminada del estado local
-            setImagePaths(prevPaths => prevPaths.filter(path => path !== imageUrlToDelete));
+            // Si eliminas correctamente, actualiza la configuración en el estado del hook
+            setConfig(prevConfig => ({
+                ...prevConfig,
+                imagePaths: prevConfig.imagePaths.filter(path => path !== imageUrlToDelete)
+            }));
             setSuccessMessage('Imagen eliminada!');
         } catch (err) {
             setError('Error al eliminar imagen: ' + (err.response?.data?.error || err.message));
@@ -128,8 +109,14 @@ function EditorMensaje() {
         }
     };
 
-    if (loading) return <p>Cargando configuración...</p>;
-    if (error) return <p style={{ color: 'red' }}>{error}</p>;
+    // Muestra un mensaje de carga o error si es necesario.
+    // Solo muestra "Cargando..." si realmente no hay datos de configuración aún.
+    if (loading && (!config.messageTemplate && imagePaths.length === 0 && !error)) {
+        return <p>Cargando configuración...</p>;
+    }
+    if (error) {
+        return <p style={{ color: 'red' }}>{error}</p>;
+    }
 
     return (
         <div style={{ padding: '20px', maxWidth: '800px', margin: 'auto' }}>
@@ -170,7 +157,6 @@ function EditorMensaje() {
             <div style={{ marginTop: '20px' }}>
                 <h3>Imágenes del Mensaje:</h3>
 
-                {/* Lista de imágenes actuales */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', border: '1px solid #eee', padding: '15px', borderRadius: '4px', minHeight: '120px', alignItems: 'center' }}>
                     {imagePaths.length === 0 ? (
                         <p style={{ color: '#666' }}>No hay imágenes configuradas.</p>
@@ -178,7 +164,7 @@ function EditorMensaje() {
                         imagePaths.map((path, index) => (
                             <div key={index} style={{ position: 'relative', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden' }}>
                                 <img
-                                    src={`${API_BASE_URL}${path}`} // URL completa de la imagen
+                                    src={`${API_BASE_URL}${path}`} // URL completa de la imagen, usa API_BASE_URL del hook
                                     alt={`Aniversario ${index + 1}`}
                                     style={{ width: '100px', height: '100px', objectFit: 'cover', display: 'block' }}
                                 />
@@ -209,7 +195,6 @@ function EditorMensaje() {
                     )}
                 </div>
 
-                {/* Sección para subir nuevas imágenes */}
                 <div style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
                     <h4>Subir nueva imagen:</h4>
                     <input type="file" onChange={handleFileChange} accept="image/*" />
