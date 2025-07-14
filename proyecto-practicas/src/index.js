@@ -9,6 +9,7 @@ const { connectDB, guardarAniversario } = require("./db");
 const nodemailer = require("nodemailer");
 const cron = require("node-cron");
 
+// --- Configuraciones Iniciales ---
 
 // Función para obtener trabajadores desde la API
 async function obtenerTrabajadoresDeAPI() {
@@ -25,6 +26,7 @@ async function obtenerTrabajadoresDeAPI() {
   }
 }
 
+// Escucha cuando no hay aniversarios próximos
 aniversarioEmitter.on("sinAniversarios", () => {
   console.log("No hay trabajadores que cumplan aniversario en 3 días.");
 });

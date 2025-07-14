@@ -1,57 +1,67 @@
+// eventos.js
 /*Define y exporta los eventos personalizados usando 
 EventEmitter. Aquí puedes manejar lo que ocurre cuando se detecta un aniversario */
-
-require('dotenv').config();
 const EventEmitter = require("events");
 const dayjs = require("dayjs");
 const path = require("path");
-const fs = require("fs");
-const imagenesData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/imagenes.json'), 'utf-8'));
+require('dotenv').config();
+
+const mongoService = require('./db.js');
 
 class AniversarioEmitter extends EventEmitter {}
 const aniversarioEmitter = new AniversarioEmitter();
 
-function obtenerImagenesParaAniversario(nroAniversario) {
-  const img = imagenesData.find(img => img.nombre === `${nroAniversario}.png`);
-  return img ? [img.ruta] : [];
+const imagenesAniversario = {
+  1: [
+    path.join(__dirname, "img", "Crombieversario", "aniversario-1.png"),
+    path.join(__dirname, "img", "Crombieversario", "aniversario-1-2.png")
+  ],
+  2: [
+    path.join(__dirname, "img", "Crombieversario", "aniversario-1-2.png")
+  ],
+  3: [
+    path.join(__dirname, "img", "Crombieversario", "aniversario-1.png")
+  ],
+};
+
+async function inicializarDB() {
+  await mongoService.connectDB();
 }
 
-async function buscarAniversarios(trabajadores) { 
-  const hoy = dayjs();
-  const enTresDias = hoy.add(3, "day");
-  let encontrados = [];
-
-  for (const trabajador of trabajadores) {
-    if (!trabajador.fechaEntrada) continue;
-    const fechaIngreso = dayjs(trabajador.fechaEntrada);
-    let fechaAniversario = fechaIngreso.year(enTresDias.year());
-    const nroAniversario = fechaAniversario.diff(fechaIngreso, 'year');
-
-    if (fechaAniversario.isSame(enTresDias, 'day')) {
-      const imagen = obtenerImagenesParaAniversario(nroAniversario);
-      const info = {
-        ...trabajador,
-        nroAniversario,
-        imagen
-      };
-      aniversarioEmitter.emit("aniversario", info);
-      encontrados.push(info);
-    }
-  }
-  if (encontrados.length === 0) {
-    aniversarioEmitter.emit("sinAniversarios");
-  }
-  return encontrados;
+async function buscarAniversarios(trabajadores) {
+  return new Promise((resolve) => {
+    console.log("Buscando proximos aniversarios de trabajadores..");
+    setTimeout(() => {
+      const hoy = dayjs();
+      const enTresDias = hoy.add(3, "day");
+      let encontrados = [];
+      for (const trabajador of trabajadores) {
+        if (!trabajador.fechaEntrada) continue;
+        const fechaIngreso = dayjs(trabajador.fechaEntrada);
+        let fechaAniversario = fechaIngreso.year(enTresDias.year());
+        const nroAniversario = fechaAniversario.diff(fechaIngreso, 'year');
+        if (fechaAniversario.isSame(enTresDias, 'day')) {
+          const imagen = imagenesAniversario[nroAniversario];
+          const info = {
+            nombre: trabajador.nombre,
+            mail: trabajador.mail,
+            fechaEntrada: trabajador.fechaEntrada,
+            nroAniversario,
+            imagen
+          };
+          aniversarioEmitter.emit("aniversario", info);
+          encontrados.push(info);
+        }
+      }
+      if (encontrados.length === 0) {
+        aniversarioEmitter.emit("sinAniversarios");
+      }
+      resolve(encontrados);
+    }, 2000);
+  });
 }
 
 function MensajeMail(nombre, imagen) {
-  
-  let imagenesTexto = "No disponible";
-  if (Array.isArray(imagen) && imagen.length > 0) {
-    imagenesTexto = imagen.join("\n");
-  } else if (typeof imagen === "string") {
-    imagenesTexto = imagen;
-  }
   return `¡Hola, ${nombre}!
 
 Se viene una fecha muy especial... ¡tu Crombieversario! 🎂
@@ -63,17 +73,9 @@ Si lo compartís, no te olvides de etiquetarnos para poder celebrarte también d
 
 Abrazo,
 Equipo de Marketing
-${imagenesTexto}
+${imagen ? imagen : "No disponible"}
 `;
 }
 
-module.exports = { aniversarioEmitter, buscarAniversarios, MensajeMail };
+module.exports = { aniversarioEmitter, buscarAniversarios, MensajeMail, inicializarDB };
 
-
-/*Lo que tendria que hacer es:
-//Extraer informacion desde la API de PeopleForce
-// Luego se emiten los eventos y se envian los email
-// Antes de enviar los emails, tiene que buscar en la base de datos el mensaje y la imagen correspondiente al trabajador.
-// Lo que se envia y se emite se guarda en la base de datos mongoDB compass para guardar un registro de los aniversarios
-// Luego se crea un endpoint para consultar los aniversarios pasados y futuros
-// También se puede crear un endpoint para consultar los aniversarios de un trabajador específico por su mail*/
