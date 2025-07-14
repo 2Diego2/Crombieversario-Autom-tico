@@ -3,15 +3,16 @@ require('dotenv').config();
 const express = require('express');
 const crypto = require("crypto");
 const updateEnvFile = require('./utils/saveEnv');
-const { connectDB, getConfig, updateConfig } = require('./db'); // Importa las nuevas funciones
-const multer = require('multer'); // Importa multer
-const fs = require('fs'); // Para manejar archivos (eliminar)
-const path = require('path'); // Para manejar rutas de archivos
+const { connectDB, getConfig, updateConfig } = require('./db');
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3033; // Usa la variable de entorno para el puerto
+const PORT = process.env.PORT || 3033;
 
 // --- Configuración de Multer para Subida de Archivos ---
+// Mantenemos tu UPLOADS_DIR original
 const UPLOADS_DIR = path.join(__dirname, '../public/uploads'); // Carpeta donde se guardarán las imágenes
 // Asegúrate de que la carpeta de uploads exista
 if (!fs.existsSync(UPLOADS_DIR)) {
@@ -20,42 +21,62 @@ if (!fs.existsSync(UPLOADS_DIR)) {
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, UPLOADS_DIR); // Guarda los archivos en la carpeta UPLOADS_DIR
+        cb(null, UPLOADS_DIR);
     },
     filename: (req, file, cb) => {
-        // Genera un nombre de archivo único para evitar colisiones
-        cb(null, `${Date.now()}-${file.originalname}`);
+        const anniversaryNumber = req.params.anniversaryNumber; // Get from params
+        console.log('Multer Filename: anniversaryNumber recibido from req.params:', anniversaryNumber);
+
+        if (!anniversaryNumber || isNaN(parseInt(anniversaryNumber)) || parseInt(anniversaryNumber) <= 0) {
+            return cb(new Error(`Número de aniversario inválido o faltante. Recibido: '${anniversaryNumber}' (desde params)`), null);
+        }
+
+        const parsedAnniversaryNumber = parseInt(anniversaryNumber);
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (ext !== '.png') {
+            return cb(new Error('Solo se permiten imágenes PNG.'), null);
+        }
+
+        const fileName = `${parsedAnniversaryNumber}.png`;
+        const filePath = path.join(UPLOADS_DIR, fileName);
+
+        if (fs.existsSync(filePath)) {
+            // THIS IS THE ERROR YOU WANT TO CATCH AND SEND AS JSON
+            return cb(new Error(`Ya existe una imagen para el aniversario N° ${parsedAnniversaryNumber}. Por favor, elimínala primero.`), null);
+        }
+
+        console.log('Multer Filename: Nombre final del archivo:', fileName);
+        cb(null, fileName);
     }
 });
-const upload = multer({ storage: storage });
 
-// Middleware para parsear JSON en el cuerpo de las peticiones
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // Límite de 5MB
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'image/png') {
+            cb(null, true);
+        } else {
+            cb(new Error('Tipo de archivo no soportado. Solo se permiten PNGs.'), false);
+        }
+    }
+});
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // Para parsear cuerpos de petición URL-encoded (si fuera necesario)
+app.use(express.urlencoded({ extended: true }));
 
-// Middleware para habilitar CORS (Cross-Origin Resource Sharing)
-// Esto es CRÍTICO para que React pueda hacer peticiones a tu backend
 app.use((req, res, next) => {
-    // Permite peticiones desde cualquier origen (para desarrollo)
     res.header('Access-Control-Allow-Origin', '*');
-    // Permite los métodos HTTP que vas a usar
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    // Permite los headers que vas a usar (incluyendo x-api-key)
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
-    // Maneja peticiones OPTIONS (preflight requests)
     if (req.method === 'OPTIONS') {
         return res.sendStatus(200);
     }
     next();
 });
 
-console.log('API_KEY cargada desde .env:', process.env.API_KEY); // Log para mostrar la API Key cargada
+console.log('API_KEY cargada desde .env:', process.env.API_KEY);
 
-// Middleware para servir archivos estáticos (¡CRÍTICO para las imágenes!)
-// Esto hará que los archivos en 'proyecto-practicas/public' sean accesibles vía URL
-app.use('/uploads', express.static(UPLOADS_DIR)); // Hace que /public/uploads sea accesible como /uploads en la URL
-
-// ... (tu lógica de generación de API Key) ...
 if (!process.env.API_KEY || process.env.API_KEY.trim() === '' || process.env.API_KEY.trim() === '(dir_name)') {
     const newApiKey = crypto.randomBytes(32).toString('hex');
     updateEnvFile('API_KEY', newApiKey);
@@ -65,7 +86,6 @@ if (!process.env.API_KEY || process.env.API_KEY.trim() === '' || process.env.API
     process.env.API_KEY = process.env.API_KEY.trim();
 }
 
-// Middleware solo para rutas protegidas
 function requireApiKey(req, res, next) {
     const apiKey = req.header('x-api-key');
     console.log('API Key recibida:', apiKey, '| API Key esperada:', process.env.API_KEY);
@@ -74,6 +94,9 @@ function requireApiKey(req, res, next) {
     }
     next();
 }
+
+// Middleware para servir archivos estáticos (MANTENEMOS TU RUTA ORIGINAL)
+app.use('/uploads', express.static(UPLOADS_DIR)); // Sigue sirviendo /public/uploads como /uploads
 
 // ENDPOINT para obtener trabajadores desde el archivo JSON local
 app.get('/trabajadores', (req, res) => {
@@ -93,7 +116,6 @@ app.get('/trabajadores', (req, res) => {
     });
 });
 
-// NUEVOS ENDPOINTS para la configuración
 app.get('/api/config', requireApiKey, async (req, res) => {
     try {
         const config = await getConfig();
@@ -104,7 +126,6 @@ app.get('/api/config', requireApiKey, async (req, res) => {
     }
 });
 
-// Deja solo esta versión protegida del PUT
 app.put('/api/config', requireApiKey, async (req, res) => {
     const { messageTemplate, imagePaths } = req.body;
     if (messageTemplate === undefined) {
@@ -120,28 +141,50 @@ app.put('/api/config', requireApiKey, async (req, res) => {
 });
 
 app.get('/api/get-api-key', (req, res) => {
-    // Cuidado: Exponer la API_KEY así no es seguro en producción.
-    // Solo para propósitos de desarrollo/prueba.
     res.json({ apiKey: process.env.API_KEY });
 });
 
-// ENDPOINT para SUBIR UNA NUEVA IMAGEN
-app.post('/api/upload-image', upload.single('image'), async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: 'No se ha subido ningún archivo.' });
-    }
+// ENDPOINT para SUBIR UNA NUEVA IMAGEN (Con requireApiKey)
+app.post('/api/upload-image/:anniversaryNumber', requireApiKey, async (req, res) => {
+    // Wrap the Multer middleware in a Promise-based function or a try/catch block
+    // to handle errors gracefully before proceeding.
 
     try {
-        // La ruta que guardaremos en la DB y que el frontend usará para mostrar
-        // Será relativa al directorio base que Express sirve estáticamente ('/uploads/nombre_del_archivo')
+        // Use upload.single() directly with async/await
+        // This is a common pattern for handling Multer errors more explicitly
+        await new Promise((resolve, reject) => {
+            upload.single('image')(req, res, (err) => {
+                if (err) {
+                    console.error('Multer error caught:', err);
+                    return reject(err); // Reject the promise if Multer throws an error
+                }
+                resolve(); // Resolve if upload successful
+            });
+        });
+
+        // If we reach here, Multer succeeded, and req.file should be available
+        if (!req.file) { // This check might still be useful for edge cases
+            return res.status(400).json({ error: 'No se ha subido ningún archivo o el archivo no fue procesado por el servidor.' });
+        }
+
+        const anniversaryNumber = req.params.anniversaryNumber;
+        console.log('Route Handler: anniversaryNumber from req.params:', anniversaryNumber);
+
         const imageUrl = `/uploads/${req.file.filename}`;
 
-        // Obtener la configuración actual
-        const config = await getConfig(); // Ojo, esta función puede crear una config si no existe
-        // Asegúrate de que config.imagePaths sea un array y añade la nueva ruta
-        const newImagePaths = [...(config.imagePaths || []), imageUrl];
+        const config = await getConfig();
+        const newImagePaths = [...(config.imagePaths || [])];
 
-        // Actualiza la configuración con la nueva ruta de imagen
+        if (!newImagePaths.includes(imageUrl)) {
+            newImagePaths.push(imageUrl);
+        }
+
+        newImagePaths.sort((a, b) => {
+            const numA = parseInt(path.basename(a, '.png'));
+            const numB = parseInt(path.basename(b, '.png'));
+            return numA - numB;
+        });
+
         const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
 
         res.status(200).json({
@@ -150,36 +193,44 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
             updatedConfig: updatedConfig
         });
     } catch (error) {
-        console.error('Error al subir imagen o actualizar configuración:', error);
-        // Si hay un error, intentar eliminar el archivo subido para limpiar
-        fs.unlink(req.file.path, (err) => {
-            if (err) console.error('Error al eliminar archivo subido tras un error:', err);
+        // This catch block will now handle errors thrown by Multer's filename function
+        // (because we rejected the promise with that error)
+        console.error('Final upload error handler:', error);
+
+        // Clean up partially uploaded files if any (though Multer's error should prevent saving)
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlink(req.file.path, (err) => {
+                if (err) console.error('Error al eliminar archivo subido tras un error en config:', err);
+            });
+        }
+        
+        // Send the specific error message from Multer
+        // Multer errors are usually instance of Error, so error.message holds the text
+        return res.status(400).json({ // Use 400 Bad Request for client-side input errors (like file exists)
+            error: error.message || 'Error desconocido al subir imagen.'
         });
-        res.status(500).json({ error: 'Error interno del servidor al subir imagen.' });
     }
 });
 
-// ENDPOINT para ELIMINAR UNA IMAGEN
-app.delete('/api/delete-image', async (req, res) => {
-    const { imageUrl } = req.body; // Esperamos la URL de la imagen a eliminar
+// ENDPOINT para ELIMINAR UNA IMAGEN (Con requireApiKey)
+app.delete('/api/delete-image', requireApiKey, async (req, res) => {
+    const { imageUrl } = req.body;
     if (!imageUrl) {
         return res.status(400).json({ error: 'URL de imagen no proporcionada.' });
     }
 
     // Construye la ruta física completa del archivo en el servidor
-    const filename = path.basename(imageUrl); // Extrae 'nombre_del_archivo.jpg' de '/uploads/nombre_del_archivo.jpg'
-    const filePath = path.join(UPLOADS_DIR, filename);
+    const filename = path.basename(imageUrl);
+    const filePath = path.join(UPLOADS_DIR, filename); // Usa UPLOADS_DIR aquí
 
     try {
-        // 1. Eliminar el archivo del sistema de archivos
         if (fs.existsSync(filePath)) {
-            await fs.promises.unlink(filePath); // Usa fs.promises para asincronía
+            await fs.promises.unlink(filePath);
             console.log(`Archivo ${filePath} eliminado del servidor.`);
         } else {
             console.warn(`Intento de eliminar imagen no existente en el servidor: ${filePath}`);
         }
 
-        // 2. Eliminar la ruta de la imagen de la base de datos
         const config = await getConfig();
         const newImagePaths = (config.imagePaths || []).filter(path => path !== imageUrl);
 
@@ -195,7 +246,6 @@ app.delete('/api/delete-image', async (req, res) => {
     }
 });
 
-// Iniciar el servidor y la conexión a la DB
 (async () => {
     try {
         await connectDB();
