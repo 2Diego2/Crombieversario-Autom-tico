@@ -12,10 +12,8 @@ class AniversarioEmitter extends EventEmitter {}
 const aniversarioEmitter = new AniversarioEmitter();
 
 function obtenerImagenesParaAniversario(nroAniversario) {
-  // Si quieres enviar solo una imagen por aniversario:
   const img = imagenesData.find(img => img.nombre === `${nroAniversario}.png`);
   return img ? [img.ruta] : [];
-  // Si quieres enviar varias imágenes por aniversario, ajusta aquí
 }
 
 async function buscarAniversarios(trabajadores) { 
@@ -28,6 +26,7 @@ async function buscarAniversarios(trabajadores) {
     const fechaIngreso = dayjs(trabajador.fechaEntrada);
     let fechaAniversario = fechaIngreso.year(enTresDias.year());
     const nroAniversario = fechaAniversario.diff(fechaIngreso, 'year');
+
     if (fechaAniversario.isSame(enTresDias, 'day')) {
       const imagen = obtenerImagenesParaAniversario(nroAniversario);
       const info = {
@@ -39,7 +38,6 @@ async function buscarAniversarios(trabajadores) {
       encontrados.push(info);
     }
   }
-
   if (encontrados.length === 0) {
     aniversarioEmitter.emit("sinAniversarios");
   }

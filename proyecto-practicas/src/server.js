@@ -15,8 +15,6 @@ if (!process.env.API_KEY || process.env.API_KEY === '(dir_name)') {
   updateEnvFile('API_KEY', newApiKey); // Guardamos la nueva API Key en el archivo .env
   process.env.API_KEY = newApiKey; // Actualizamos la clave en tiempo de ejecución
 }
-
-
 // Middleware para validar x-api-key
 app.use((req, res, next) => {
   const apiKey = req.header('x-api-key');
@@ -26,14 +24,12 @@ app.use((req, res, next) => {
   next();
 });
 
-
+ 
 const trabajadores = [
-{nombre: 'Juan',apellido: 'Perez',fechaEntrada:'2024-07-11',cumpleanios:'1990-08-27',mail:'diegoabelleyra74@gmail.com'},
+{nombre: 'Juan',apellido: 'Perez',fechaEntrada:'2024-07-13',cumpleanios:'1990-08-27',mail:'diegoabelleyra74@gmail.com'},
 {nombre: 'Ana',apellido: 'Garcia',fechaEntrada:'2024-06-20',cumpleanios:'1985-12-05',mail:'anita@gmail.com'},
-]; 
-
+];
 app.get('/trabajadores', (req, res) => {
-
     res.json(trabajadores);
 });
 

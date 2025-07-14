@@ -9,7 +9,11 @@ const aniversarioSchema = new mongoose.Schema({
   mail: String,
   nroAniversario: Number,
   imagen: [String],
-  enviado: { type: Boolean,
+  leido: {
+  type: Boolean,
+  default: false},
+  enviado: {
+  type: Boolean,
   default: false},
   fechaRegistro: {
   type: Date,
@@ -36,8 +40,10 @@ async function guardarAniversario(data) {
     const nuevo = new Aniversario(data);
     await nuevo.save();
     console.log('Aniversario guardado en MongoDB');
+    return nuevo;
   } catch (error) {
     console.error('Error guardando aniversario:', error.message);
+    return null;
   }
 }
 module.exports = {

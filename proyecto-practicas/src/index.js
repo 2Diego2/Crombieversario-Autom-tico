@@ -32,7 +32,7 @@ aniversarioEmitter.on("sinAniversarios", () => {
 
 // Escucha el evento y guarda el aniversario en la base de datos
 
-cron.schedule('14 12 * * 1-5', () => {
+cron.schedule('06 12 * * 1-5', () => {
 aniversarioEmitter.on("aniversario", async (empleado) => {
   const mensaje = MensajeMail(empleado.nombre, empleado.imagen);
   console.log("Mensaje para enviar por mail:");
@@ -48,39 +48,36 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
       pass: process.env.GMAIL_APP_PASSWORD
     }
   });
-
-  // Adjunta las imágenes
-  const attachments = (empleado.imagen || []).map(rutaRelativa => ({
+   
+// Adjunta el logo y las imágenes del aniversario
+const attachments = [
+  ...(empleado.imagen || []).map(rutaRelativa => ({
     filename: path.basename(rutaRelativa),
     path: path.join(__dirname, '..', rutaRelativa)
-  }));
-   enviado = false;
-  try {
-    const info = await transporter.sendMail({
-      from: `"CrombieVersario" <${process.env.GMAIL_USER}>`,
-      to: empleado.mail,
-      subject: "🎉 ¡Se viene tu Crombieversario!",
-      text: mensaje,
-      attachments: [{
-       filename: 'CrombieLogo.png',
-       path: path.join("../img/CrombieLogo.png")
-      }],
-    });
-    console.log('Email enviado:', info.messageId);
-    enviado = true;
-  } catch (error) {
-    console.error('Error enviando email:', error);
-    enviado = false;
-  }
+  }))
+];
 
-  await guardarAniversario({...empleado, enviado});
-});
+ try {
+      const info = await transporter.sendMail({
+        from: `"CrombieVersario" <${process.env.GMAIL_USER}>`,
+        to: empleado.mail,
+        subject: "🎉 ¡Se viene tu Crombieversario!",
+        html:<img src="http://localhost:3000/track?email=destinatario@example.com" alt="" style="display:none;" />,
+        attachments
+      });
 
-(async () => {
-  await connectDB();
-  const trabajadores = await obtenerTrabajadoresDeAPI();
-  await buscarAniversarios(trabajadores);
-})();
+      console.log('Email enviado:', info.messageId);
+      
+    } catch (error) {
+      console.error('Error enviando email:', error);
+    }
+  });
+
+  (async () => {
+    await connectDB();
+    const trabajadores = await obtenerTrabajadoresDeAPI();
+    await buscarAniversarios(trabajadores);
+  })();
 }, {
   timezone: "America/Argentina/Buenos_Aires",
 });
