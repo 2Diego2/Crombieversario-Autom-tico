@@ -1,8 +1,27 @@
+<<<<<<< HEAD
 // db.js
+=======
+//Se conecta a la base de datos y guarda informacion de los aniversarios que se cumplieron.
+>>>>>>> 58d5dbf9e0949c2f51a0099778e72f08de2249b0
 const mongoose = require('mongoose');
 
-// *Definición de Esquemas y Modelos*
+const aniversarioSchema = new mongoose.Schema({
+  nombre: String,
+  apellido: String,
+  fechaEntrada: String,
+  cumpleanios: String,
+  mail: String,
+  nroAniversario: Number,
+  imagen: [String],
+  fechaRegistro: {
+  type: Date,
+  default: () => new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }))
+}
+  //MongoDB seguirá mostrando en UTC la fecha en Compass, pero internamente la hora estará correctamente ajustada. 
+  //Si necesitás visualizarla siempre como hora local, deberás formatearla en el cliente,(por ejemplo, en una app web o al mostrarla en consola)
+});
 
+<<<<<<< HEAD
 // Esquema para Colaboradores
 // Este esquema define la estructura de los documentos en tu colección 'collaborators'
 /*const collaboratorSchema = new mongoose.Schema({
@@ -35,25 +54,20 @@ const configSchema = new mongoose.Schema({
 const Config = mongoose.model('Config', configSchema);
 
 // *Función de Conexión a la Base de Datos*
+=======
+const Aniversario = mongoose.model('Aniversario', aniversarioSchema, 'aniversarios');
+>>>>>>> 58d5dbf9e0949c2f51a0099778e72f08de2249b0
 
 async function connectDB() {
-    try {
-        await mongoose.connect(process.env.MONGO_URI, {
-            // Opciones recomendadas para Mongoose 6+
-            // ya no son necesarias en las versiones más recientes,
-            // pero pueden usarse para compatibilidad o configuración avanzada
-            // useNewUrlParser: true,
-            // useUnifiedTopology: true,
-            // useCreateIndex: true, // Esto es para 'unique: true'
-            // useFindAndModify: false // Esto es para métodos de actualización/eliminación
-        });
-        console.log('MongoDB conectado exitosamente');
-    } catch (error) {
-        console.error('Error conectando a MongoDB:', error.message);
-        process.exit(1); // Sale de la aplicación si no puede conectar a la DB
-    }
+  try {
+await mongoose.connect(process.env.MONGO_URI);
+    console.log('MongoDB conectado exitosamente');
+  } catch (error) {
+    console.error('Error conectando a MongoDB:', error.message);
+  }
 }
 
+<<<<<<< HEAD
 // *Operaciones Básicas para Logs*
 
 /**
@@ -213,3 +227,19 @@ if (require.main === module) {
 /*Adaptar todo el codigo de vuelta de eventos.js para que traiga la informacion de la API de peopleForce
 Despues adaptar ¿db.js? y eventos.js para que guarde los mensajes automaticos que se mandan
 (emails,personas,mensaje,foto)*/
+=======
+async function guardarAniversario(data) {
+  try {
+    console.log('Datos a guardar:', data); 
+    const nuevo = new Aniversario(data);
+    await nuevo.save();
+    console.log('Aniversario guardado en MongoDB');
+  } catch (error) {
+    console.error('Error guardando aniversario:', error.message);
+  }
+}
+module.exports = {
+  connectDB,
+  guardarAniversario
+};
+>>>>>>> 58d5dbf9e0949c2f51a0099778e72f08de2249b0
