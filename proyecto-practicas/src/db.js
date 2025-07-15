@@ -32,6 +32,15 @@ const configSchema = new mongoose.Schema({
     lastUpdated: { type: Date, default: Date.now }
 }, { timestamps: true }); // Añade createdAt y updatedAt
 
+const failedEmailLogSchema = new mongoose.Schema({
+    email: { type: String, required: true },
+    years: { type: Number, required: true },
+    attemptDate: { type: Date, default: Date.now },
+    errorMessage: { type: String },
+    status: { type: String, default: 'failed' } // 'failed', 'retried', 'succeeded_after_retry'
+}, { timestamps: true });
+const FailedEmailLog = mongoose.model('FailedEmailLog', failedEmailLogSchema);
+
 const Config = mongoose.model('Config', configSchema);
 
 // *Función de Conexión a la Base de Datos*
@@ -135,6 +144,41 @@ async function updateConfig(messageTemplate, imagePaths) {
     }
 }
 
+async function recordFailedEmail(email, years, errorMessage) {
+    try {
+        const newFailedLog = new FailedEmailLog({ email, years, errorMessage });
+        await newFailedLog.save();
+        console.error(`Log de envío fallido registrado en DB para ${email} (${years} años): ${errorMessage}`);
+    } catch (error) {
+        console.error(`Error al registrar log de envío fallido para ${email}: ${error.message}`);
+    }
+}
+
+// Add a function to get failed emails for retry attempts
+async function getFailedEmailsToRetry() {
+    try {
+        // Fetch emails that failed, for example, within the last 24 hours and haven't been successfully retried
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const failedEmails = await FailedEmailLog.find({
+            status: 'failed',
+            attemptDate: { $gte: twentyFourHoursAgo }
+        }).limit(50); // Limit to avoid overwhelming retries
+        return failedEmails;
+    } catch (error) {
+        console.error('Error al obtener emails fallidos para reintento:', error.message);
+        return [];
+    }
+}
+
+async function updateFailedEmailStatus(logId, newStatus) {
+    try {
+        await FailedEmailLog.findByIdAndUpdate(logId, { status: newStatus });
+        console.log(`Estado del log de email fallido ${logId} actualizado a ${newStatus}.`);
+    } catch (error) {
+        console.error(`Error al actualizar estado del log de email fallido ${logId}:`, error.message);
+    }
+}
+
 // *Operaciones Básicas para Colaboradores (si decides migrarlos a la DB)*
 
 /**
@@ -188,7 +232,10 @@ module.exports = {
     getConfig,
     updateConfig,
     SentLog,
-    Config
+    Config,
+    recordFailedEmail,
+    getFailedEmailsToRetry,
+    updateFailedEmailStatus
     // Puedes exportar estas si decides migrar los colaboradores a MongoDB
     //saveOrUpdateCollaborator,
     //getAllCollaborators,

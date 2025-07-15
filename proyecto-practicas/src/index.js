@@ -5,12 +5,8 @@ const fs = require("fs");
 const axios = require("axios"); // Para hacer peticiones HTTP a tu API local o a PeopleForce
 
 // Importa las funcionalidades de eventos y la base de datos
-const {
-  aniversarioEmitter,
-  buscarAniversarios,
-  MensajeMail,
-} = require("./eventos");
-const { connectDB, recordSentEmail, checkIfSentToday } = require("./db"); // Asegúrate de importar checkIfSentToday también
+const {  aniversarioEmitter,  buscarAniversarios,  MensajeMail } = require("./eventos");
+const { connectDB, recordSentEmail, recordFailedEmail, checkIfSentToday } = require("./db");
 const nodemailer = require("nodemailer");
 const cron = require("node-cron");
 
@@ -51,7 +47,10 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
   }
 
   // 2. Generar el mensaje del correo (de la base de datos)
-  const mensajeHtml = await MensajeMail(empleado.nombre, empleado.nroAniversario); // Adjust MensajeMail to take nroAniversario
+  const mensajeHtml = await MensajeMail(
+    empleado.nombre,
+    empleado.nroAniversario
+  ); // Adjust MensajeMail to take nroAniversario
 
   // 3. Preparar los adjuntos de las imágenes (de la base de datos)
   let attachments = [];
@@ -67,7 +66,9 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
     const imageFileName = path.basename(imageRelativeUrl);
     const physicalImagePath = path.join(UPLOADS_PHYSICAL_DIR, imageFileName);
 
-console.log(`[DEBUG PATH] Intentando leer imagen desde esta ruta: "${physicalImagePath}"`);
+    console.log(
+      `[DEBUG PATH] Intentando leer imagen desde esta ruta: "${physicalImagePath}"`
+    );
 
     if (fs.existsSync(physicalImagePath)) {
       attachments.push({
@@ -93,9 +94,10 @@ console.log(`[DEBUG PATH] Intentando leer imagen desde esta ruta: "${physicalIma
       to: empleado.mail,
       subject: "🎉 ¡Se viene tu Crombieversario!",
       html: mensajeHtml,
-      attachments: attachments // Adjunta las imágenes
+      attachments: attachments, // Adjunta las imágenes
     });
     console.log("Email enviado:", info.messageId);
+
     // 5. Registrar el envío en la base de datos
     await recordSentEmail(empleado.mail, empleado.nroAniversario);
   } catch (error) {
@@ -103,12 +105,15 @@ console.log(`[DEBUG PATH] Intentando leer imagen desde esta ruta: "${physicalIma
       `Error enviando email o registrando log para ${empleado.mail}:`,
       error
     );
-  }
 
+    // 6. Registrar los envios fallidos
+    await recordFailedEmail(empleado.mail, empleado.nroAniversario, error.message);
+  }
 });
 
 // --- Función Principal de Ejecución ---
-cron.schedule(  "20 10 * * 1-5",
+cron.schedule(
+  "51 09 * * 1-5",
   async () => {
     // Conectar a la base de datos
     await connectDB();
@@ -118,8 +123,9 @@ cron.schedule(  "20 10 * * 1-5",
     try {
       // Obtener trabajadores de la API local (que simula PeopleForce)
       // Asegúrate de que process.env.PORT y process.env.API_KEY estén definidos en tu .env
-      const apiUrl = `http://localhost:${process.env.PORT || 3033
-        }/trabajadores`;
+      const apiUrl = `http://localhost:${
+        process.env.PORT || 3033
+      }/trabajadores`;
       const apiKey = process.env.API_KEY;
 
       if (!apiKey) {
