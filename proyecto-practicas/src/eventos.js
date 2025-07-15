@@ -1,55 +1,73 @@
 // eventos.js
-/*Define y exporta los eventos personalizados usando 
-EventEmitter. Aquí puedes manejar lo que ocurre cuando se detecta un aniversario */
-
 require("dotenv").config();
 const mongoService = require("./db.js");
-
-/*import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from 'nestjs/schedule';*/
-
-// const { connectDB, obtenerTrabajadores } = require('./db');
-
 const EventEmitter = require("events");
 const dayjs = require("dayjs");
+const weekDay = require("dayjs/plugin/weekday");
 const path = require("path");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
-// const imagenesData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/imagenes.json'), 'utf-8'));
+
+dayjs.extend(weekDay); // Extend dayjs with the weekday plugin
 
 class AniversarioEmitter extends EventEmitter {}
 const aniversarioEmitter = new AniversarioEmitter();
 
-// Elimina la dependencia de imagenes.json para la gestión diaria
-// (Solo se usa para precarga inicial si se desea)
-// El resto de la lógica de imágenes se gestiona desde la base de datos y la interfaz
-
 async function buscarAniversarios(trabajadores) {
-  const hoy = dayjs();
-  const enTresDias = hoy.add(3, "day");
-  let encontrados = [];
+  const hoy = dayjs().startOf("day");
+  let aniversariosProximosEncontrados = 0;
 
   for (const trabajador of trabajadores) {
     if (!trabajador.fechaEntrada) continue;
     const fechaIngreso = dayjs(trabajador.fechaEntrada);
-    let fechaAniversario = fechaIngreso.year(enTresDias.year());
-    const nroAniversario = fechaAniversario.diff(fechaIngreso, "year");
-    if (fechaAniversario.isSame(enTresDias, "day")) {
+    if (!fechaIngreso.isValid()) {
+      console.warn(
+        `[ADVERTENCIA] Fecha de ingreso inválida para ${trabajador.nombre}: ${trabajador.fechaEntrada}. Saltando.`
+      );
+      continue;
+    }
+
+    // Ver si el aniversario es este anio o el que viene
+    let aniversarioEsteAno = fechaIngreso.year(hoy.year());
+    let nroAniversario = hoy.year() - fechaIngreso.year();
+
+    // Si el aniversario ya pasó este año, considera el aniversario del próximo año 
+    // y ajusta el número del aniversario en consecuencia.
+    if (aniversarioEsteAno.isBefore(hoy, 'day')) {
+      aniversarioEsteAno = fechaIngreso.year(hoy.year() + 1);
+      nroAniversario = (hoy.year() + 1) - fechaIngreso.year();
+    }
+
+    // --- Lógica para determinar la fecha de envío del correo ---
+    let fechaPrevistaEnvio = aniversarioEsteAno.subtract(3, "day").startOf("day");
+
+    // dayjs().weekday() devuelve 0 para el domingo, 1 para el lunes, ..., 6 para el sábado. 
+    // Si es sábado o domingo, ajusta al siguiente lunes.
+    const diaDeLaSemana = fechaPrevistaEnvio.weekday();
+
+    if (diaDeLaSemana === 6) { // If Saturday
+      fechaPrevistaEnvio = fechaPrevistaEnvio.add(2, "day").startOf("day"); // Move to Monday
+    } else if (diaDeLaSemana === 0) { // If Sunday
+      fechaPrevistaEnvio = fechaPrevistaEnvio.add(1, "day").startOf("day"); // Move to Monday
+    }
+    
+    // Comparar el dia que se debe enviar con el dia de hoy
+    if (fechaPrevistaEnvio.isSame(hoy, "day")) {
+      aniversariosProximosEncontrados++;
       const imagen = await obtenerImagenesParaAniversario(nroAniversario);
       const info = {
         ...trabajador,
         nroAniversario,
         imagen,
+        fechaEnvioProgramada: fechaPrevistaEnvio.toDate(), // Convert dayjs object back to Date if needed by consumer
       };
       aniversarioEmitter.emit("aniversario", info);
-      encontrados.push(info);
     }
   }
 
-  if (encontrados.length === 0) {
+  if (aniversariosProximosEncontrados === 0) {
     aniversarioEmitter.emit("sinAniversarios");
   }
-  return encontrados;
 }
 
 // MensajeMail ahora obtiene el mensaje editable desde la base de datos
