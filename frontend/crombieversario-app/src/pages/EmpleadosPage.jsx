@@ -38,7 +38,7 @@ const EmpleadosPage = () => {
 
   return (
     <div className="empleados-page">
-      <h1>Gestión de Empleados</h1>
+      <h1>Gestión de empleados</h1>
       <br />
 
       <div className="buscador2">

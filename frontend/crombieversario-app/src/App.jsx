@@ -153,7 +153,7 @@ function App() {
           </div>
 
           <div className="div4">
-            <h2>Proximos eventos (7 Días)</h2>
+            <h2>Próximos eventos (7 días)</h2>
             {upcomingEvents.length > 0 ? (
           upcomingEvents.map(event => (
             <div className="perfil-info2" key={event.id}>
@@ -177,7 +177,7 @@ function App() {
       </div>
 
           <div className="div5">
-            <h2>Mensaje de Aniversario</h2>
+            <h2>Mensaje de aniversario</h2>
             {loading ? (<p>Cargando mensaje...</p>) : error ? (
               <p style={{ color: 'red' }}>Error al cargar el mensaje: {error}</p>
             ) : (
