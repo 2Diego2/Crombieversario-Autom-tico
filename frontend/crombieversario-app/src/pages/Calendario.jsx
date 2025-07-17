@@ -44,55 +44,76 @@ const CalendarioPage = () => {
   }
 
   return (
-    <div className="calendario-page-container">
-      <h2>Calendario de Eventos</h2>
+    <div className='main-content-pages'>
+      <div className="calendario-page-container">
+        <h1>Calendario de Eventos</h1>
 
-      <div className="fullcalendar-wrapper">
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-          initialView="dayGridMonth"
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-          }}
-          locale="es"
-          editable={false}
-          selectable={false}
-          dayMaxEvents={true}
-          // weekends={true} // Por defecto es true
-          events={allEventsForCalendar} // Usar todos los eventos del hook
-          dateClick={handleDateClick}
-          eventClick={handleEventClick}
-        />
-      </div>
+        <div className="fullcalendar-wrapper">
+          <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+            initialView="dayGridMonth"
+            headerToolbar={{
+              left: 'prev,next today',
+              center: 'title',
+              right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            }}
+            locale="es"
+            editable={false}
+            selectable={false}
+            dayMaxEvents={true}
+            weekends={true}
+            events={allEventsForCalendar} // Usar todos los eventos del hook
+            dateClick={handleDateClick}
+            eventClick={handleEventClick}
+          />
+        </div>
 
-      <div className="events-list">
-        <h2>Próximos Eventos (7 Días)</h2>
-        {upcomingEvents.length > 0 ? (
-          upcomingEvents.map(event => (
-            <div className="perfil-info2" key={event.id}>
-              {/* Ajustar el src de la imagen para que sea relativo a la carpeta public */}
-              <img
-                src={event.empleadoImagen ? `/${event.empleadoImagen}` : (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
-                alt={event.empleado}
-                className="persona2"
-                style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
-              />
-              <div>
-                <span className="empleado">{event.title}</span>
-                <span className="ciudadYLugar">
-                  Fecha: {new Date(event.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                </span>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p>No hay eventos próximos en los siguientes 7 días.</p>
-        )}
+
+        <div className="events-list">
+          <h2>Próximos Eventos (7 Días)</h2>
+          <div className="empleados-table-scroll-container2">
+            <table className="empleados-table">
+              <thead>
+                <tr>
+                  <th>Evento</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {upcomingEvents.length > 0 ? (
+                  upcomingEvents.map(event => (
+                    <tr key={event.id}>
+                      <td>
+                        <div className="nombreEmpleado">
+                          <img
+                            src={event.empleadoImagen || (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
+                            alt={event.empleado}
+                            className="fotoEmpleado"
+                          />
+                          <div className="infoEmpleado">
+                            <span className="nombreApellido">{event.title}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="fechaIngreso">
+                          {new Date(event.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="2" className="no-results">No hay eventos próximos en los siguientes 7 días.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
-  );
+  )
 };
 
-export default CalendarioPage;
+        export default CalendarioPage;

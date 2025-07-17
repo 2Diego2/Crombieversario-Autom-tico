@@ -1,16 +1,3 @@
-:root {
-  --colorFondo: #f6f6f3;
-  --colorCaja: #ffffff;
-  --hover: #f0f0f0;
-  --colorAdmin: #ffcd71;
-  --colorMailError: #fff7e8;
-  --colorLogOut: #ba3030;
-  --colorVerMas: #734a00;
-  --border-radius: 25px;
-  --padding-box: 20px;
-  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
 .empleados-page {
   padding: 20px;
   background-color: var(--colorCaja);
@@ -20,6 +7,7 @@
   flex-grow: 1; /* Permite que el contenedor ocupe el espacio disponible */
   display: flex;
   flex-direction: column;
+  width: 100%; /* Asegura que ocupe todo el ancho disponible */
 }
 
 .empleados-page h1 {
@@ -61,12 +49,11 @@
 
 /* Contenedor que hará la tabla scrolleable */
 .empleados-table-scroll-container {
-  max-height: calc(100vh - 250px); /* Ajusta esta altura según sea necesario */
-                                  /* 100vh es la altura del viewport. Resta el espacio del header, buscador, etc. */
+  max-height: calc(100vh - 250px);
   overflow-y: auto;               /* Habilita el scroll vertical si el contenido excede la altura máxima */
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  background-color: var(--colorFondo);
+  background-color: var(--colorCaja);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   flex-grow: 1; /* Permite que el contenedor ocupe el espacio restante verticalmente */
 }
@@ -79,6 +66,7 @@
 
 /* Estilos para las celdas de la tabla actualizados */
 .empleados-table th, .empleados-table td {
+  background-color: #ffffff;
   padding: 2px; /* Padding actualizado a 2px */
   text-align: left;
   /* Mantener el border-bottom para th para la línea divisoria */
@@ -86,7 +74,7 @@
 }
 
 .empleados-table thead th {
-  background-color: var(--colorFondo);
+  background-color: #cca8d8 ; /* Color de fondo para el encabezado de los scrolls tanto de Calendario como Empleados*/
   color: #555;
   font-weight: bold;
   padding: 12px 20px; /* Mantener un padding más generoso para el encabezado */
@@ -103,8 +91,9 @@
   border-bottom: none; /* No hay borde en la última fila */
 }
 
-.empleados-table tbody tr:hover {
-  background-color: #eaeaea; /* Efecto hover para las filas */
+.empleados-table tbody tr:hover td {
+  background-color: #f0f0f0; /* Efecto hover para las filas */
+  color: #ffffff; /* Cambia el color del texto al blanco */
 }
 
 /* Estilos para el contenedor del nombre del empleado actualizados */
