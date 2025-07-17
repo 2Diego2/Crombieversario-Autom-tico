@@ -71,7 +71,7 @@ async function buscarAniversarios(trabajadores) {
 }
 
 // MensajeMail ahora obtiene el mensaje editable desde la base de datos
-async function MensajeMail(nombre, nroAniversario) {
+async function MensajeMail(nombre, nroAniversario, empleadoEmail) {
   const { getConfig } = require("./db.js");
   let messageTemplate = "";
   let imageUrlFromDb = "";
@@ -101,6 +101,21 @@ async function MensajeMail(nombre, nroAniversario) {
     .replace(/{{nombre}}/gi, nombre)
     .replace(/\n/g, "<br>");
 
+  // Codifica el email para que sea seguro en la URL
+  const encodedEmail = encodeURIComponent(empleadoEmail);
+  const encodedAnniversaryNumber = encodeURIComponent(nroAniversario);
+
+  // URL del pixel de seguimiento. Asegúrate de que el puerto sea el de tu servidor.
+  // ---------------Usando Ngrok para pruebas-------------------------------------------------
+  // Reemplaza 'https://5cc18fce34b8.ngrok-free.app' con la URL que te da ngrok en tu terminal
+  // Asegurarte de que server.js esté corriendo.
+  // Ejecutar ngrok http 3033 (o el puerto de tu servidor).
+  // ngrok te dará una nueva URL pública.
+  // Tendrás que actualizar esa nueva URL en tu archivo .env (la variable SERVER_BASE_URL) para que los correos que envíes usen la URL correcta de ngrok para esa sesión.
+  const trackingPixelUrl = `http://localhost:${process.env.PORT || 3033}/track/${encodedEmail}/${encodedAnniversaryNumber}`;
+  //const trackingPixelUrl = `https://5cc18fce34b8.ngrok-free.app/track/${encodedEmail}/${encodedAnniversaryNumber}`;
+  console.log(trackingPixelUrl);
+  
   let htmlContent = `
         <html>
         <body>
@@ -115,6 +130,7 @@ async function MensajeMail(nombre, nroAniversario) {
   }
 
   htmlContent += `
+  <img src="${trackingPixelUrl}" width="1" height="1" border="0" alt="" style="display:none !important; min-height:1px; width:1px; border-width:0 !important; margin-top:0 !important; margin-bottom:0 !important; margin-right:0 !important; margin-left:0 !important; padding-top:0 !important; padding-bottom:0 !important; padding-right:0 !important; padding-left:0 !important;" />
             </div>
         </body>
         </html>

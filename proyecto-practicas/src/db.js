@@ -19,6 +19,8 @@ const sentLogSchema = new mongoose.Schema({
     email: { type: String, required: true },
     years: { type: Number, required: true },
     sentDate: { type: Date, default: Date.now }, // Fecha de envío, por defecto la fecha actual
+    opened: { type: Boolean, default: false },
+    openedAt: { type: Date }
 }, { timestamps: true }); // 'timestamps: true' añade 'createdAt' y 'updatedAt' automáticamente
 const SentLog = mongoose.model('SentLog', sentLogSchema);
 
@@ -179,6 +181,44 @@ async function updateFailedEmailStatus(logId, newStatus) {
     }
 }
 
+async function recordEmailOpen(email, years) {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Establecer a la medianoche de hoy
+
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1); // Medianoche de mañana
+
+        // Encuentra el log de envío más reciente para hoy y actualízalo
+        const updatedLog = await SentLog.findOneAndUpdate(
+            {
+                email: email,
+                years: years,
+                sentDate: {
+                    $gte: today,
+                    $lt: tomorrow
+                },
+                opened: false // Solo actualiza si no ha sido marcado como abierto
+            },
+            {
+                $set: {
+                    opened: true,
+                    openedAt: Date.now()
+                }
+            },
+            { new: true } // Devuelve el documento actualizado
+        );
+
+        if (updatedLog) {
+            console.log(`Apertura de email registrada en DB para ${email} (${years} años).`);
+        } else {
+            console.warn(`No se encontró un log de envío pendiente de apertura para ${email} (${years} años) o ya estaba marcado como abierto.`);
+        }
+    } catch (error) {
+        console.error(`Error al registrar apertura de email para ${email}: ${error.message}`);
+    }
+}
+
 // *Operaciones Básicas para Colaboradores (si decides migrarlos a la DB)*
 
 /**
@@ -235,7 +275,8 @@ module.exports = {
     Config,
     recordFailedEmail,
     getFailedEmailsToRetry,
-    updateFailedEmailStatus
+    updateFailedEmailStatus,
+    recordEmailOpen
     // Puedes exportar estas si decides migrar los colaboradores a MongoDB
     //saveOrUpdateCollaborator,
     //getAllCollaborators,

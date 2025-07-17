@@ -49,7 +49,8 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
   // 2. Generar el mensaje del correo (de la base de datos)
   const mensajeHtml = await MensajeMail(
     empleado.nombre,
-    empleado.nroAniversario
+    empleado.nroAniversario,
+    empleado.mail
   ); // Adjust MensajeMail to take nroAniversario
 
   // 3. Preparar los adjuntos de las imágenes (de la base de datos)
@@ -113,7 +114,7 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
 
 // --- Función Principal de Ejecución ---
 cron.schedule(
-  "51 09 * * 1-5",
+  "13 10 * * 1-5",
   async () => {
     // Conectar a la base de datos
     await connectDB();

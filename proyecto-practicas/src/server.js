@@ -3,7 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const crypto = require("crypto");
 const updateEnvFile = require('./utils/saveEnv');
-const { connectDB, getConfig, updateConfig } = require('./db');
+const { connectDB, getConfig, updateConfig, recordEmailOpen} = require('./db');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
@@ -144,6 +144,47 @@ app.get('/api/get-api-key', (req, res) => {
     res.json({ apiKey: process.env.API_KEY });
 });
 
+// Nuevo endpoint para el pixel de seguimiento
+app.get('/track/:email/:anniversaryNumber', async (req, res) => {
+    const { email, anniversaryNumber } = req.params;
+
+    // Decodifica el email y el número de aniversario si están codificados en la URL
+    const decodedEmail = decodeURIComponent(email);
+    const decodedAnniversaryNumber = parseInt(anniversaryNumber);
+
+    console.log(`Pixel de seguimiento activado para: ${decodedEmail}, Aniversario: ${decodedAnniversaryNumber}`);
+
+    try {
+        // Registra la apertura en la base de datos (puedes crear una nueva colección o añadir un campo a SentLog)
+        // Aquí, por simplicidad, vamos a actualizar el log de envío existente o crear uno si no lo hay.
+        // Una forma más robusta sería una nueva colección 'EmailOpens'
+        await recordEmailOpen(decodedEmail, decodedAnniversaryNumber);
+
+        // Sirve un GIF transparente de 1x1 pixel
+        const pixel = Buffer.from(
+            'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+            'base64'
+        );
+        res.writeHead(200, {
+            'Content-Type': 'image/gif',
+            'Content-Length': pixel.length,
+        });
+        res.end(pixel);
+    } catch (error) {
+        console.error('Error al registrar apertura de email:', error);
+        // Si hay un error, aún así sirve el pixel para no romper la visualización del correo
+        const pixel = Buffer.from(
+            'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+            'base64'
+        );
+        res.writeHead(200, {
+            'Content-Type': 'image/gif',
+            'Content-Length': pixel.length,
+        });
+        res.end(pixel);
+    }
+});
+
 // ENDPOINT para SUBIR UNA NUEVA IMAGEN (Con requireApiKey)
 app.post('/api/upload-image/:anniversaryNumber', requireApiKey, async (req, res) => {
     // Wrap the Multer middleware in a Promise-based function or a try/catch block
@@ -257,3 +298,16 @@ app.delete('/api/delete-image', requireApiKey, async (req, res) => {
         process.exit(1);
     }
 })();
+
+
+// Envía el GIF transparente de 1x1 pixel directamente desde el servidor como parte de la respuesta HTTP a una solicitud. No lo saca de un archivo físico en el servidor. Asi funciona:
+
+// Generación en memoria: El GIF se define como una cadena Base64: 'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'.
+
+// Conversión a Buffer: Esta cadena Base64 se convierte en un Buffer en Node.js utilizando Buffer.from('...', 'base64'). Un Buffer es una representación binaria de datos, que es lo que se envía a través de la red.
+
+// Encabezados HTTP: Cuando se realiza la solicitud al endpoint /track/:email/:anniversaryNumber, el servidor establece los encabezados HTTP Content-Type como image/gif y Content-Length con la longitud del Buffer del pixel. Esto le dice al cliente (el programa de correo) que lo que está recibiendo es una imagen GIF y su tamaño.
+
+// Envío del Buffer: Finalmente, el método res.end(pixel) envía el contenido binario del Buffer directamente en el cuerpo de la respuesta HTTP.
+
+// En resumen, el GIF no se almacena como un archivo .gif en el disco. Se crea dinámicamente en la memoria del servidor y se transmite directamente al cliente de correo cuando se solicita la URL de seguimiento.
