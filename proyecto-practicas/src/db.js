@@ -16,8 +16,11 @@ const mongoose = require('mongoose');
 // Esquema para Logs de Correos Enviados
 // Este esquema define la estructura de los documentos en tu colección 'sent_logs'
 const sentLogSchema = new mongoose.Schema({
+    nombre: { type: String, required: true },
+    apellido: { type: String, required: true },
     email: { type: String, required: true },
     years: { type: Number, required: true },
+    enviado: {type: Boolean, default: false},
     sentDate: { type: Date, default: Date.now }, // Fecha de envío, por defecto la fecha actual
 }, { timestamps: true }); // 'timestamps: true' añade 'createdAt' y 'updatedAt' automáticamente
 const SentLog = mongoose.model('SentLog', sentLogSchema);
@@ -58,25 +61,30 @@ async function connectDB() {
 
 /**
  * Guarda un registro de correo enviado en la base de datos.
+ * @param {string} nombre - Nombre
+ * @param {string} apellido - Apellido
  * @param {string} email - Correo del colaborador.
  * @param {number} years - Años de aniversario.
+ * @param {boolean} enviado - Si fue enviado o no.
  */
-async function recordSentEmail(email, years) {
+async function recordSentEmail(nombre, apellido, email, years) {
     try {
-        const newLog = new SentLog({ email, years });
+        const newLog = new SentLog({nombre, apellido, email, years, enviado: true });
         await newLog.save();
-        console.log(`Log de envío registrado en DB para ${email} (${years} años).`);
+        console.log(`Log de envío registrado en DB para ${nombre} ${apellido} ${email} (${years} años).`);
     } catch (error) {
         console.error(`Error al registrar log de envío para ${email}: ${error.message}`);    }
 }
 
 /**
  * Verifica si ya se envió un correo para un aniversario específico hoy.
+ * @param {string} nombre - Nombre
+ * @param {string} apellido - Apellido
  * @param {string} email - Correo del colaborador.
  * @param {number} years - Años de aniversario.
- * @returns {boolean} - True si ya se envió hoy, false de lo contrario.
+ * @param {boolean} enviado
  */
-async function checkIfSentToday(email, years) {
+async function checkIfSentToday(nombre, apellido, email, years) {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Establecer a la medianoche de hoy
 
@@ -85,8 +93,11 @@ async function checkIfSentToday(email, years) {
 
     try {
         const log = await SentLog.findOne({
+            nombre: nombre,
+            apellido: apellido,
             email: email,
             years: years,
+            enviado: true, // Se convierte a true
             sentDate: {
                 $gte: today,    // Greater than or equal to today's midnight
                 $lt: tomorrow   // Less than tomorrow's midnight

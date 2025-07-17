@@ -34,7 +34,7 @@ const MailsEnviadosPage = () => {
   return (
     <div className = "MailsEnviados">
       <h2 class="mails">Mails enviados</h2>
-    
+
       {loading ? (
         <p>Cargando...</p>
       ) : error ? (
@@ -48,23 +48,24 @@ const MailsEnviadosPage = () => {
              <th>Nombre</th>
              <th>Apellido</th>
               <th>Email</th>
-              <th>Leido</th>
+               <th>Leido</th>
               <th>Enviado</th>
+             <th>Años de Aniversario</th> {/* Add this column to show years */}
              <th>Fecha de envío</th>
-            
             </tr>
           </thead>
           <tbody>
             {mails.map((mail, idx) => (
-  <tr key={mail._id || idx}>
-    <td>{mail.nombre}</td>
-    <td>{mail.apellido}</td>
-    <td>{mail.mail}</td>
-    <td>{mail.leido ? 'true' : false}</td>
-    <td>{mail.enviado ? 'true' : 'false'}</td>
-    <td>{new Date(mail.fechaRegistro).toLocaleString('es-ES')}</td>
-  </tr>
-))}
+              <tr key={mail._id || idx}>
+                <td>{mail.nombre}</td>
+                <td>{mail.apellido}</td>
+                <td>{mail.email}</td> 
+                <td>{mail.leido ? 'true' : 'false'}</td>  
+                <td>{mail.enviado ? 'Sí ✅' : 'No ❌'}</td> 
+                <td>{mail.years}</td> 
+                <td>{new Date(mail.sentDate).toLocaleString('es-ES')}</td> {/* Corrected: Use mail.sentDate */}
+              </tr>
+            ))}
           </tbody>
         </table>
       )}

@@ -3,7 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const crypto = require("crypto");
 const updateEnvFile = require('./utils/saveEnv');
-const { connectDB, getConfig, updateConfig, db } = require('./db'); // Importa las nuevas funciones
+const { connectDB, getConfig, updateConfig, SentLog } = require('./db'); // Importa las nuevas funciones
 const multer = require('multer'); // Importa multer
 const fs = require('fs'); // Para manejar archivos (eliminar)
 const path = require('path'); // Para manejar rutas de archivos
@@ -104,7 +104,7 @@ app.get('/trabajadores', (req, res) => {
 app.get('/api/aniversarios-enviados', requireApiKey, async (req, res) => {
     try {
         // Busca solo los que tengan enviado: true
-        const enviados = await Aniversario.find({ enviado: true });
+        const enviados = await SentLog.find({ enviado: true });
         res.json(enviados);
     } catch (error) {
         console.error('Error al obtener aniversarios enviados:', error);
