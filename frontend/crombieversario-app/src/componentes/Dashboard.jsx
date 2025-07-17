@@ -14,7 +14,7 @@ import coloresCrombie from '../assets/coloresCrombie.png';
 // Importa las páginas que van en las rutas del dashboard
 import EmpleadosPage from '../pages/EmpleadosPage';
 import MailsEnviadosPage from '../pages/MailsEnviadosPage';
-import MailErrorPage from '../pages/MailErrorPage';
+import MailsErrorPage from '../pages/MailsErrorPage';
 import CalendarioPage from '../pages/Calendario';
 import EditorMensaje from '../pages/EditorMensaje';
 
@@ -174,7 +174,7 @@ function DashboardContent({ onLogout, userEmail, userRole }) {
             {/* Las rutas aquí son relativas a "/dashboard/" */}
             <Route path="empleados" element={<EmpleadosPage />} />
             <Route path="mails-enviados" element={<MailsEnviadosPage />} />
-            <Route path="mail-error" element={<MailErrorPage />} />
+            <Route path="mail-error" element={<MailsErrorPage />} />
             <Route path="calendario" element={<CalendarioPage />} />
             <Route path="mensaje" element={<EditorMensaje />} />
             <Route path="*" element={<div>Página no encontrada en el Dashboard</div>} />
