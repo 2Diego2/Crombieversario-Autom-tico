@@ -3,7 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const crypto = require("crypto");
 const updateEnvFile = require('./utils/saveEnv');
-const { connectDB, getConfig, updateConfig } = require('./db');
+const { connectDB, getConfig, updateConfig, recordEmailOpen, getYearlyEmailStats} = require('./db');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
@@ -117,6 +117,25 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No se ha subido ningún archivo.' });
     }
+});
+
+console.log('--- Attempting to register /api/email-stats/yearly route ---');
+app.get('/api/email-stats/yearly', requireApiKey, async (req, res) => {
+    console.log('Recibida petición GET /api/email-stats/yearly');
+    try {
+        const stats = await getYearlyEmailStats();
+        res.json(stats);
+    } catch (error) {
+        console.error('Error en el endpoint /api/email-stats/yearly:', error);
+        res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
+    }
+});
+console.log('--- Successfully registered /api/email-stats/yearly route ---');
+
+// ENDPOINT para SUBIR UNA NUEVA IMAGEN (Con requireApiKey)
+app.post('/api/upload-image/:anniversaryNumber', requireApiKey, async (req, res) => {
+    // Wrap the Multer middleware in a Promise-based function or a try/catch block
+    // to handle errors gracefully before proceeding.
 
     try {
         const imageUrl = `/uploads/${req.file.filename}`;
@@ -170,7 +189,11 @@ app.delete('/api/delete-image', async (req, res) => {
     }
 });
 
-// Iniciar el servidor y la conexión a la DB
+app.use((req, res, next) => { // This catch-all should be at the very end
+    console.log(`❌ 404 Not Found: Request to ${req.method} ${req.originalUrl} did not match any routes.`);
+    res.status(404).json({ error: 'Endpoint no encontrado.' });
+});
+
 (async () => {
     try {
         await connectDB();

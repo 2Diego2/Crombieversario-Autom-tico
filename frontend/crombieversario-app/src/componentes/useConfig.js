@@ -26,11 +26,12 @@ function useConfig() {
           `${API_BASE_URL}/api/get-api-key`
         );
 
-        setLocalApiKey(apiKeyResponse.data.apiKey);
+        const fetchedApiKey = apiKeyResponse.data.apiKey;
+        setLocalApiKey(fetchedApiKey);
 
-        console.log("API Key obtenida del backend:",
-          apiKeyResponse.data.apiKey
-        ); // No configuramos `setLoading(false)` aquí porque el segundo `useEffect` manejará la carga.
+        localStorage.setItem('api_key', fetchedApiKey);
+
+        console.log("API Key obtenida del backend y guardada en localStorage:", fetchedApiKey);
       } catch (err) {
         console.error("Error al obtener la API Key:", err);
         setError(
