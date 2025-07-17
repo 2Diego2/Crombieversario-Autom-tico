@@ -2,7 +2,6 @@ import { useState } from "react";
 import {  IoPersonOutline,  IoCalendarOutline,  IoImagesOutline} from "react-icons/io5";
 import { LuMailWarning, LuMail, LuLogOut } from "react-icons/lu";
 import { Link, Routes, Route, useLocation } from "react-router-dom";
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
 
 // Imagenes
@@ -15,36 +14,30 @@ import LogoCrombie from "./assets/Logo.png";
 import "./App.css";
 import EmpleadosPage from "./pages/EmpleadosPage";
 import MailsEnviadosPage from "./pages/MailsEnviadosPage";
-import MailErrorPage from "./pages/MailErrorPage";
+import MailsErrorPage from "./pages/MailsErrorPage";
 import CalendarioPage from "./pages/Calendario";
 import EditorMensaje from "./pages/EditorMensaje";
 import useConfig from './componentes/useConfig'; 
 import useUpcomingEvents from './componentes/useEventosProximos'; 
+import Estadisticas from './componentes/Estadisticas';
 
-
-const data = [
-  { año: '2020', cantidad: 5 },
-  { año: '2021', cantidad: 10 },
-  { año: '2022', cantidad: 15 },
-  { año: '2023', cantidad: 20 },
-];
-
-const dataTorta = [
-  { nombre: '1 año', valor: 4 },
-  { nombre: '2 años', valor: 6 },
-  { nombre: '3 años', valor: 2 },
-  { nombre: '4 años o más', valor: 1 },
-];
-
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042'];
 
 function App() {
   const [count, setCount] = useState(0);
   const location = useLocation();
   const isDashboard = location.pathname === '/';
-  const { config, loading, error } = useConfig();
+  const { config, loading, error, localApiKey } = useConfig();
   const { upcomingEvents } = useUpcomingEvents();
 
+  if (loading) {
+    return <div>Cargando configuración...</div>;
+  }
+
+  if (error) {
+    return <div>Error al cargar la aplicación: {error}</div>;
+  }
+
+  console.log("API Key disponible en App:", localApiKey); // Para verificar que la API Key llega aquí también
 
 
   return (
@@ -90,44 +83,8 @@ function App() {
       {isDashboard ? (
         <>
           <div className="div2">
-            <h2>Estadísticas</h2>
-            <div className="estadisticas">
-              <div className="data">
-                <ResponsiveContainer>
-                  <LineChart data={data}>
-                    <XAxis dataKey="año" />
-                    <YAxis />
-                    <Tooltip />
-                    <CartesianGrid stroke="#ccc" />
-                    <Line type="monotone" dataKey="cantidad" stroke="#8884d8" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-
-
-              <div className="data">
-                <ResponsiveContainer>
-                  <PieChart>
-                    <Pie
-                      data={dataTorta}
-                      dataKey="valor"
-                      nameKey="nombre"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      label
-                    >
-                      {dataTorta.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-
-            </div>
+           <h2>Estadísticas</h2>
+           <Estadisticas />
           </div>
 
           <div className="div3">
@@ -200,7 +157,7 @@ function App() {
           <Routes>
             <Route path="/empleados" element={<EmpleadosPage />} />
             <Route path="/mails-enviados" element={<MailsEnviadosPage />} />
-            <Route path="/mail-error" element={<MailErrorPage />} />
+            <Route path="/mail-error" element={<MailsErrorPage />} />
             <Route path="/calendario" element={<CalendarioPage />} />
             <Route path="/mensaje" element={<EditorMensaje />} />
           </Routes>

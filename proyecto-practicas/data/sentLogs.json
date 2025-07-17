@@ -1,0 +1,218 @@
+[
+  {
+    "nombre": "juan",
+    "apellido": "perez",
+    "email": "juan.perez@example.com",
+    "years": 1,
+    "sentDate": "2024-01-15T09:00:00.000Z",
+    "opened": true,
+    "openedAt": "2024-01-15T09:15:20.000Z"
+  },
+  {
+    "nombre": "maria",
+    "apellido": "lopez",
+    "email": "maria.lopez@sample.com",
+    "years": 2,
+    "sentDate": "2024-01-15T10:30:00.000Z",
+    "opened": false,
+    "openedAt": null
+  },
+  {
+    "nombre": "carlos",
+    "apellido": "garcia",
+    "email": "carlos.garcia@mail.net",
+    "years": 3,
+    "sentDate": "2024-02-01T14:00:00.000Z",
+    "opened": true,
+    "openedAt": "2024-02-01T14:05:10.000Z"
+  },
+  {
+    "nombre": "ana",
+    "apellido": "rodriguez",
+    "email": "ana.rodriguez@domain.org",
+    "years": 4,
+    "sentDate": "2024-02-01T16:45:00.000Z",
+    "opened": true,
+    "openedAt": "2024-02-02T10:00:00.000Z"
+  },
+  {
+    "nombre": "pedro",
+    "apellido": "sanchez",
+    "email": "pedro.sanchez@email.com",
+    "years": 5,
+    "sentDate": "2024-03-10T11:00:00.000Z",
+    "opened": false,
+    "openedAt": null
+  },
+  {
+    "nombre": "laura",
+    "apellido": "fernandez",
+    "email": "laura.fernandez@test.es",
+    "years": 6,
+    "sentDate": "2024-03-10T11:30:00.000Z",
+    "opened": true,
+    "openedAt": "2024-03-10T11:30:05.000Z"
+  },
+  {
+    "nombre": "diego",
+    "apellido": "gomez",
+    "email": "diego.gomez@company.co",
+    "years": 7,
+    "sentDate": "2023-11-20T08:00:00.000Z",
+    "opened": true,
+    "openedAt": "2023-11-20T08:01:30.000Z"
+  },
+  {
+    "nombre": "sofia",
+    "apellido": "diaz",
+    "email": "sofia.diaz@info.mx",
+    "years": 8,
+    "sentDate": "2023-11-20T09:00:00.000Z",
+    "opened": false,
+    "openedAt": null
+  },
+  {
+    "nombre": "jorge",
+    "apellido": "ruiz",
+    "email": "jorge.ruiz@solution.io",
+    "years": 9,
+    "sentDate": "2024-04-05T10:00:00.000Z",
+    "opened": true,
+    "openedAt": "2024-04-05T10:20:00.000Z"
+  },
+  {
+    "nombre": "valeria",
+    "apellido": "mora",
+    "email": "valeria.mora@example.com",
+    "years": 10,
+    "sentDate": "2024-04-05T11:00:00.000Z",
+    "opened": false,
+    "openedAt": null
+  },
+  {
+    "nombre": "agustin",
+    "apellido": "lopez",
+    "email": "agustin.lopez@sample.com",
+    "years": 11,
+    "sentDate": "2024-05-01T08:00:00.000Z",
+    "opened": true,
+    "openedAt": "2024-05-01T08:00:01.000Z"
+  },
+  {
+    "nombre": "carolina",
+    "apellido": "vazquez",
+    "email": "carolina.vazquez@mail.net",
+    "years": 12,
+    "sentDate": "2024-05-01T08:05:00.000Z",
+    "opened": false,
+    "openedAt": null
+  },
+  {
+    "nombre": "martin",
+    "apellido": "herrera",
+    "email": "martin.herrera@domain.org",
+    "years": 13,
+    "sentDate": "2024-06-10T15:00:00.000Z",
+    "opened": true,
+    "openedAt": "2024-06-11T09:00:00.000Z"
+  },
+  {
+    "nombre": "lucia",
+    "apellido": "castro",
+    "email": "lucia.castro@email.com",
+    "years": 14,
+    "sentDate": "2024-06-10T15:30:00.000Z",
+    "opened": false,
+    "openedAt": null
+  },
+  {
+    "nombre": "andres",
+    "apellido": "jimenez",
+    "email": "andres.jimenez@test.es",
+    "years": 15,
+    "sentDate": "2024-07-17T10:00:00.000Z",
+    "opened": true,
+    "openedAt": "2024-07-17T10:01:00.000Z"
+  },
+  {
+    "nombre": "paula",
+    "apellido": "gonzalez",
+    "email": "paula.gonzalez@company.co",
+    "years": 16,
+    "sentDate": "2024-07-17T10:15:00.000Z",
+    "opened": false,
+    "openedAt": null
+  },
+  {
+    "nombre": "ejemplo1",
+    "apellido": "crombie",
+    "email": "ejemplo1@crombie.com",
+    "years": 1,
+    "sentDate": "2025-01-10T09:00:00.000Z",
+    "opened": true,
+    "openedAt": "2025-01-10T09:05:00.000Z"
+  },
+  {
+    "nombre": "ejemplo2",
+    "apellido": "crombie",
+    "email": "ejemplo2@crombie.com",
+    "years": 2,
+    "sentDate": "2025-02-20T10:30:00.000Z",
+    "opened": false,
+    "openedAt": null
+  },
+  {
+    "nombre": "ejemplo3",
+    "apellido": "crombie",
+    "email": "ejemplo3@crombie.com",
+    "years": 3,
+    "sentDate": "2025-03-05T14:15:00.000Z",
+    "opened": true,
+    "openedAt": "2025-03-05T14:20:00.000Z"
+  },
+  {
+    "nombre": "ejemplo4",
+    "apellido": "crombie",
+    "email": "ejemplo4@crombie.com",
+    "years": 4,
+    "sentDate": "2025-04-12T11:00:00.000Z",
+    "opened": false,
+    "openedAt": null
+  },
+  {
+    "nombre": "ejemplo5",
+    "apellido": "crombie",
+    "email": "ejemplo5@crombie.com",
+    "years": 5,
+    "sentDate": "2025-05-01T08:45:00.000Z",
+    "opened": true,
+    "openedAt": "2025-05-01T08:50:00.000Z"
+  },
+  {
+    "nombre": "ejemplo6",
+    "apellido": "crombie",
+    "email": "ejemplo6@crombie.com",
+    "years": 6,
+    "sentDate": "2025-06-25T17:00:00.000Z",
+    "opened": true,
+    "openedAt": "2025-06-25T17:03:00.000Z"
+  },
+  {
+    "nombre": "ejemplo7",
+    "apellido": "crombie",
+    "email": "ejemplo7@crombie.com",
+    "years": 7,
+    "sentDate": "2025-07-17T15:00:00.000Z",
+    "opened": true,
+    "openedAt": "2025-07-17T15:01:00.000Z"
+  },
+  {
+    "nombre": "ejemplo8",
+    "apellido": "crombie",
+    "email": "ejemplo8@crombie.com",
+    "years": 8,
+    "sentDate": "2025-07-17T15:05:00.000Z",
+    "opened": false,
+    "openedAt": null
+  }
+]

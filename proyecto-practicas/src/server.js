@@ -2,8 +2,8 @@
 require('dotenv').config();
 const express = require('express');
 const crypto = require("crypto");
+const { connectDB, getConfig, updateConfig, SentLog , recordEmailOpen, getYearlyEmailStats, FailedEmailLog} = require('./db');
 const updateEnvFile = require('./utils/saveEnv');
-const { connectDB, getConfig, updateConfig, SentLog } = require('./db'); // Importa las nuevas funciones
 const multer = require('multer'); // Importa multer
 const fs = require('fs'); // Para manejar archivos (eliminar)
 const path = require('path'); // Para manejar rutas de archivos
@@ -11,11 +11,15 @@ const mongoUri = process.env.MONGO_URI;
 const mongoose = require('mongoose');
 
 
-const app = express();
+const cors = require('cors');
 const PORT = process.env.PORT || 3033; // Usa la variable de entorno para el puerto
 const aniversarioSchema = new mongoose.Schema({}, { strict: false, collection: 'aniversarios' });
 const Aniversario = mongoose.model('Aniversario', aniversarioSchema);
+const app = express();
 
+app.use(cors({
+  origin: '*' 
+}));
 
 
 // --- Configuración de Multer para Subida de Archivos ---
@@ -112,6 +116,35 @@ app.get('/api/aniversarios-enviados', requireApiKey, async (req, res) => {
     }
 });
 
+app.get('/api/aniversarios-error', requireApiKey, async (req, res) => {
+    try {
+        // MODIFICACIÓN: La consulta ahora busca registros nuevos y antiguos.
+        const fallos = await FailedEmailLog.find({
+            $or: [
+                { status: 'failed' },
+                { status: { $exists: false } }
+            ]
+        });
+
+        // El resto del código para formatear la respuesta se mantiene igual.
+        const formattedFallos = fallos.map(fallo => ({
+            _id: fallo._id, // Es buena práctica pasar el ID para el 'key' de React
+            nombre: 'N/A',
+            apellido: 'N/A',
+            email: fallo.email,
+            years: fallo.years,
+            enviado: false,
+            opened: false,
+            sentDate: fallo.attemptDate,
+            errorMessage: fallo.errorMessage
+        }));
+        res.json(formattedFallos);
+    } catch (error) {
+        console.error('Error al obtener aniversarios con error:', error);
+        res.status(500).json({ error: 'Error al obtener los registros de error.' });
+    }
+});
+
 
 // NUEVOS ENDPOINTS para la configuración
 app.get('/api/config', requireApiKey, async (req, res) => {
@@ -150,6 +183,25 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No se ha subido ningún archivo.' });
     }
+});
+
+console.log('--- Attempting to register /api/email-stats/yearly route ---');
+app.get('/api/email-stats/yearly', requireApiKey, async (req, res) => {
+    console.log('Recibida petición GET /api/email-stats/yearly');
+    try {
+        const stats = await getYearlyEmailStats();
+        res.json(stats);
+    } catch (error) {
+        console.error('Error en el endpoint /api/email-stats/yearly:', error);
+        res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
+    }
+});
+console.log('--- Successfully registered /api/email-stats/yearly route ---');
+
+// ENDPOINT para SUBIR UNA NUEVA IMAGEN (Con requireApiKey)
+app.post('/api/upload-image/:anniversaryNumber', requireApiKey, async (req, res) => {
+    // Wrap the Multer middleware in a Promise-based function or a try/catch block
+    // to handle errors gracefully before proceeding.
 
     try {
         // La ruta que guardaremos en la DB y que el frontend usará para mostrar
@@ -215,7 +267,11 @@ app.delete('/api/delete-image', async (req, res) => {
     }
 });
 
-// Iniciar el servidor y la conexión a la DB
+app.use((req, res, next) => { // This catch-all should be at the very end
+    console.log(`❌ 404 Not Found: Request to ${req.method} ${req.originalUrl} did not match any routes.`);
+    res.status(404).json({ error: 'Endpoint no encontrado.' });
+});
+
 (async () => {
     try {
         await connectDB();

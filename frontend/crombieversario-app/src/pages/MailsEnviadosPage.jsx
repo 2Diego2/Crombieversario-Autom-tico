@@ -33,8 +33,7 @@ const MailsEnviadosPage = () => {
 
   return (
     <div className = "MailsEnviados">
-      <h2 class="mails">Mails enviados</h2>
-
+      <h2 className="mails">Mails enviados</h2>
       {loading ? (
         <p>Cargando...</p>
       ) : error ? (
@@ -60,7 +59,7 @@ const MailsEnviadosPage = () => {
                 <td>{mail.nombre}</td>
                 <td>{mail.apellido}</td>
                 <td>{mail.email}</td> 
-                <td>{mail.leido ? 'true' : 'false'}</td>  
+                <td>{mail.opened ? 'Si ✅' : 'No ❌'}</td>  
                 <td>{mail.enviado ? 'Sí ✅' : 'No ❌'}</td> 
                 <td>{mail.years}</td> 
                 <td>{new Date(mail.sentDate).toLocaleString('es-ES')}</td> {/* Corrected: Use mail.sentDate */}

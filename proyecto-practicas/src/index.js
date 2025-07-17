@@ -3,6 +3,7 @@ require("dotenv").config(); // Carga las variables de entorno al inicio
 const path = require("path");
 const fs = require("fs");
 const axios = require("axios"); // Para hacer peticiones HTTP a tu API local o a PeopleForce
+const mongoose = require("mongoose"); 
 
 // Importa las funcionalidades de eventos y la base de datos
 const {
@@ -10,7 +11,7 @@ const {
   buscarAniversarios,
   MensajeMail,
 } = require("./eventos");
-const { connectDB, recordSentEmail, checkIfSentToday } = require("./db"); // Asegúrate de importar checkIfSentToday también
+const { connectDB, recordSentEmail, checkIfSentToday, recordFailedEmail } = require("./db"); // Asegúrate de importar checkIfSentToday también
 const nodemailer = require("nodemailer");
 const cron = require("node-cron");
 
@@ -42,13 +43,13 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
   const alreadySent = await checkIfSentToday(
     empleado.nombre,
     empleado.apellido,
-    empleado.mail,
+    empleado.email,
     empleado.nroAniversario,
     empleado.enviado
   );
   if (alreadySent) {
     console.log(
-      `Correo para ${empleado.mail} (${empleado.nroAniversario} años) ya fue enviado hoy. Saltando envío.`
+      `Correo para ${empleado.email} (${empleado.nroAniversario} años) ya fue enviado hoy. Saltando envío.`
     );
     return; // Sale de la función si ya se envió
   }
@@ -93,25 +94,28 @@ console.log(`[DEBUG PATH] Intentando leer imagen desde esta ruta: "${physicalIma
   try {
     const info = await transporter.sendMail({
       from: `"Crombie" <${process.env.GMAIL_USER}>`,
-      to: empleado.mail,
+      to: empleado.email,
       subject: "🎉 ¡Se viene tu Crombieversario!",
       html: mensajeHtml,
       attachments: attachments // Adjunta las imágenes
     });
     console.log("Email enviado:", info.messageId);
     // 5. Registrar el envío en la base de datos
-    await recordSentEmail(empleado.nombre,empleado.apellido,empleado.mail, empleado.nroAniversario);
+    await recordSentEmail(empleado.nombre,empleado.apellido,empleado.email, empleado.nroAniversario);
   } catch (error) {
-    console.error(
-      `Error enviando email o registrando log para ${empleado.mail}:`,
-      error
-    );
-  }
+  console.error(`Error enviando email para ${empleado.email}:`,error.message);
 
+  // 1. Loguear el fallo
+  await recordFailedEmail(
+    empleado.email,
+    empleado.nroAniversario,
+    error.message
+  ); 
+}
 });
 
 // --- Función Principal de Ejecución ---
-cron.schedule(  "33 10 * * 1-5", async () => {
+cron.schedule(  "44 11 * * 1-5", async () => {
     // Conectar a la base de datos
     await connectDB();
     console.log("Base de datos conectada para la ejecución principal.");
