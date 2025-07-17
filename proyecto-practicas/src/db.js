@@ -219,6 +219,46 @@ async function recordEmailOpen(email, years) {
     }
 }
 
+async function getYearlyEmailStats() {
+    try {
+        const stats = await SentLog.aggregate([
+            {
+                // Paso 1: Asegurarse de que 'sentDate' existe y es de tipo 'date'
+                $match: {
+                    sentDate: { $exists: true, $type: "date" } 
+                }
+            },
+            {
+                $group: {
+                    _id: { $year: "$sentDate" }, // Agrupa por el año de la fecha de envío
+                    sent: { $sum: 1 }, // Cada documento en SentLog representa un email enviado
+                    opened: {
+                        $sum: {
+                            $cond: [{ $eq: ["$opened", true] }, 1, 0] // Suma 1 si 'opened' es true
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0, // Excluye el campo _id del resultado final
+                    year: "$_id", // Renombra _id (que es el año) a 'year'
+                    sent: 1, // Incluye el conteo de enviados
+                    opened: 1 // Incluye el conteo de abiertos
+                }
+            },
+            {
+                $sort: { year: 1 } // Ordena los resultados por año ascendente
+            }
+        ]);
+        console.log('Estadísticas anuales de email obtenidas:', stats);
+        return stats;
+    } catch (error) {
+        console.error('Error al obtener estadísticas anuales de email (MongoDB):', error.message);
+        throw error; // Propaga el error para que sea manejado en el endpoint
+    }
+}
+
 // *Operaciones Básicas para Colaboradores (si decides migrarlos a la DB)*
 
 /**
@@ -276,7 +316,8 @@ module.exports = {
     recordFailedEmail,
     getFailedEmailsToRetry,
     updateFailedEmailStatus,
-    recordEmailOpen
+    recordEmailOpen,
+    getYearlyEmailStats
     // Puedes exportar estas si decides migrar los colaboradores a MongoDB
     //saveOrUpdateCollaborator,
     //getAllCollaborators,
