@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
 import useConfig from '../componentes/useConfig';
 import './MailsEnviadosPage.css';
@@ -70,21 +69,8 @@ const MailsEnviadosPage = () => {
           </tbody>
         </table>
       )}
-=======
-import React from 'react';
-
-const MailEnviadosPage = () => {
-  return (
-    <div>
-      <h2>Página de Mails enviados</h2>
-      {/* ... tu contenido ... */}
->>>>>>> 39068a97bc6a104998c1ac0e71fcb51e8217c145
     </div>
   );
 };
 
-<<<<<<< HEAD
 export default MailsEnviadosPage;
-=======
-export default MailEnviadosPage;
->>>>>>> 39068a97bc6a104998c1ac0e71fcb51e8217c145
