@@ -7,13 +7,19 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "nodemailer": "^7.0.3"
 =======
+=======
+>>>>>>> ramaJulia
     "mongodb": "^6.17.0",
     "mongoose": "^8.16.1",
     "multer": "^2.0.1",
     "node-cron": "^4.2.0",
     "nodemailer": "^7.0.5"
+<<<<<<< HEAD
 >>>>>>> origin/ramaSol
+=======
+>>>>>>> ramaJulia
   }
 }

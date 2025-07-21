@@ -29,6 +29,9 @@ body {
   align-items: flex-start;
   min-height: 100vh;
   padding: var(--padding-box);
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  height: 100%;
+  min-height: 0;
 }
 
 .parent {
@@ -39,6 +42,7 @@ body {
   width: 100%;
   max-width: 1200px;
   min-height: calc(100vh - 40px);
+  height: 100%;
 
   grid-template-areas:
     "sidebar stats stats stats stats"
@@ -238,15 +242,20 @@ aside.div1 {
 }
 
 .div5 {
+  display: flex;
   grid-area: mail-message;
+  height: 100%;
+  min-height: 0;
 }
 
 .mensajeEstilo{
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
   background-color: #f8f8f8;
   border: 1px solid #ddd;
   padding: 15px;
   border-radius: 5px;
-  max-height: 300px;
   overflow-y: auto;  /*Añade scroll si el contenido es muy largo */
   white-space: pre-wrap; /* Mantiene saltos de línea y espacios */
   word-wrap: break-word; /* Evita desbordamiento de palabras largas */
@@ -264,6 +273,8 @@ aside.div1 {
   background-color: var(--colorCaja);
   border-radius: var(--border-radius);
   padding: var(--padding-box);
+  width: 100%;
+  height: 100%;
 }
 
 /* Responsive */
