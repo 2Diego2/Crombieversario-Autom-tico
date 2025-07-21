@@ -1,84 +1,170 @@
-import { useState } from 'react'
-import LogoCrombie from './assets/Logo.png'
-import { IoIosSearch } from "react-icons/io";
-import { IoPersonOutline } from "react-icons/io5";
-import { LuMailWarning } from "react-icons/lu";
-import { LuMail } from "react-icons/lu";
-import { IoCalendarOutline } from "react-icons/io5";
-import { IoImagesOutline } from "react-icons/io5";
-import { LuLogOut } from "react-icons/lu";
-import estadistica1 from './assets/Recibidos.jpg';
-import estadistica2 from './assets/estadistica2.PNG';
-import gaelMailEnviado from './assets/gael.PNG';
-import './App.css'
+import { useState } from "react";
+import {  IoPersonOutline,  IoCalendarOutline,  IoImagesOutline} from "react-icons/io5";
+import { LuMailWarning, LuMail, LuLogOut } from "react-icons/lu";
+import { Link, Routes, Route, useLocation } from "react-router-dom";
+
+
+// Imagenes
+import gaelMailEnviado from "./assets/gael.PNG";
+import coloresCrombie from "./assets/coloresCrombie.png";
+import LogoCrombie from "./assets/Logo.png";
+
+
+// Archivos
+import "./App.css";
+import EmpleadosPage from "./pages/EmpleadosPage";
+import MailsEnviadosPage from "./pages/MailsEnviadosPage";
+import MailErrorPage from "./pages/MailErrorPage";
+import CalendarioPage from "./pages/Calendario";
+import EditorMensaje from "./pages/EditorMensaje";
+import useConfig from './componentes/useConfig'; 
+import useUpcomingEvents from './componentes/useEventosProximos'; 
+import Estadisticas from './componentes/Estadisticas';
+
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
+  const location = useLocation();
+  const isDashboard = location.pathname === '/';
+  const { config, loading, error, localApiKey } = useConfig();
+  const { upcomingEvents } = useUpcomingEvents();
+
+  if (loading) {
+    return <div>Cargando configuración...</div>;
+  }
+
+  if (error) {
+    return <div>Error al cargar la aplicación: {error}</div>;
+  }
+
+  console.log("API Key disponible en App:", localApiKey); // Para verificar que la API Key llega aquí también
+
 
   return (
-    <>
-      <div className="parent">
-        <div className="div1">
-          <a href="https://crombie.dev/es/" target="_blank">
+    <div className="parent">
+      <aside className="div1">
+        <Link to="/" className="menu-item">
+          <img src={LogoCrombie} className="logo crombie" alt="Crombie logo" />
+        </Link>
+        <div className="side-bar">
+          <Link to="/empleados" className="menu-item">
+            <IoPersonOutline size={14} /> Empleados
+          </Link>
+          <Link to="/mails-enviados" className="menu-item">
+            <LuMail size={14} /> Mails enviados
+          </Link>
+          <Link to="/mail-error" className="menu-item">
+            <LuMailWarning size={14} /> Mail Error
+          </Link>
+          <Link to="/calendario" className="menu-item">
+            <IoCalendarOutline size={14} /> Calendario
+          </Link>
+          <Link to="/mensaje" className="menu-item">
+            <IoImagesOutline size={14} /> Mensaje editable
+          </Link>
+        </div>
+        <div className="footer-aside">
+          <div className="perfil-info">
             <img
-              src={LogoCrombie}
-              className="logo crombie"
-              alt="Crombie logo"
+              src="https://th.bing.com/th/id/R.0301819f445a8855c4a577a6763fb62d?rik=TT%2fgaYZuz1YEig&riu=http%3a%2f%2fanhede.se%2fwp-content%2fuploads%2f2014%2f01%2f130221-2528.jpg&ehk=LToqkipED3KxGj7CVuMoQrvi487RY2HN6IPZ59FCWNQ%3d&risl=&pid=ImgRaw&r=0"
+              alt="persona"
+              className="persona"
             />
-          </a>
-          <div className="buscador">
-            <IoIosSearch />
-            <input type="text" placeholder="Buscar..." id="searchInput" />
+            <span className="perfil">Perfil 1</span>
           </div>
-          <div className="side-bar">
-            <label htmlFor="empleados">
-              <IoPersonOutline size={14} /> Empleados
-            </label>
-            <label htmlFor="mailsEnviados">
-              <LuMail size={14} /> Mails enviados
-            </label>
-            <label htmlFor="mailError">
-              <LuMailWarning size={14} /> Mail Error
-            </label>
-            <label htmlFor="calendario">
-              <IoCalendarOutline size={14} /> Calendario
-            </label>
-            <label htmlFor="imagenes">
-              <IoImagesOutline size={14} /> Imágenes
-            </label>
-            <div className="perfil-info">
-              <img
-                src="https://th.bing.com/th/id/R.0301819f445a8855c4a577a6763fb62d?rik=TT%2fgaYZuz1YEig&riu=http%3a%2f%2fanhede.se%2fwp-content%2fuploads%2f2014%2f01%2f130221-2528.jpg&ehk=LToqkipED3KxGj7CVuMoQrvi487RY2HN6IPZ59FCWNQ%3d&risl=&pid=ImgRaw&r=0"
-                alt="persona"
-                className="persona"
-              />
-              <span className="perfil">Perfil 1</span>
-            </div>
-            <button className="logout">
-              <span className="logout2">
-                <LuLogOut size={14} /> Log out
-              </span>
-            </button>
-          </div>
+          <button className="logout">
+            <span className="logout2">
+              <LuLogOut size={14} /> Log out
+            </span>
+          </button>
         </div>
+      </aside>
 
-        <div className="div2">Estadísticas
-          <div>
-            <img src={estadistica1} alt="estadistica" className="estadistica" />
-            <img src={estadistica2} alt="estadistica2" className="estadistica2"/>
+      {isDashboard ? (
+        <>
+          <div className="div2">
+           <h2>Estadísticas</h2>
+           <Estadisticas />
           </div>
-        </div>
-        <div className="div3">Mails enviados
-          <div className='perfil-info2'>
-            <img src={gaelMailEnviado} alt="gaelMailEnviado" className='persona2'/>
+
+          <div className="div3">
+            <h2>Mails enviados</h2>
+            <div>
+              <div className="perfil-info2">
+                <img src={gaelMailEnviado} alt="persona2" className="persona2" />
+                <div>
+                  <label htmlFor="empleado">nombreEmpleado apellidoEmpleado</label>
+                  <label htmlFor="ciudadYLugar" className="ciudadYLugar">ciudadYLugarDeTrabajo</label>
+                </div>
+              </div>
+              <Link to="/mails-enviados">
+                <button className="verMas">Ver más</button>
+              </Link>
+            </div>
           </div>
-        </div>
-        <div className="div12">12</div>
-        <div className="div13">13</div>
-        <div className="div14">14</div>
+
+          <div className="imagenCrombie">
+            <img src={coloresCrombie} alt="coloresCrombie" className="coloresCrombie" />{" "}
+            <img src={coloresCrombie} alt="coloresCrombie" className="coloresCrombie" />{" "}
+            <img src={coloresCrombie} alt="coloresCrombie" className="coloresCrombie" />
+          </div>
+
+          <div className="div4">
+            <h2>Proximos eventos (7 Días)</h2>
+            {upcomingEvents.length > 0 ? (
+          upcomingEvents.map(event => (
+            <div className="perfil-info2" key={event.id}>
+              <img
+                src={event.empleadoImagen || (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
+                alt={event.empleado}
+                className="persona2"
+                style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+              />
+              <div>
+                <span className="empleado">{event.title}</span>
+                <span className="ciudadYLugar">
+                  Fecha: {new Date(event.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                </span>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p>No hay eventos próximos en los siguientes 7 días.</p>
+        )}
       </div>
-    </>
+
+          <div className="div5">
+            <h2>Mensaje de Aniversario</h2>
+            {loading ? (<p>Cargando mensaje...</p>) : error ? (
+              <p style={{ color: 'red' }}>Error al cargar el mensaje: {error}</p>
+            ) : (
+              <>
+                {/* Usamos un div con estilo para mostrar el mensaje preformateado */}
+                <div className="mensajeEstilo">
+                  {config.messageTemplate || 'No hay mensaje configurado aún.'}
+                </div>
+                <Link to="/mensaje">
+                  <button className="verMas" style={{ marginTop: '15px' }}>
+                    Renovar mensaje
+                  </button>
+                </Link>
+              </>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="main-content-pages">
+          <Routes>
+            <Route path="/empleados" element={<EmpleadosPage />} />
+            <Route path="/mails-enviados" element={<MailsEnviadosPage />} />
+            <Route path="/mail-error" element={<MailErrorPage />} />
+            <Route path="/calendario" element={<CalendarioPage />} />
+            <Route path="/mensaje" element={<EditorMensaje />} />
+          </Routes>
+        </div>
+      )}
+    </div>
   );
 }
 
-export default App
+export default App;

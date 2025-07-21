@@ -1,5 +1,4 @@
-
-
+//saveEnv.js
 //Se genera una api key y se guarda en el archivo .env, si no existe se crea el archivo.
 const path = require('path');
 const fs = require('fs');

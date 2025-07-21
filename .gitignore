@@ -1,10 +1,14 @@
-mongosh-2.5.3-win32-x64/
+# Ignorar node_modules en cualquier parte
 **/node_modules/
+
+# Ignorar dist o build de cualquier parte
 **/dist/
 **/build/
 
+# Ignorar archivos temporales
 *.log
 *.env
 
+# Si usás Vite o React
 /frontend/crombieversario-app/.env
 /frontend/crombieversario-app/.vite

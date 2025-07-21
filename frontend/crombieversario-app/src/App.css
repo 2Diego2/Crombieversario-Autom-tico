@@ -1,64 +1,130 @@
 :root {
-  --colorFondo: #f6f6f3;  
-  --colorCaja: #FFFFFF;
-  --colorAdmin: #FFCD71;
+  --colorFondo: #f6f6f3;
+  --colorCaja: #ffffff;
+  --hover: #f0f0f0;
+  --colorAdmin: #ffcd71;
   --colorMailError: #fff7e8;
-  --colorLogOut: #BA3030; 
+  --colorLogOut: #ba3030;
+  --colorVerMas: #734a00;
+  --border-radius: 25px;
+  --padding-box: 20px;
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+body {
+  background-color: var(--colorFondo);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: var(--padding-box);
 }
 
 .parent {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(5, 1fr);
+  grid-template-columns: 280px repeat(4, 1fr); 
+  grid-template-rows: auto; 
   gap: 20px;
-  background-color: var(--colorFondo);
-  padding: 15px;
+  width: 100%;
+  max-width: 1200px;
+  min-height: calc(100vh - 40px);
+
+  grid-template-areas:
+    "sidebar stats stats stats stats"
+    "sidebar mails-sent mails-sent mail-imgs mail-imgs"
+    "sidebar events events mail-message mail-message";
 }
 
-.div1 {
-  grid-row: span 5 / span 5;
-  height: 900px;
-  width: 300px;
-  background-color: var(--colorCaja);
-  border-radius: 25px;
-}
-
-.buscador {
+/*caja side-bar*/
+aside.div1 {
+  grid-area: sidebar;
   display: flex;
-  align-items: center;
-  background-color: white;
-  padding: 8px;
-  border-radius: 30px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  width: 250px;
-  height: 25px;
-  margin-left: 15px;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--padding-box);
+  gap: 20px;
+  background-color: var(--colorCaja);
+  border-radius: var(--border-radius);
+  height: auto; 
+  min-height: 100%; 
 }
 
-.buscador input {
-  border: none;
-  padding: 8px;
-  font-size: 16px;
-  outline: none;
+.logo.crombie {
+  width: 100%; /* El logo ocupará el 100% del ancho de su contenedor (el aside) */
+  max-width: 300px; /* Limita el tamaño máximo del logo */
+  display: block; /* Asegurarse de que es un bloque */
+  margin-left: auto; /* Centrar horizontalmente */
+  margin-right: auto;
 }
 
 .side-bar {
-  display: grid;
-  gap: 25px;
-  margin-top: 15px;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; 
+  width: 100%;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text-color-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  padding: 10px 15px;
+}
+
+.menu-item:hover {
+  background-color: var(--hover);
+}
+
+.menu-item.active-menu-item,
+.menu-item:focus {
+  background-color: var(--hover);
+  outline: none;
+}
+
+.footer-aside {
+  margin-top: auto;
+  padding: var(--padding-box);
+  border-top: 1px solid #eee;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex; 
+  flex-direction: column; 
+  gap: 10px; 
+  align-items: flex-start;
 }
 
 .perfil-info {
   display: flex;
-  margin-top: 320px;
-  gap: 25px;
+  gap: 20px; 
+  align-items: center; 
+  width: 100%;
 }
 
 .perfil {
   display: flex;
   align-items: center;
-  gap: 10px;
 }
 
 .persona {
@@ -69,84 +135,294 @@
 }
 
 .logout {
-  width: 117px;
-}
-
-.logout2 {
-  width: 100px;
-  color: var(--colorLogOut);
+  margin-top: 15px; 
+  width: auto; 
+  padding: 8px 15px; 
   cursor: pointer;
 }
 
-.div2 {
-  grid-column: span 4 / span 4;
-  grid-row: span 2 / span 2;
-  height: 300px;
-  width: 900px;
-  background-color: var(--colorCaja);
-  border-radius: 25px;
-  align-items: center;
-  gap: 20px;
-  padding: 40px;
-}
-
-.estadistica { /*recepcion de mails*/
-  width: 260px;
-  object-fit: cover;
-  align-items: center;
-  margin-right: 70px;
-  margin-left: 70px;
-}
-
-.estadistica2{ /*informe mensual*/
-  width: 320px;
-  object-fit: cover;
-  align-items: center;
-  margin-right: 70px;
-  margin-left: 70px;
-}
-
-
-
-.div3 {
-  grid-column: span 2 / span 2;
-  grid-row: span 5 / span 5;
-  grid-column-start: 2;
-  grid-row-start: 3;
-  height: 300px;
-  width: 450px;
-  background-color: var(--colorCaja);
-  border-radius: 25px;
-}
-
-/*.perfil-info2 {
+.logout2 {
+  color: var(--colorLogOut);
   display: flex;
-  margin-top: 10px;
-  gap: 25px;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
 }
+
+.div2,
+.div3,
+.div4,
+.div5 {
+  background-color: var(--colorCaja);
+  border-radius: var(--border-radius);
+  padding: var(--padding-box);
+  display: flex;
+  flex-direction: column;
+}
+
+/*caja estadísticas*/
+.div2 {
+  grid-area: stats;
+}
+
+/*caja mails enviados*/
+.div3 {
+  grid-area: mails-sent;
+}
+
+.div2 h2,
+.div3 h2,
+.div4 h2,
+.div5 h2 {
+  margin-bottom: 15px; /* Espacio debajo de los títulos de las secciones */
+}
+
+.perfil-info2 {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 10px; /* Ajustado el margen superior */
+  margin-left: 0; /* Eliminar margin-left fijo */
+  padding: 10px 0; /* Padding para el área de info */
+  overflow-y: auto; 
+}
+
+.perfil-info2 > div {
+  display: flex;
+  flex-direction: column;
+}
+
 .persona2 {
   height: 40px;
   width: 40px;
   border-radius: 50%;
   object-fit: cover;
-} a chekear OwO 
-*/
-.div12 {
-  grid-column: span 2 / span 2;
-  grid-column-start: 4;
-  grid-row-start: 3;
+  flex-shrink: 0; 
 }
 
-.div13 {
-  grid-column: span 2 / span 2;
-  grid-row: span 2 / span 2;
-  grid-column-start: 4;
-  grid-row-start: 4;
+.ciudadYLugar {
+  display: block;
+  font-size: 0.9em;
+  color: #666;
 }
 
-.div14 {
-  grid-column: span 2 / span 2;
-  grid-row: span 2 / span 2;
-  grid-column-start: 2;
-  grid-row-start: 4;
+.verMas {
+  border: none;
+  background: none;
+  outline: none;
+  cursor: pointer;
+  color: var(--colorVerMas);
+  margin-top: 10px; /* Espacio superior */
+  align-self: flex-end;
+}
+
+.imagenCrombie {
+  grid-area: mail-imgs;
+  padding: var(--padding-box);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.coloresCrombie {
+  width: 110px;
+  height: auto;
+  object-fit: contain;
+  margin: auto;
+}
+
+.div4 {
+  grid-area: events;
+}
+
+.div5 {
+  grid-area: mail-message;
+}
+
+.mensajeEstilo{
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 5px;
+  max-height: 300px;
+  overflow-y: auto;  /*Añade scroll si el contenido es muy largo */
+  white-space: pre-wrap; /* Mantiene saltos de línea y espacios */
+  word-wrap: break-word; /* Evita desbordamiento de palabras largas */
+  font-size: 0.9em;
+  color: #333;
+}
+
+.main-content-pages {
+  grid-column: 2 / -1; 
+  grid-row: 1 / -1; 
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  background-color: var(--colorCaja);
+  border-radius: var(--border-radius);
+  padding: var(--padding-box);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .parent {
+    grid-template-columns: 250px 1fr 1fr; /* Reduce el tamaño de la sidebar, menos columnas */
+    grid-template-areas:
+      "sidebar stats stats"
+      "sidebar mails-sent mail-imgs"
+      "sidebar events mail-message";
+    gap: 15px; /* Reduce un poco el gap */
+  }
+
+  .logo.crombie {
+    max-width: 180px;
+  }
+
+  .coloresCrombie {
+    width: 100px;
+  }
+}
+
+/* Para tablets (ej. 768px - 1023px) */
+@media (max-width: 992px) {
+  .parent {
+    grid-template-columns: 220px 1fr 1fr; /* Sidebar más pequeña, 2 columnas para el contenido */
+    grid-template-areas:
+      "sidebar stats stats"
+      "sidebar mails-sent mail-imgs"
+      "sidebar events mail-message";
+    gap: 15px;
+  }
+
+  .logo.crombie {
+    max-width: 90px;
+  }
+
+}
+
+/* Para teléfonos móviles y tablets pequeñas (ej. 480px - 767px) */
+@media (max-width: 768px) {
+  body {
+    padding: 10px; /* Reduce el padding del body */
+  }
+
+  .parent {
+    grid-template-columns: 1fr; /* Una sola columna para todo */
+    grid-template-rows: auto; /* Todas las filas se ajustan al contenido */
+    grid-template-areas:
+      "sidebar"
+      "stats"
+      "mails-sent"
+      "mail-imgs"
+      "events"
+      "mail-message"; /* Apila todas las secciones */
+    gap: 10px; /* Reduce el gap */
+    max-width: 95%; /* Ocupa más ancho en pantallas pequeñas */
+    min-height: auto; /* Deja que la altura sea automática */
+    margin: 0; /* Elimina márgenes extra */
+  }
+
+  aside.div1 {
+    width: 100%; /* La sidebar ocupa todo el ancho */
+    flex-direction: row; /* La sidebar puede volverse horizontal en móviles (o quedarse vertical, según prefieras) */
+    flex-wrap: wrap; /* Permitir que los elementos de la sidebar se envuelvan */
+    justify-content: center; /* Centrar elementos en la sidebar */
+    align-items: center; /* Centrar verticalmente */
+    text-align: center;
+    gap: 10px; /* Reduce el gap */
+    padding: 15px;
+  }
+
+  .logo.crombie {
+    max-width: 250px; /* Logo más pequeño */
+    margin-bottom: 0; /* No hay margen inferior si la sidebar se hace horizontal */
+  }
+
+  .side-bar {
+    flex-direction: row; /* Los ítems del menú se ponen en fila */
+    flex-wrap: wrap; /* Si hay muchos, que se envuelvan */
+    justify-content: center; /* Centra los ítems del menú */
+    gap: 10px;
+    padding: 0;
+    width: 100%;
+  }
+
+  .menu-item {
+    font-size: 1rem;
+    padding: 8px 10px;
+    flex-shrink: 0; /* Evita que se encojan demasiado */
+  }
+  
+  .menu-item svg {
+    display: none; /* Oculta los iconos para ahorrar espacio */
+  }
+
+  .footer-aside {
+    flex-direction: column; /* Vuelve a apilar en el footer para móviles */
+    align-items: center; 
+    padding-top: 10px;
+  }
+
+  .perfil-info {
+    align-items: center;
+    gap: 10px;
+  }
+
+  .perfil {
+    text-align: center;
+  }
+
+  .logout {
+    margin-top: 10px;
+  }
+
+  .div2, .div3, .div4, .div5, .imagenCrombie {
+    padding: 15px; /* Reduce el padding de las cajas de contenido */
+  }
+
+  .coloresCrombie {
+    width: 80px; /* Imágenes de crombie más pequeñas */
+  }
+
+  .main-content-pages {
+    grid-column: 1 / -1; /* Ocupa todo el ancho en una sola columna */
+    grid-row: auto; /* Se ajusta a su contenido, no ocupa altura fija */
+    height: auto; /* Importante */
+    padding: 15px;
+  }
+}
+
+/* Para teléfonos móviles muy pequeños (ej. 375px o menos) */
+@media (max-width: 480px) {
+  body {
+    padding: 5px;
+  }
+  .parent {
+    gap: 8px;
+  }
+  aside.div1 {
+    padding: 10px;
+  }
+  .logo.crombie {
+    max-width: 200px;
+  }
+  .side-bar {
+    gap: 8px;
+  }
+  .menu-item {
+    font-size: 0.85rem;
+    padding: 6px 8px;
+  }
+  .div2, .div3, .div4, .div5, .imagenCrombie {
+    padding: 10px;
+  }
+  .coloresCrombie {
+    width: 70px;
+  }
+  .perfil-info2 {
+    gap: 10px;
+  }
 }
