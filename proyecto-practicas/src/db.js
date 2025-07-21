@@ -16,6 +16,8 @@ const mongoose = require('mongoose');
 // Esquema para Logs de Correos Enviados
 // Este esquema define la estructura de los documentos en tu colección 'sent_logs'
 const sentLogSchema = new mongoose.Schema({
+    nombre: { type: String, required: true },
+    apellido: { type: String, required: true },
     email: { type: String, required: true },
     years: { type: Number, required: true },
     sentDate: { type: Date, default: Date.now }, // Fecha de envío, por defecto la fecha actual
