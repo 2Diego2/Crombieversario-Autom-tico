@@ -78,12 +78,8 @@ const useEventosProximos = () => {
             id: `cumple-${trabajador.nombre}-${trabajador.apellido}-${birthDay}-${birthMonth}`,
             title: `🥳 Cumpleaños de ${trabajador.nombre} ${trabajador.apellido}`,
             date: birthdayDateStr,
-<<<<<<< HEAD
-            color: '#80319b', 
-=======
-            color: '#1BB55F',
->>>>>>> 7601c6e (PERDON: 1) Saque el uso de API-KEY en el frontend porque es "es estrictamente necesario y una muy buena práctica de seguridad". 2) Hice el login. 3) Dividi la logica de las rutas en App y el dashboard. 4) Elimine imagenes que ya no utilizamos)
-            allDay: true,
+            color: '#80319b',
+            allDay: true, 
             type: 'cumpleanios',
             empleado: `${trabajador.nombre} ${trabajador.apellido}`,
             empleadoImagen: trabajador.imagen
@@ -117,11 +113,7 @@ const useEventosProximos = () => {
             id: `aniversario-${trabajador.nombre}-${trabajador.apellido}-${entryDay}-${entryMonth}`,
             title: `🎉 Aniversario de ${trabajador.nombre} ${trabajador.apellido}`,
             date: anniversaryDateStr,
-<<<<<<< HEAD
-            color: '#ee326c', 
-=======
-            color: '#25B2E2',
->>>>>>> 7601c6e (PERDON: 1) Saque el uso de API-KEY en el frontend porque es "es estrictamente necesario y una muy buena práctica de seguridad". 2) Hice el login. 3) Dividi la logica de las rutas en App y el dashboard. 4) Elimine imagenes que ya no utilizamos)
+            color: '#ee326c',
             allDay: true,
             type: 'aniversario',
             empleado: `${trabajador.nombre} ${trabajador.apellido}`,

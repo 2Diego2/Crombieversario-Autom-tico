@@ -97,7 +97,7 @@ console.log(`[DEBUG PATH] Intentando leer imagen desde esta ruta: "${physicalIma
     });
     console.log("Email enviado:", info.messageId);
     // 5. Registrar el envío en la base de datos
-    await recordSentEmail(empleado.mail, empleado.nroAniversario);
+    await recordSentEmail(empleado.nombre, empleado.apellido, empleado.mail, empleado.nroAniversario);
   } catch (error) {
     console.error(
       `Error enviando email o registrando log para ${empleado.mail}:`,
@@ -108,7 +108,8 @@ console.log(`[DEBUG PATH] Intentando leer imagen desde esta ruta: "${physicalIma
 });
 
 // --- Función Principal de Ejecución ---
-cron.schedule(  "20 10 * * 1-5",
+cron.schedule(
+  "22 12 * * 1-5",
   async () => {
     // Conectar a la base de datos
     await connectDB();

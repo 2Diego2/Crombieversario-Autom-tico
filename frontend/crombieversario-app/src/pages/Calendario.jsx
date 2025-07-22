@@ -6,13 +6,8 @@ import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 
 import './Calendario.css';
-<<<<<<< HEAD
-import useUpcomingEvents from '../componentes/useEventosProximos';
-
-=======
 // Corrección de la ruta de importación: usa 'useEventosProximos' en lugar de 'useEventosProximos'
 import useEventosProximos from '../componentes/useEventosProximos'; 
->>>>>>> 7601c6e (PERDON: 1) Saque el uso de API-KEY en el frontend porque es "es estrictamente necesario y una muy buena práctica de seguridad". 2) Hice el login. 3) Dividi la logica de las rutas en App y el dashboard. 4) Elimine imagenes que ya no utilizamos)
 
 const CalendarioPage = () => {
   // Usar el custom hook para obtener los eventos y también sus estados de carga y error
@@ -49,75 +44,6 @@ const CalendarioPage = () => {
   }
 
   return (
-<<<<<<< HEAD
-    <div className='main-content-pages'>
-      <div className="calendario-page-container">
-        <h1>Calendario de Eventos</h1>
-
-        <div className="fullcalendar-wrapper">
-          <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-            initialView="dayGridMonth"
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-            }}
-            locale="es"
-            editable={false}
-            selectable={false}
-            dayMaxEvents={true}
-            weekends={true}
-            events={allEventsForCalendar} // Usar todos los eventos del hook
-            dateClick={handleDateClick}
-            eventClick={handleEventClick}
-          />
-        </div>
-
-
-        <div className="events-list">
-          <h2>Próximos Eventos (7 Días)</h2>
-          <div className="empleados-table-scroll-container2">
-            <table className="empleados-table">
-              <thead>
-                <tr>
-                  <th>Evento</th>
-                  <th>Fecha</th>
-                </tr>
-              </thead>
-              <tbody>
-                {upcomingEvents.length > 0 ? (
-                  upcomingEvents.map(event => (
-                    <tr key={event.id}>
-                      <td>
-                        <div className="nombreEmpleado">
-                          <img
-                            src={event.empleadoImagen || (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
-                            alt={event.empleado}
-                            className="fotoEmpleado"
-                          />
-                          <div className="infoEmpleado">
-                            <span className="nombreApellido">{event.title}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="fechaIngreso">
-                          {new Date(event.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="2" className="no-results">No hay eventos próximos en los siguientes 7 días.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-=======
     <div className="calendario-page-container">
       <h2>Calendario de Eventos</h2>
 
@@ -164,7 +90,6 @@ const CalendarioPage = () => {
         ) : (
           <p>No hay eventos próximos en los siguientes 7 días.</p>
         )}
->>>>>>> 7601c6e (PERDON: 1) Saque el uso de API-KEY en el frontend porque es "es estrictamente necesario y una muy buena práctica de seguridad". 2) Hice el login. 3) Dividi la logica de las rutas en App y el dashboard. 4) Elimine imagenes que ya no utilizamos)
       </div>
     </div>
   )
