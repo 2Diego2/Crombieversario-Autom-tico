@@ -1,20 +1,17 @@
 // src/pages/EditorMensaje.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import useConfig from "../componentes/useConfig";
 import "./EditorMensaje.css";
 
 function EditorMensaje() {
-  // Obtener la configuración y los estados relacionados
   const {
     config,
     loading,
     error,
-    API_BASE_URL,
-    localApiKey,
-    setConfig,
-    setLoading,
-    setError,
+    updateConfigApi,
+    uploadImageApi,
+    deleteImageApi,
+    // No necesitamos refetchConfig directamente aquí a menos que quieras un botón de recarga manual
   } = useConfig();
 
   // Estados internos para cambios locales antes de guardar, y para la selección de archivos
@@ -23,47 +20,34 @@ function EditorMensaje() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [anniversaryNumber, setAnniversaryNumber] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [localError, setLocalError] = useState(null); // Usaremos un error local para mensajes específicos de la UI
 
   // Inicializa los estados locales una vez que la configuración se carga desde el hook
   useEffect(() => {
     if (config) {
       setMessageTemplate(config.messageTemplate || "");
-      setImagePaths(config.imagePaths || []);
+      setImagePaths(config.imagePaths || []); // Actualiza imagePaths cuando config cambia
     }
-  }, [config]);
+  }, [config]); // Depende de 'config'
+
+  // Sincroniza el error del hook con el error local
+  useEffect(() => {
+    if (error) {
+      setLocalError(error);
+    } else {
+      setLocalError(null);
+    }
+  }, [error]);
 
   const handleSaveMessage = async () => {
-    setLoading(true);
-    setError(null); // Limpiar errores previos al guardar
+    setLocalError(null); // Limpiar errores previos al guardar
     setSuccessMessage("");
     try {
-      await axios.put(
-        `${API_BASE_URL}/api/config`,
-        { messageTemplate, imagePaths },
-        {
-          headers: {
-            "x-api-key": localApiKey,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      // Al guardar, actualizamos el estado de config con las rutas actuales de imagePaths
-      setConfig((prevConfig) => ({
-        ...prevConfig,
-        messageTemplate,
-        imagePaths,
-      }));
-      setSuccessMessage(
-        "Mensaje y configuración de imágenes guardados exitosamente!"
-      );
+      await updateConfigApi(messageTemplate, imagePaths);
+      setSuccessMessage("Mensaje y configuración de imágenes guardados exitosamente!");
     } catch (err) {
-      setError(
-        "Error al guardar la configuración: " +
-          (err.response?.data?.error || err.message)
-      );
+      setLocalError("Error al guardar la configuración: " + (err.response?.data?.message || err.message));
       console.error("Error al guardar configuración:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -71,117 +55,79 @@ function EditorMensaje() {
     setSelectedFile(event.target.files[0]);
   };
 
-  // Función para manejar el cambio en el número de aniversario
   const handleAnniversaryNumberChange = (event) => {
     const value = event.target.value;
-    // Permite solo números y asegura que sea un entero positivo
     if (/^\d*$/.test(value)) {
       setAnniversaryNumber(value);
     }
   };
 
   const handleUploadImage = async () => {
-    setError(null);
+    setLocalError(null);
     setSuccessMessage("");
 
     if (!selectedFile) {
-      setError("Por favor, selecciona una imagen para subir.");
+      setLocalError("Por favor, selecciona una imagen para subir.");
       return;
     }
     if (!anniversaryNumber || parseInt(anniversaryNumber) <= 0) {
-      setError(
-        "Por favor, ingresa un número de aniversario válido (entero positivo)."
-      );
+      setLocalError("Por favor, ingresa un número de aniversario válido (entero positivo).");
       return;
     }
 
     const fileExtension = selectedFile.name.split(".").pop().toLowerCase();
     if (fileExtension !== "png") {
-      setError(
-        "Solo se permiten imágenes PNG. Por favor, selecciona un archivo .png"
-      );
+      setLocalError("Solo se permiten imágenes PNG. Por favor, selecciona un archivo .png");
       return;
     }
 
-    setLoading(true);
-
-    const formData = new FormData();
-    formData.append("image", selectedFile);
-    // REMOVE THIS LINE: formData.append('anniversaryNumber', anniversaryNumber);
-    // We will pass it in the URL instead.
-
-    // Construct the URL with the anniversary number as a parameter
-    const uploadUrl = `${API_BASE_URL}/api/upload-image/${anniversaryNumber}`; // <--- CHANGE HERE
-
-    console.log("Enviando FormData desde Frontend:");
-    console.log(
-      "   Archivo a enviar:",
-      selectedFile ? selectedFile.name : "No file"
-    );
-    console.log("   Número de Aniversario enviado en URL:", anniversaryNumber); // <--- New log
-
     try {
-      const response = await axios.post(uploadUrl, formData, {
-        // <--- Use the new URL here
-        headers: {
-          "x-api-key": localApiKey,
-        },
-      });
-      setConfig(response.data.updatedConfig);
-      setImagePaths(response.data.updatedConfig.imagePaths);
+      await uploadImageApi(selectedFile, parseInt(anniversaryNumber));
       setSelectedFile(null);
       setAnniversaryNumber("");
       setSuccessMessage("Imagen subida y agregada exitosamente!");
     } catch (err) {
-      setError(
-        "Error al subir imagen: " + (err.response?.data?.error || err.message)
-      );
+      setLocalError("Error al subir imagen: " + (err.response?.data?.message || err.message));
       console.error("Error detallado al subir imagen:", err.response || err);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleDeleteImage = async (imageUrlToDelete) => {
-    setLoading(true);
-    setError(null); // Limpiar errores previos al eliminar
+    setLocalError(null);
     setSuccessMessage("");
 
     try {
-      await axios.delete(`${API_BASE_URL}/api/delete-image`, {
-        headers: {
-          "x-api-key": localApiKey,
-          "Content-Type": "application/json",
-        },
-        data: { imageUrl: imageUrlToDelete }, // El cuerpo de la petición DELETE
-      });
-      // El backend ya debería haber eliminado el archivo y actualizado la DB.
-      // Aquí, actualizamos el estado local de imagePaths y la configuración global.
-      setConfig((prevConfig) => ({
-        ...prevConfig,
-        imagePaths: prevConfig.imagePaths.filter(
-          (path) => path !== imageUrlToDelete
-        ),
-      }));
-      setImagePaths((prevImagePaths) =>
-        prevImagePaths.filter((path) => path !== imageUrlToDelete)
-      );
+      await deleteImageApi(imageUrlToDelete);
       setSuccessMessage("Imagen eliminada exitosamente!");
     } catch (err) {
-      setError(
-        "Error al eliminar imagen: " +
-          (err.response?.data?.error || err.message)
-      );
+      setLocalError("Error al eliminar imagen: " + (err.response?.data?.message || err.message));
       console.error("Error al eliminar imagen:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
-  // La lógica de carga inicial se mantiene similar, pero sin el retorno completo del componente
-  if (loading && (!config || (imagePaths.length === 0 && !error))) {
+  // --- Lógica de renderizado basada en estados de carga y error ---
+
+  // Si hay un error (del hook o local), lo mostramos primero
+  if (localError) {
+    return (
+      <div className="Principal">
+        <h2>Error</h2>
+        <p style={{ color: 'red' }}>{localError}</p>
+        <button onClick={() => setLocalError(null)} className="botonCerrar">Cerrar</button>
+        {/* Considera aquí también un botón para ir al login si el error es 401/403 */}
+        {error && error.includes("Sesión expirada") && (
+            <button onClick={() => window.location.href = '/login'} className="botonLogin">Ir a Login</button>
+        )}
+      </div>
+    );
+  }
+
+  // Si está cargando O el objeto config aún no está disponible (puede ser la primera carga)
+  if (loading || !config || (Object.keys(config).length === 0 && !messageTemplate && imagePaths.length === 0)) {
     return <p>Cargando configuración...</p>;
   }
+
+  // --- Fin de la lógica de renderizado inicial ---
 
   return (
     <div className="Principal">
@@ -220,16 +166,15 @@ function EditorMensaje() {
             <p style={{ color: "#666" }}>No hay imágenes configuradas.</p>
           ) : (
             imagePaths.map((path, index) => {
-              // Extrae el número del aniversario del nombre del archivo para mostrarlo
               const fileName = path.substring(path.lastIndexOf("/") + 1);
-              const anniversaryNum = fileName.split(".")[0]; // Asume "X.png"
+              const anniversaryNum = fileName.split(".")[0];
               return (
                 <div
                   key={path}
                   className="img"
                 >
                   <img
-                    src={`${API_BASE_URL}${path}`}
+                    src={path}
                     alt={`Aniversario ${anniversaryNum}`}
                     className="imagenes"
                   />
@@ -272,11 +217,12 @@ function EditorMensaje() {
           {selectedFile && (
             <p className="select">Archivo seleccionado: {selectedFile.name}</p>
           )}
-          {error && (
+          {/* El mensaje de error local se muestra aquí */}
+          {localError && (
             <div className="error">
-              {error}
+              {localError}
               <button
-                onClick={() => setError(null)} // Botón para cerrar el mensaje de error
+                onClick={() => setLocalError(null)}
                 className="botonCerrar"
               >
                 &times;

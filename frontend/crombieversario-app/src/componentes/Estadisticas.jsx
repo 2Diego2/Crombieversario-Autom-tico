@@ -1,7 +1,7 @@
 // src/componentes/Estadisticas.jsx
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import './Estadisticas.css'
+import './Estadisticas.css';
 import useEstadisticasMail from './useEstadisticasMail';
 
 

@@ -1,4 +1,4 @@
-import React from 'react'; // Ya no necesitamos useState ni useEffect aquí
+import React from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -6,11 +6,12 @@ import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 
 import './Calendario.css';
-import useUpcomingEvents from '../componentes/useEventosProximos'; 
+// Corrección de la ruta de importación: usa 'useEventosProximos' en lugar de 'useEventosProximos'
+import useEventosProximos from '../componentes/useEventosProximos'; 
 
 const CalendarioPage = () => {
-  // Usar el custom hook para obtener los eventos
-  const { upcomingEvents, allEventsForCalendar } = useUpcomingEvents();
+  // Usar el custom hook para obtener los eventos y también sus estados de carga y error
+  const { upcomingEvents, allEventsForCalendar, loading, error } = useEventosProximos();
 
   // Las funciones handleDateClick y handleEventClick se pueden mantener si las necesitas
   const handleDateClick = (arg) => {
@@ -21,9 +22,30 @@ const CalendarioPage = () => {
     alert('Evento: ' + clickInfo.event.title + '\nID: ' + clickInfo.event.id);
   };
 
+  // 1. Mostrar estado de carga
+  if (loading) {
+    return (
+      <div className="calendario-page-container">
+        <h1>Cargando Calendario de Eventos...</h1>
+        <p>Por favor, espera mientras se cargan los datos.</p>
+      </div>
+    );
+  }
+
+  // 2. Mostrar estado de error
+  if (error) {
+    return (
+      <div className="calendario-page-container">
+        <h1>Error al Cargar Eventos</h1>
+        <p style={{ color: 'red' }}>{error}</p>
+        <p>Por favor, intenta recargar la página o contacta al soporte.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="calendario-page-container">
-      <h1>Calendario de Eventos</h1>
+      <h2>Calendario de Eventos</h2>
 
       <div className="fullcalendar-wrapper">
         <FullCalendar
@@ -38,7 +60,7 @@ const CalendarioPage = () => {
           editable={false}
           selectable={false}
           dayMaxEvents={true}
-          weekends={true}
+          // weekends={true} // Por defecto es true
           events={allEventsForCalendar} // Usar todos los eventos del hook
           dateClick={handleDateClick}
           eventClick={handleEventClick}
@@ -50,8 +72,9 @@ const CalendarioPage = () => {
         {upcomingEvents.length > 0 ? (
           upcomingEvents.map(event => (
             <div className="perfil-info2" key={event.id}>
+              {/* Ajustar el src de la imagen para que sea relativo a la carpeta public */}
               <img
-                src={event.empleadoImagen || (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
+                src={event.empleadoImagen ? `/${event.empleadoImagen}` : (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
                 alt={event.empleado}
                 className="persona2"
                 style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}

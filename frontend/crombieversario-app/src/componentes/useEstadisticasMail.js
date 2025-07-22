@@ -1,7 +1,11 @@
 // src/componentes/useEstadisticasMail.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import axios from 'axios'; // Usaremos axios para un manejo más consistente y mejor de errores HTTP
 
 const useEstadisticasMail = () => {
+  // Usamos la variable de entorno de Vite para la URL base
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+
   const [EstadisticasAnuales, setEstadisticasAnuales] = useState([]); // Datos para el gráfico de líneas
   const [DataTortaAnioActual, setDataTortaAnioActual] = useState([]); // Datos para el gráfico de torta del año actual
   const [loading, setLoading] = useState(true); // Estado de carga
@@ -10,69 +14,80 @@ const useEstadisticasMail = () => {
   // Obtenemos el año actual dinámicamente
   const ANIO_ACTUAL = new Date().getFullYear();
 
-  useEffect(() => {
-    const fetchEmailStats = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  // Función para obtener el token JWT del localStorage
+  const getAuthHeader = useCallback(() => {
+    const token = localStorage.getItem('jwtToken');
+    if (token) {
+      return { Authorization: `Bearer ${token}` };
+    }
+    return {};
+  }, []);
 
-        const apiKey = localStorage.getItem('api_key');
-        if (!apiKey) {
-          throw new Error('API Key no disponible en localStorage. Asegúrate de que se haya obtenido y guardado.');
-        }
+  // Función para manejar errores de autenticación y redirigir
+  const handleAuthError = useCallback((err) => {
+    if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
+      localStorage.removeItem('jwtToken');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('userEmail');
+      setError("Sesión expirada o no autorizado. Por favor, inicia sesión de nuevo.");
+      // Redirige al login. Asegúrate de que tu router de React tenga una ruta para '/login'
+      window.location.href = '/login';
+    } else {
+      setError("Error en la petición: " + (err.response?.data?.message || err.message || err.toString()));
+    }
+  }, []);
 
-        // Asegúrate de que tu backend esté corriendo en este puerto y sirva los datos.
-        const response = await fetch('http://localhost:3033/api/email-stats/yearly', {
-          method: 'GET', // Método HTTP, aunque es el valor por defecto para fetch GET
-          headers: {
-            'x-api-key': apiKey // <--- ¡Añadir este encabezado!
-          }
-        });        
-        if (!response.ok) {
-          // Para una mejor depuración, intenta leer el cuerpo del error si no es un 2xx
-          const errorBody = await response.text();
-          throw new Error(`HTTP error! status: ${response.status}. Detalle: ${errorBody}`);
-        }
-        const data = await response.json();
+  const fetchEmailStats = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-        // 1. Preparar datos para el Gráfico de Líneas
-        const processedLineData = data.map(item => ({
-          año: String(item.year), // Asegúrate de que 'año' sea string si lo usas como XAxis dataKey
-          enviados: item.sent,
-          abiertos: item.opened,
-        }));
-        setEstadisticasAnuales(processedLineData);
+    try {
+      // Usamos axios, y el JWT para la autenticación
+      const response = await axios.get(`${API_BASE_URL}/email-stats/yearly`, {
+        headers: getAuthHeader()
+      });
 
-        // 2. Preparar datos para el Gráfico de Torta (del año actual)
-        const statsForCurrentYear = data.find(item => item.year === ANIO_ACTUAL);
+      const data = response.data; // Axios ya parsea el JSON automáticamente
 
-        if (statsForCurrentYear) {
-          const sent = statsForCurrentYear.sent;
-          const opened = statsForCurrentYear.opened;
-          const notOpened = sent - opened;
+      // 1. Preparar datos para el Gráfico de Líneas
+      const processedLineData = data.map(item => ({
+        año: String(item.year),
+        enviados: item.sent,
+        abiertos: item.opened,
+      }));
+      setEstadisticasAnuales(processedLineData);
 
-          setDataTortaAnioActual([
-            { nombre: 'Abiertos', valor: opened },
-            { nombre: 'No Abiertos', valor: notOpened },
-          ]);
-        } else {
-          setDataTortaAnioActual([{ nombre: 'Sin Datos', valor: 1 }]);
-          console.warn(`No hay datos para el año ${ANIO_ACTUAL} para la gráfica de torta.`);
-        }
+      // 2. Preparar datos para el Gráfico de Torta (del año actual)
+      const statsForCurrentYear = data.find(item => item.year === ANIO_ACTUAL);
 
-      } catch (err) {
-        console.error("Error al obtener las estadísticas de email:", err);
-        setError("No se pudieron cargar las estadísticas. Inténtalo de nuevo más tarde.");
-      } finally {
-        setLoading(false);
+      if (statsForCurrentYear) {
+        const sent = statsForCurrentYear.sent;
+        const opened = statsForCurrentYear.opened;
+        const notOpened = sent - opened;
+
+        setDataTortaAnioActual([
+          { nombre: 'Abiertos', valor: opened },
+          { nombre: 'No Abiertos', valor: notOpened },
+        ]);
+      } else {
+        setDataTortaAnioActual([{ nombre: 'Sin Datos', valor: 1, fill: '#ccc' }]);
+        console.warn(`No hay datos para el año ${ANIO_ACTUAL} para la gráfica de torta.`);
       }
-    };
 
+    } catch (err) {
+      console.error("Error al obtener las estadísticas de email:", err);
+      handleAuthError(err); // Llama a la función de manejo de errores de autenticación
+    } finally {
+      setLoading(false);
+    }
+  }, [API_BASE_URL, getAuthHeader, handleAuthError, ANIO_ACTUAL]); // Dependencias para useCallback
+
+  useEffect(() => {
     fetchEmailStats();
-  }, []); // El array vacío asegura que se ejecute una sola vez al montar el componente
+  }, [fetchEmailStats]); // Dependencia del useCallback para ejecutar una vez al montar
 
   // El custom hook devuelve los estados y datos que el componente necesitará
-  return { EstadisticasAnuales, DataTortaAnioActual, loading, error, ANIO_ACTUAL };
+  return { EstadisticasAnuales, DataTortaAnioActual, loading, error, ANIO_ACTUAL, refetchEmailStats: fetchEmailStats };
 };
 
 export default useEstadisticasMail;
