@@ -1,46 +1,47 @@
-import { useState } from "react";
-import {  IoPersonOutline,  IoCalendarOutline,  IoImagesOutline} from "react-icons/io5";
-import { LuMailWarning, LuMail, LuLogOut } from "react-icons/lu";
-import { Link, Routes, Route, useLocation } from "react-router-dom";
+// src/App.jsx
+import React, { useState, useEffect } from "react";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 
-
-// Imagenes
-import gaelMailEnviado from "./assets/gael.PNG";
-import coloresCrombie from "./assets/coloresCrombie.png";
-import LogoCrombie from "./assets/Logo.png";
-
-
-// Archivos
-import "./App.css";
-import EmpleadosPage from "./pages/EmpleadosPage";
-import MailsEnviadosPage from "./pages/MailsEnviadosPage";
-import MailErrorPage from "./pages/MailErrorPage";
-import CalendarioPage from "./pages/Calendario";
-import EditorMensaje from "./pages/EditorMensaje";
-import useConfig from './componentes/useConfig'; 
-import useUpcomingEvents from './componentes/useEventosProximos'; 
-import Estadisticas from './componentes/Estadisticas';
-
+import LoginForm from './componentes/Login';
+import DashboardContent from './componentes/Dashboard';
 
 function App() {
-  const [count, setCount] = useState(0);
-  const location = useLocation();
-  const isDashboard = location.pathname === '/';
-  const { config, loading, error, localApiKey } = useConfig();
-  const { upcomingEvents } = useUpcomingEvents();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const navigate = useNavigate();
 
-  if (loading) {
-    return <div>Cargando configuración...</div>;
-  }
+  useEffect(() => {
+    const token = localStorage.getItem('jwtToken');
+    const email = localStorage.getItem('userEmail');
+    const role = localStorage.getItem('userRole');
 
-  if (error) {
-    return <div>Error al cargar la aplicación: {error}</div>;
-  }
+    if (token && email && role) {
+      setIsAuthenticated(true);
+      setUserEmail(email);
+      setUserRole(role);
+    } else {
+      setIsAuthenticated(false);
+      setUserEmail(null);
+      setUserRole(null);
+      if (window.location.pathname !== '/login') {
+        navigate('/login', { replace: true });
+      }
+    }
+  }, [navigate]);
 
-  console.log("API Key disponible en App:", localApiKey); // Para verificar que la API Key llega aquí también
-
+  const handleLogout = () => {
+    localStorage.removeItem('jwtToken');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userRole');
+    setIsAuthenticated(false);
+    setUserEmail(null);
+    setUserRole(null);
+    navigate('/login', { replace: true });
+  };
 
   return (
+<<<<<<< HEAD
     <div className="parent">
       <aside className="div1">
         <Link to="/" className="menu-item">
@@ -128,11 +129,23 @@ function App() {
               </div>
             </div>
           ))
+=======
+    <Routes>
+      <Route path="/login" element={
+        isAuthenticated ? (
+          <Navigate to="/dashboard" replace />
+>>>>>>> 7601c6e (PERDON: 1) Saque el uso de API-KEY en el frontend porque es "es estrictamente necesario y una muy buena práctica de seguridad". 2) Hice el login. 3) Dividi la logica de las rutas en App y el dashboard. 4) Elimine imagenes que ya no utilizamos)
         ) : (
-          <p>No hay eventos próximos en los siguientes 7 días.</p>
-        )}
-      </div>
+          <LoginForm onLoginSuccess={() => {
+            setIsAuthenticated(true);
+            setUserEmail(localStorage.getItem('userEmail'));
+            setUserRole(localStorage.getItem('userRole'));
+            navigate('/dashboard', { replace: true });
+          }} />
+        )
+      } />
 
+<<<<<<< HEAD
           <div className="div5">
             <h2>Mensaje de aniversario</h2>
             {loading ? (<p>Cargando mensaje...</p>) : error ? (
@@ -164,6 +177,21 @@ function App() {
         </div>
       )}
     </div>
+=======
+      <Route
+        path="/dashboard/*"
+        element={
+          isAuthenticated ? (
+            <DashboardContent onLogout={handleLogout} userEmail={userEmail} userRole={userRole} />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+      
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
+>>>>>>> 7601c6e (PERDON: 1) Saque el uso de API-KEY en el frontend porque es "es estrictamente necesario y una muy buena práctica de seguridad". 2) Hice el login. 3) Dividi la logica de las rutas en App y el dashboard. 4) Elimine imagenes que ya no utilizamos)
   );
 }
 
