@@ -4,14 +4,64 @@ const mongoose = require('mongoose');
 // *Definición de Esquemas y Modelos*
 
 // Esquema para Colaboradores
-// Este esquema define la estructura de los documentos en tu colección 'collaborators'
-/*const collaboratorSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    lastName: { type: String, required: true },
-    email: { type: String, required: true, unique: true }, // 'unique: true' asegura que no haya emails duplicados
-    entryDate: { type: Date, required: true }, // Guardamos la fecha como tipo Date de JS
-});*/
-//const Collaborator = mongoose.model('Collaborator', collaboratorSchema); // Crea un modelo a partir del esquema
+// Este esquema define la estructura de los documentos en tu colección 'user'
+const userSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    passwordHash: { type: String, required: true },
+    role: { type: String, enum: ['super_admin', 'staff'], default: 'staff' },
+}, { timestamps: true });
+
+const User = mongoose.model('User', userSchema);
+
+/**
+ * Busca un usuario por su email.
+ * @param {string} email El email del usuario.
+ * @returns {Promise<Object|null>} El objeto de usuario si se encuentra, de lo contrario null.
+ */
+async function findUserByEmail(email) {
+    try {
+        const user = await User.findOne({ email });
+        return user;
+    } catch (error) {
+        console.error('Error al buscar usuario por email:', error);
+        throw error;
+    }
+}
+
+/**
+ * Crea un nuevo usuario en la base de datos.
+ * @param {string} email El email del nuevo usuario.
+ * @param {string} passwordHash El hash de la contraseña del usuario.
+ * @param {string} [role='admin_interfaz'] El rol del usuario.
+ * @returns {Promise<Object>} El objeto del usuario creado.
+ */
+async function createUser(email, passwordHash, role = 'staff') {
+    try {
+        const newUser = new User({ email, passwordHash, role });
+        await newUser.save();
+        console.log(`Usuario creado: ${email} con rol: ${role}`);
+        return newUser;
+    } catch (error) {
+        console.error('Error al crear usuario:', error);
+        throw error;
+    }
+}
+
+async function updateUserRole(userId, newRole) {
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new Error('Usuario no encontrado.');
+        }
+        user.role = newRole;
+        await user.save();
+        console.log(`Rol del usuario ${user.email} actualizado a ${newRole}`);
+        return user;
+    } catch (error) {
+        console.error('Error al actualizar rol de usuario:', error);
+        throw error;
+    }
+}
 
 // Esquema para Logs de Correos Enviados
 // Este esquema define la estructura de los documentos en tu colección 'sent_logs'
@@ -74,13 +124,14 @@ async function connectDB() {
  * @param {string} email - Correo del colaborador.
  * @param {number} years - Años de aniversario.
  */
-async function recordSentEmail(email, years) {
+async function recordSentEmail(nombre, apellido, email, years) {
     try {
-        const newLog = new SentLog({ email, years });
+        const newLog = new SentLog({ nombre, apellido, email, years });
         await newLog.save();
-        console.log(`Log de envío registrado en DB para ${email} (${years} años).`);
+        console.log(`Log de envío registrado en DB para ${nombre} ${apellido} (${email}, ${years} años).`);
     } catch (error) {
-        console.error(`Error al registrar log de envío para ${email}: ${error.message}`);    }
+        console.error(`Error al registrar log de envío para ${email}: ${error.message}`);
+    }
 }
 
 /**
@@ -313,6 +364,9 @@ module.exports = {
     checkIfSentToday,
     getConfig,
     updateConfig,
+    findUserByEmail,
+    createUser,
+    updateUserRole,
     SentLog,
     Config,
     recordFailedEmail,

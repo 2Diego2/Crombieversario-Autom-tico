@@ -100,7 +100,7 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
     console.log("Email enviado:", info.messageId);
 
     // 5. Registrar el envío en la base de datos
-    await recordSentEmail(empleado.mail, empleado.nroAniversario);
+    await recordSentEmail(empleado.nombre, empleado.apellido, empleado.mail, empleado.nroAniversario);
   } catch (error) {
     console.error(
       `Error enviando email o registrando log para ${empleado.mail}:`,
@@ -114,7 +114,7 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
 
 // --- Función Principal de Ejecución ---
 cron.schedule(
-  "13 10 * * 1-5",
+  "22 12 * * 1-5",
   async () => {
     // Conectar a la base de datos
     await connectDB();
