@@ -169,6 +169,30 @@ aside.div1 {
   grid-area: stats;
 }
 
+.estadisticas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.data {
+  flex: 1 1 45%; /* Que ocupe casi la mitad y se ajuste si es necesario */
+  min-width: 300px;
+  height: 250px;
+  max-height: 300px;
+  position: relative; /*Necesario para el posicionamiento absoluto del contenido */
+  width: 100%;
+}
+
+.data > .recharts-responsive-container { /* Seleccionar el ResponsiveContainer dentro de .data */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
 /*caja mails enviados*/
 .div3 {
   grid-area: mails-sent;
@@ -256,6 +280,7 @@ aside.div1 {
   border: 1px solid #ddd;
   padding: 15px;
   border-radius: 5px;
+  max-height: 300px;
   overflow-y: auto;  /*Añade scroll si el contenido es muy largo */
   white-space: pre-wrap; /* Mantiene saltos de línea y espacios */
   word-wrap: break-word; /* Evita desbordamiento de palabras largas */

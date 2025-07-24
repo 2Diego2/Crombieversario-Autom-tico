@@ -1,21 +1,7 @@
 // db.js
 const mongoose = require('mongoose');
 
-const aniversarioSchema = new mongoose.Schema({
-  nombre: String,
-  apellido: String,
-  fechaEntrada: String,
-  cumpleanios: String,
-  mail: String,
-  nroAniversario: Number,
-  imagen: [String],
-  fechaRegistro: {
-  type: Date,
-  default: () => new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }))
-}
-  //MongoDB seguirá mostrando en UTC la fecha en Compass, pero internamente la hora estará correctamente ajustada. 
-  //Si necesitás visualizarla siempre como hora local, deberás formatearla en el cliente,(por ejemplo, en una app web o al mostrarla en consola)
-});
+// *Definición de Esquemas y Modelos*
 
 // Esquema para Colaboradores
 // Este esquema define la estructura de los documentos en tu colección 'collaborators'
@@ -30,8 +16,11 @@ const aniversarioSchema = new mongoose.Schema({
 // Esquema para Logs de Correos Enviados
 // Este esquema define la estructura de los documentos en tu colección 'sent_logs'
 const sentLogSchema = new mongoose.Schema({
+    nombre: { type: String, required: true },
+    apellido: { type: String, required: true },
     email: { type: String, required: true },
     years: { type: Number, required: true },
+    enviado: {type: Boolean, default: false},
     sentDate: { type: Date, default: Date.now }, // Fecha de envío, por defecto la fecha actual
 }, { timestamps: true }); // 'timestamps: true' añade 'createdAt' y 'updatedAt' automáticamente
 const SentLog = mongoose.model('SentLog', sentLogSchema);
@@ -51,37 +40,51 @@ const Config = mongoose.model('Config', configSchema);
 // *Función de Conexión a la Base de Datos*
 
 async function connectDB() {
-  try {
-await mongoose.connect(process.env.MONGO_URI);
-    console.log('MongoDB conectado exitosamente');
-  } catch (error) {
-    console.error('Error conectando a MongoDB:', error.message);
-  }
+    try {
+        await mongoose.connect(process.env.MONGO_URI, {
+            // Opciones recomendadas para Mongoose 6+
+            // ya no son necesarias en las versiones más recientes,
+            // pero pueden usarse para compatibilidad o configuración avanzada
+            // useNewUrlParser: true,
+            // useUnifiedTopology: true,
+            // useCreateIndex: true, // Esto es para 'unique: true'
+            // useFindAndModify: false // Esto es para métodos de actualización/eliminación
+        });
+        console.log('MongoDB conectado exitosamente');
+    } catch (error) {
+        console.error('Error conectando a MongoDB:', error.message);
+        process.exit(1); // Sale de la aplicación si no puede conectar a la DB
+    }
 }
 
 // *Operaciones Básicas para Logs*
 
 /**
  * Guarda un registro de correo enviado en la base de datos.
+ * @param {string} nombre - Nombre
+ * @param {string} apellido - Apellido
  * @param {string} email - Correo del colaborador.
  * @param {number} years - Años de aniversario.
+ * @param {boolean} enviado - Si fue enviado o no.
  */
-async function recordSentEmail(email, years) {
+async function recordSentEmail(nombre, apellido, email, years) {
     try {
-        const newLog = new SentLog({ email, years });
+        const newLog = new SentLog({nombre, apellido, email, years, enviado: true });
         await newLog.save();
-        console.log(`Log de envío registrado en DB para ${email} (${years} años).`);
+        console.log(`Log de envío registrado en DB para ${nombre} ${apellido} ${email} (${years} años).`);
     } catch (error) {
         console.error(`Error al registrar log de envío para ${email}: ${error.message}`);    }
 }
 
 /**
  * Verifica si ya se envió un correo para un aniversario específico hoy.
+ * @param {string} nombre - Nombre
+ * @param {string} apellido - Apellido
  * @param {string} email - Correo del colaborador.
  * @param {number} years - Años de aniversario.
- * @returns {boolean} - True si ya se envió hoy, false de lo contrario.
+ * @param {boolean} enviado
  */
-async function checkIfSentToday(email, years) {
+async function checkIfSentToday(nombre, apellido, email, years) {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Establecer a la medianoche de hoy
 
@@ -90,8 +93,11 @@ async function checkIfSentToday(email, years) {
 
     try {
         const log = await SentLog.findOne({
+            nombre: nombre,
+            apellido: apellido,
             email: email,
             years: years,
+            enviado: true, // Se convierte a true
             sentDate: {
                 $gte: today,    // Greater than or equal to today's midnight
                 $lt: tomorrow   // Less than tomorrow's midnight
@@ -140,122 +146,6 @@ async function updateConfig(messageTemplate, imagePaths) {
     }
 }
 
-<<<<<<< HEAD
-=======
-async function recordFailedEmail(email, years, errorMessage) {
-    try {
-        const newFailedLog = new FailedEmailLog({ email, years, errorMessage });
-        await newFailedLog.save();
-        console.error(`Log de envío fallido registrado en DB para ${email} (${years} años): ${errorMessage}`);
-    } catch (error) {
-        console.error(`Error al registrar log de envío fallido para ${email}: ${error.message}`);
-    }
-}
-
-// Add a function to get failed emails for retry attempts
-async function getFailedEmailsToRetry() {
-    try {
-        // Fetch emails that failed, for example, within the last 24 hours and haven't been successfully retried
-        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-        const failedEmails = await FailedEmailLog.find({
-            status: 'failed',
-            attemptDate: { $gte: twentyFourHoursAgo }
-        }).limit(50); // Limit to avoid overwhelming retries
-        return failedEmails;
-    } catch (error) {
-        console.error('Error al obtener emails fallidos para reintento:', error.message);
-        return [];
-    }
-}
-
-async function updateFailedEmailStatus(logId, newStatus) {
-    try {
-        await FailedEmailLog.findByIdAndUpdate(logId, { status: newStatus });
-        console.log(`Estado del log de email fallido ${logId} actualizado a ${newStatus}.`);
-    } catch (error) {
-        console.error(`Error al actualizar estado del log de email fallido ${logId}:`, error.message);
-    }
-}
-
-async function recordEmailOpen(email, years) {
-    try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Establecer a la medianoche de hoy
-
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1); // Medianoche de mañana
-
-        // Encuentra el log de envío más reciente para hoy y actualízalo
-        const updatedLog = await SentLog.findOneAndUpdate(
-            {
-                email: email,
-                years: years,
-                sentDate: {
-                    $gte: today,
-                    $lt: tomorrow
-                },
-                opened: false // Solo actualiza si no ha sido marcado como abierto
-            },
-            {
-                $set: {
-                    opened: true,
-                    openedAt: Date.now()
-                }
-            },
-            { new: true } // Devuelve el documento actualizado
-        );
-
-        if (updatedLog) {
-            console.log(`Apertura de email registrada en DB para ${email} (${years} años).`);
-        } else {
-            console.warn(`No se encontró un log de envío pendiente de apertura para ${email} (${years} años) o ya estaba marcado como abierto.`);
-        }
-    } catch (error) {
-        console.error(`Error al registrar apertura de email para ${email}: ${error.message}`);
-    }
-}
-
-async function getYearlyEmailStats() {
-    try {
-        const stats = await SentLog.aggregate([
-            {
-                // Paso 1: Asegurarse de que 'sentDate' existe y es de tipo 'date'
-                $match: {
-                    sentDate: { $exists: true, $type: "date" } 
-                }
-            },
-            {
-                $group: {
-                    _id: { $year: "$sentDate" }, // Agrupa por el año de la fecha de envío
-                    sent: { $sum: 1 }, // Cada documento en SentLog representa un email enviado
-                    opened: {
-                        $sum: {
-                            $cond: [{ $eq: ["$opened", true] }, 1, 0] // Suma 1 si 'opened' es true
-                        }
-                    }
-                }
-            },
-            {
-                $project: {
-                    _id: 0, // Excluye el campo _id del resultado final
-                    year: "$_id", // Renombra _id (que es el año) a 'year'
-                    sent: 1, // Incluye el conteo de enviados
-                    opened: 1 // Incluye el conteo de abiertos
-                }
-            },
-            {
-                $sort: { year: 1 } // Ordena los resultados por año ascendente
-            }
-        ]);
-        console.log('Estadísticas anuales de email obtenidas:', stats);
-        return stats;
-    } catch (error) {
-        console.error('Error al obtener estadísticas anuales de email (MongoDB):', error.message);
-        throw error; // Propaga el error para que sea manejado en el endpoint
-    }
-}
-
->>>>>>> 3bacf93 (Estadisticas con valores de prueba de la base de datos)
 // *Operaciones Básicas para Colaboradores (si decides migrarlos a la DB)*
 
 /**
@@ -309,16 +199,7 @@ module.exports = {
     getConfig,
     updateConfig,
     SentLog,
-<<<<<<< HEAD
     Config
-=======
-    Config,
-    recordFailedEmail,
-    getFailedEmailsToRetry,
-    updateFailedEmailStatus,
-    recordEmailOpen,
-    getYearlyEmailStats
->>>>>>> 3bacf93 (Estadisticas con valores de prueba de la base de datos)
     // Puedes exportar estas si decides migrar los colaboradores a MongoDB
     //saveOrUpdateCollaborator,
     //getAllCollaborators,
