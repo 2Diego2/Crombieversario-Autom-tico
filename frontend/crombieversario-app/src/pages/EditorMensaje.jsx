@@ -1,9 +1,7 @@
-import './EditorMensaje.css';
 // src/pages/EditorMensaje.jsx
 import React, { useState, useEffect } from "react";
 import useConfig from "../componentes/useConfig";
 import "./EditorMensaje.css";
-
 
 function EditorMensaje() {
   const {
@@ -46,9 +44,14 @@ function EditorMensaje() {
     setSuccessMessage("");
     try {
       await updateConfigApi(messageTemplate, imagePaths);
-      setSuccessMessage("Mensaje y configuración de imágenes guardados exitosamente!");
+      setSuccessMessage(
+        "Mensaje y configuración de imágenes guardados exitosamente!"
+      );
     } catch (err) {
-      setLocalError("Error al guardar la configuración: " + (err.response?.data?.message || err.message));
+      setLocalError(
+        "Error al guardar la configuración: " +
+          (err.response?.data?.message || err.message)
+      );
       console.error("Error al guardar configuración:", err);
     }
   };
@@ -73,13 +76,17 @@ function EditorMensaje() {
       return;
     }
     if (!anniversaryNumber || parseInt(anniversaryNumber) <= 0) {
-      setLocalError("Por favor, ingresa un número de aniversario válido (entero positivo).");
+      setLocalError(
+        "Por favor, ingresa un número de aniversario válido (entero positivo)."
+      );
       return;
     }
 
     const fileExtension = selectedFile.name.split(".").pop().toLowerCase();
     if (fileExtension !== "png") {
-      setLocalError("Solo se permiten imágenes PNG. Por favor, selecciona un archivo .png");
+      setLocalError(
+        "Solo se permiten imágenes PNG. Por favor, selecciona un archivo .png"
+      );
       return;
     }
 
@@ -89,7 +96,9 @@ function EditorMensaje() {
       setAnniversaryNumber("");
       setSuccessMessage("Imagen subida y agregada exitosamente!");
     } catch (err) {
-      setLocalError("Error al subir imagen: " + (err.response?.data?.message || err.message));
+      setLocalError(
+        "Error al subir imagen: " + (err.response?.data?.message || err.message)
+      );
       console.error("Error detallado al subir imagen:", err.response || err);
     }
   };
@@ -102,7 +111,10 @@ function EditorMensaje() {
       await deleteImageApi(imageUrlToDelete);
       setSuccessMessage("Imagen eliminada exitosamente!");
     } catch (err) {
-      setLocalError("Error al eliminar imagen: " + (err.response?.data?.message || err.message));
+      setLocalError(
+        "Error al eliminar imagen: " +
+          (err.response?.data?.message || err.message)
+      );
       console.error("Error al eliminar imagen:", err);
     }
   };
@@ -114,18 +126,31 @@ function EditorMensaje() {
     return (
       <div className="Principal">
         <h2>Error</h2>
-        <p style={{ color: 'red' }}>{localError}</p>
-        <button onClick={() => setLocalError(null)} className="botonCerrar">Cerrar</button>
+        <p style={{ color: "red" }}>{localError}</p>
+        <button onClick={() => setLocalError(null)} className="botonCerrar">
+          Cerrar
+        </button>
         {/* Considera aquí también un botón para ir al login si el error es 401/403 */}
         {error && error.includes("Sesión expirada") && (
-            <button onClick={() => window.location.href = '/login'} className="botonLogin">Ir a Login</button>
+          <button
+            onClick={() => (window.location.href = "/login")}
+            className="botonLogin"
+          >
+            Ir a Login
+          </button>
         )}
       </div>
     );
   }
 
   // Si está cargando O el objeto config aún no está disponible (puede ser la primera carga)
-  if (loading || !config || (Object.keys(config).length === 0 && !messageTemplate && imagePaths.length === 0)) {
+  if (
+    loading ||
+    !config ||
+    (Object.keys(config).length === 0 &&
+      !messageTemplate &&
+      imagePaths.length === 0)
+  ) {
     return <p>Cargando configuración...</p>;
   }
 
@@ -154,9 +179,7 @@ function EditorMensaje() {
         >
           {loading ? "Guardando Mensaje..." : "Guardar Mensaje"}
         </button>
-        {successMessage && (
-          <p className='success'>{successMessage}</p>
-        )}
+        {successMessage && <p className="success">{successMessage}</p>}{" "}
       </div>
 
       {/* Sección de Gestión de Imágenes */}
@@ -171,10 +194,7 @@ function EditorMensaje() {
               const fileName = path.substring(path.lastIndexOf("/") + 1);
               const anniversaryNum = fileName.split(".")[0];
               return (
-                <div
-                  key={path}
-                  className="img"
-                >
+                <div key={path} className="img">
                   <img
                     src={path}
                     alt={`Aniversario ${anniversaryNum}`}
@@ -196,7 +216,7 @@ function EditorMensaje() {
 
         <div className="divSubir">
           <h4>Subir nueva imagen para aniversario:</h4>
-          <div style={{ marginBottom: "10px" }}>
+          <div>
             <label htmlFor="anniversaryNumber">Número de aniversario:</label>
             <input
               type="number"
@@ -208,7 +228,23 @@ function EditorMensaje() {
               className="numero"
             />
           </div>
-          <input type="file" onChange={handleFileChange} accept="image/png" />
+          <div className="elegir">
+            <input
+              type="file"
+              id="file-upload"
+              onChange={handleFileChange}
+              accept="image/png"
+              style={{ display: "none" }}
+            />
+            <label htmlFor="file-upload" className="botonSubir">
+              Elegir archivo
+            </label>
+            {selectedFile && (
+              <p className="select">
+                Archivo seleccionado: {selectedFile.name}
+              </p>
+            )}
+          </div>
           <button
             onClick={handleUploadImage}
             disabled={loading || !selectedFile || !anniversaryNumber}
@@ -216,9 +252,6 @@ function EditorMensaje() {
           >
             {loading ? "Subiendo..." : "Subir Imagen"}
           </button>
-          {selectedFile && (
-            <p className="select">Archivo seleccionado: {selectedFile.name}</p>
-          )}
           {/* El mensaje de error local se muestra aquí */}
           {localError && (
             <div className="error">
