@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {  IoPersonOutline,  IoCalendarOutline,  IoImagesOutline} from "react-icons/io5";
+import {  IoPeopleSharp,  IoCalendarNumberSharp,IoHomeSharp,IoChatboxEllipses,IoMailUnread,IoMail } from "react-icons/io5";
 import { LuMailWarning, LuMail, LuLogOut } from "react-icons/lu";
 import { Link, Routes, Route, useLocation } from "react-router-dom";
 
@@ -41,26 +41,32 @@ function App() {
 
 
   return (
+    <div className="background">
     <div className="parent">
       <aside className="div1">
+        
         <Link to="/" className="menu-item">
-          <img src={LogoCrombie} className="logo crombie" alt="Crombie logo" />
+          <img src={LogoCrombie} className="logo-crombie" alt="Crombie logo" />
         </Link>
+         
         <div className="side-bar">
+          <Link to="/" className="menu-item">
+            <IoHomeSharp size={18} /> Home
+          </Link>
           <Link to="/empleados" className="menu-item">
-            <IoPersonOutline size={14} /> Empleados
+            <IoPeopleSharp size={18} /> Empleados
           </Link>
           <Link to="/mails-enviados" className="menu-item">
-            <LuMail size={14} /> Mails enviados
+            <IoMail size={18} /> Mails enviados
           </Link>
           <Link to="/mail-error" className="menu-item">
-            <LuMailWarning size={14} /> Mail Error
+            <IoMailUnread size={18} /> Mail Error
           </Link>
           <Link to="/calendario" className="menu-item">
-            <IoCalendarOutline size={14} /> Calendario
+            <IoCalendarNumberSharp size={18} /> Calendario
           </Link>
           <Link to="/mensaje" className="menu-item">
-            <IoImagesOutline size={14} /> Mensaje editable
+            <IoChatboxEllipses  size={18} /> Mensaje editable
           </Link>
         </div>
         <div className="footer-aside">
@@ -105,8 +111,6 @@ function App() {
 
           <div className="imagenCrombie">
             <img src={coloresCrombie} alt="coloresCrombie" className="coloresCrombie" />{" "}
-            <img src={coloresCrombie} alt="coloresCrombie" className="coloresCrombie" />{" "}
-            <img src={coloresCrombie} alt="coloresCrombie" className="coloresCrombie" />
           </div>
 
           <div className="div4">
@@ -163,6 +167,7 @@ function App() {
           </Routes>
         </div>
       )}
+    </div>
     </div>
   );
 }

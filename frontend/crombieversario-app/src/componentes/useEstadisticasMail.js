@@ -9,6 +9,8 @@ const useEstadisticasMail = () => {
 
   // Obtenemos el año actual dinámicamente
   const ANIO_ACTUAL = new Date().getFullYear();
+  /*const mes = date.getMonth() + 1; // Mes (0-11, por eso se suma 1)
+  const dia = date.getDate(); // Día del mes*/
 
   useEffect(() => {
     const fetchEmailStats = async () => {
