@@ -19,6 +19,12 @@
   border-collapse: collapse;
 }
 
+.tablaMails thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
 .tablaMails th,
 .tablaMails td {
  padding: 10px;

@@ -82,7 +82,7 @@ const useEventosProximos = () => {
             allDay: true,
             type: 'cumpleanios',
             empleado: `${trabajador.nombre} ${trabajador.apellido}`,
-            empleadoImagen: trabajador.imagen
+            empleadoImagen: trabajador.imagen ? `/${trabajador.imagen}` : null
           };
           newAllEvents.push(eventCumple); // Añadir a todos los eventos
 
@@ -117,7 +117,7 @@ const useEventosProximos = () => {
             allDay: true,
             type: 'aniversario',
             empleado: `${trabajador.nombre} ${trabajador.apellido}`,
-            empleadoImagen: trabajador.imagen
+            empleadoImagen: trabajador.imagen ? `/${trabajador.imagen}` : null
           };
           newAllEvents.push(eventAniversario); // Añadir a todos los eventos
 

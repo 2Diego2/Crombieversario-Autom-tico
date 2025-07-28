@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import useConfig from '../componentes/useConfig';
-import './MailsErrorPage.css';
+import './MailsEnviadosPage.css';
 import axios from 'axios';
 
 const MailsErrorPage = () => {
@@ -77,9 +77,11 @@ const MailsErrorPage = () => {
             ) : mailsConError.length === 0 ? (
                 <p>¡Excelente! No hay registros de correos que hayan fallado.</p>
             ) : (
-                <table className="tablaMails">
+                <div className='table'><table className="tablaMails">
                     <thead>
                         <tr>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
                             <th>Email</th>
                             <th>Años</th>
                             <th>Fecha del Intento</th>
@@ -89,6 +91,8 @@ const MailsErrorPage = () => {
                     <tbody>
                         {mailsConError.map((mail) => (
                             <tr key={mail._id}>
+                                <td>{mail.nombre}</td>
+                                <td>{mail.apellido}</td>
                                 <td>{mail.email}</td>
                                 <td>{mail.years}</td>
                                 <td>
@@ -100,7 +104,7 @@ const MailsErrorPage = () => {
                             </tr>
                         ))}
                     </tbody>
-                </table>
+                </table></div>
             )}
         </div>
     );
