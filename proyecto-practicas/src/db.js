@@ -269,6 +269,118 @@ async function getYearlyEmailStats() {
     }
 }
 
+async function getMonthlyEmailStats() {
+  try {
+    const stats = await SentLog.aggregate([
+      // 1) Selecciona sólo documentos con sentDate válido
+      {
+        $match: {
+          sentDate: { $exists: true, $type: "date" }
+        }
+      },
+      // 2) Agrupa por año y mes del sentDate
+      {
+        $group: {
+          _id: {
+            year:  { $year:  "$sentDate" },
+            month: { $month: "$sentDate" }
+          },
+          sent:   { $sum: 1 },
+          opened: {
+            $sum: {
+              $cond: [{ $eq: ["$opened", true] }, 1, 0]
+            }
+          },
+          unread: {
+            // Cuenta los no leídos: opened === false
+            $sum: {
+              $cond: [{ $eq: ["$opened", false] }, 1, 0]
+            }
+          }
+        }
+      },
+      // 3) Proyecta los campos que te interesan
+      {
+        $project: {
+          _id:    0,
+          year:   "$_id.year",
+          month:  "$_id.month",
+          sent:   1,
+          opened: 1,
+          unread: 1
+        }
+      },
+      // 4) Ordena por año y mes ascendente
+      {
+        $sort: { year: 1, month: 1 }
+      }
+    ]);
+
+    console.log('Estadísticas mensuales de email obtenidas:', stats);
+    return stats;
+  } catch (error) {
+    console.error('Error al obtener estadísticas mensuales de email:', error.message);
+    throw error;
+  }
+}
+
+async function getLast7DaysTotals() {
+  try {
+    const stats = await SentLog.aggregate([
+      // 1) Selecciona sólo documentos con sentDate válido
+      {
+        $match: {
+          sentDate: { $exists: true, $type: "date" }
+        }
+      },
+      // 2) Agrupa por año y mes del sentDate
+      {
+        $group: {
+          _id: {
+            year:  { $year:  "$sentDate" },
+            month: { $month: "$sentDate" },
+            day: {$day: "$sentDate"}
+          },
+          sent:   { $sum: 1 },
+          opened: {
+            $sum: {
+              $cond: [{ $eq: ["$opened", true] }, 1, 0]
+            }
+          },
+          unread: {
+            // Cuenta los no leídos: opened === false
+            $sum: {
+              $cond: [{ $eq: ["$opened", false] }, 1, 0]
+            }
+          }
+        }
+      },
+      // 3) Proyecta los campos que te interesan
+      {
+        $project: {
+          _id:    0,
+          year:   "$_id.year",
+          month:  "$_id.month",
+          day: "$_id.day",
+          sent:   1,
+          opened: 1,
+          unread: 1
+        }
+      },
+      // 4) Ordena por año, mes y dia  ascendente
+      {
+        $sort: { year: 1, month: 1 , day : 1}
+      }
+    ]);
+
+    console.log('Estadísticas de los ultimos 7 dias obtenidas:', stats);
+    return stats;
+  } catch (error) {
+    console.error('Error al obtener estadísticas de la ultima semana:', error.message);
+    throw error;
+  }
+}
+
 // *Operaciones Básicas para Colaboradores (si decides migrarlos a la DB)*
 
 /**
@@ -328,7 +440,9 @@ module.exports = {
     getFailedEmailsToRetry,
     updateFailedEmailStatus,
     recordEmailOpen,
-    getYearlyEmailStats
+    getYearlyEmailStats,
+    getMonthlyEmailStats,
+    getLast7DaysTotals
     // Puedes exportar estas si decides migrar los colaboradores a MongoDB
     //saveOrUpdateCollaborator,
     //getAllCollaborators,

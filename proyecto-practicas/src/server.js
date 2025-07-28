@@ -2,7 +2,7 @@
 require('dotenv').config();
 const express = require('express');
 const crypto = require("crypto");
-const { connectDB, getConfig, updateConfig, SentLog , recordEmailOpen, getYearlyEmailStats, FailedEmailLog} = require('./db');
+const { connectDB, getConfig, updateConfig, SentLog , recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats , getLast7DaysTotals ,FailedEmailLog} = require('./db');
 const updateEnvFile = require('./utils/saveEnv');
 const multer = require('multer'); // Importa multer
 const fs = require('fs'); // Para manejar archivos (eliminar)
@@ -186,6 +186,8 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
 });
 
 console.log('--- Attempting to register /api/email-stats/yearly route ---');
+
+
 app.get('/api/email-stats/yearly', requireApiKey, async (req, res) => {
     console.log('Recibida petición GET /api/email-stats/yearly');
     try {
@@ -197,6 +199,38 @@ app.get('/api/email-stats/yearly', requireApiKey, async (req, res) => {
     }
 });
 console.log('--- Successfully registered /api/email-stats/yearly route ---');
+
+
+console.log('--- Attempting to register /api/email-stats/monthly route ---');
+app.get('/api/email-stats/monthly', requireApiKey, async (req,res) => {
+  console.log('Recibida petición GET /api/email-stats/monthly ');
+  try {
+    const stats = await getMonthlyEmailStats();
+    res.json(stats);
+  } catch (error) {
+    console.error('Error en el endpoint /api/email-stats/monthly:', error);
+    res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
+  }
+});
+console.log('--- Successfully registered /api/email-stats/monthly route ---');
+
+
+console.log('--- Attempting to register /api/email-stats/week route ---');
+app.get('/api/email-stats/week', requireApiKey, async (req,res) => {
+  console.log('Recibida petición GET /api/email-stats/week ');
+  try {
+    const stats = await getLast7DaysTotals();
+    res.json(stats);
+  } catch (error) {
+    console.error('Error en el endpoint /api/email-stats/week:', error);
+    res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
+  }
+});
+console.log('--- Successfully registered /api/email-stats/week route ---');
+
+
+
+
 
 // ENDPOINT para SUBIR UNA NUEVA IMAGEN (Con requireApiKey)
 app.post('/api/upload-image/:anniversaryNumber', requireApiKey, async (req, res) => {

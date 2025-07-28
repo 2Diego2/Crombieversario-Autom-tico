@@ -44,7 +44,6 @@ function App() {
     <div className="background">
     <div className="parent">
       <aside className="div1">
-        
         <Link to="/" className="menu-item">
           <img src={LogoCrombie} className="logo-crombie" alt="Crombie logo" />
         </Link>

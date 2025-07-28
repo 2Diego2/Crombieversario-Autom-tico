@@ -41,7 +41,6 @@ img {
 body {
   font-family: var(--fonts);
   background-image: url("./assets/FondoAzulCrombie.png"),url("./assets/CrombieDegradado.webp"), url("./assets/FondoAzulCrombie2.png");
-
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -70,17 +69,19 @@ position: relative;
 
 /*caja side-bar*/
 aside.div1 {
-  grid-area: sidebar;
+  position: fixed;
+  top: 0;
+  left: 0; /* o right:0, según tu layout */
+  height: 100vh;
+  width: 250px; /* define un ancho */
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   padding: var(--padding-box);
-  gap: 20px;
   background-color: var(--colorCaja);
   border-radius: var(--border-radius);
-  height: auto; 
-  min-height: 100%; 
+  z-index: 100;
 }
+
 
 .logo.crombie {
   width: 100%; /* El logo ocupará el 100% del ancho de su contenedor (el aside) */
@@ -264,16 +265,20 @@ h2, .menu-item, .perfil-info {
 /* El elemento fijo - fondo animado */
 .coloresCrombie {
   position: fixed;
-  height: auto;
+  justify-content: center;
+  top: 40%;
+  left: 55%;
+  transform: translate(-50%, -50%);
   pointer-events: none;
   animation: slideLogo 6s ease-in-out infinite;
   z-index: -1; /* detrás del .parent */
+
 }
 
 @keyframes slideLogo {
  0%   { transform: translate(0, 0) rotate(0deg); }
-  25%  { transform: translate(8px, -100px) rotate(1deg); }
-  50%  { transform: translate(36px, 0) rotate(0deg); }
+  25%  { transform: translate(90px, -200px) rotate(1deg); }
+  50%  { transform: translate(106px, 0) rotate(0deg); }
   75%  { transform: translate(50px, 5px) rotate(-1deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
