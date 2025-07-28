@@ -6,7 +6,7 @@ const crypto = require("crypto");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const updateEnvFile = require('./utils/saveEnv');
-const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, recordEmailOpen, getYearlyEmailStats, findUserByEmail, createUser, updateUserRole } = require('./db');
+const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, recordEmailOpen, getYearlyEmailStats, findUserByEmail, createUser, updateUserRole } = require('./db'); 
 const multer = require('multer');
 const fs = require('fs');
 
@@ -296,10 +296,9 @@ app.get('/trabajadores', (req, res) => {
 });
 
 //Endpoint para obtener los mails enviados desde la base de datos
-app.get('/api/aniversarios-enviados', requireApiKey, async (req, res) => {
+app.get('/api/aniversarios-enviados', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
     try {
-        // Busca solo los que tengan enviado: true
-        const enviados = await SentLog.find({ enviado: true });
+        const enviados = await SentLog.find({});
         res.json(enviados);
     } catch (error) {
         console.error('Error al obtener aniversarios enviados:', error);
@@ -307,9 +306,9 @@ app.get('/api/aniversarios-enviados', requireApiKey, async (req, res) => {
     }
 });
 
-app.get('/api/aniversarios-error', requireApiKey, async (req, res) => {
+// Endpoint para obtener los mails con error desde la base de datos
+app.get('/api/aniversarios-error', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
     try {
-        // MODIFICACIÓN: La consulta ahora busca registros nuevos y antiguos.
         const fallos = await FailedEmailLog.find({
             $or: [
                 { status: 'failed' },
@@ -317,16 +316,13 @@ app.get('/api/aniversarios-error', requireApiKey, async (req, res) => {
             ]
         });
 
-        // El resto del código para formatear la respuesta se mantiene igual.
         const formattedFallos = fallos.map(fallo => ({
-            _id: fallo._id, // Es buena práctica pasar el ID para el 'key' de React
-            nombre: 'N/A',
-            apellido: 'N/A',
+            _id: fallo._id,
+            nombre: fallo.nombre, // Estos campos 'nombre' y 'apellido' no vienen de FailedEmailLog por defecto, pero se mantienen por tu estructura.
+            apellido: fallo.apellido, // Si FailedEmailLog no los tiene, siempre serán 'N/A'.
             email: fallo.email,
             years: fallo.years,
-            enviado: false,
-            opened: false,
-            sentDate: fallo.attemptDate,
+            sentDate: fallo.attemptDate, // Ahora es attemptDate
             errorMessage: fallo.errorMessage
         }));
         res.json(formattedFallos);
@@ -335,7 +331,6 @@ app.get('/api/aniversarios-error', requireApiKey, async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los registros de error.' });
     }
 });
-
 
 // NUEVOS ENDPOINTS para la configuración
 app.get('/api/config', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {

@@ -87,6 +87,8 @@ const configSchema = new mongoose.Schema({
 }, { timestamps: true }); // Añade createdAt y updatedAt
 
 const failedEmailLogSchema = new mongoose.Schema({
+    nombre: { type: String, required: true },
+    apellido: { type: String, required: true },
     email: { type: String, required: true },
     years: { type: Number, required: true },
     attemptDate: { type: Date, default: Date.now },
@@ -369,6 +371,7 @@ module.exports = {
     updateUserRole,
     SentLog,
     Config,
+    FailedEmailLog,
     recordFailedEmail,
     getFailedEmailsToRetry,
     updateFailedEmailStatus,

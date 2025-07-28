@@ -48,9 +48,6 @@ function DashboardContent({ onLogout, userEmail, userRole }) {
     return <div className="loading-screen">Cargando datos del dashboard...</div>;
   }
 
-  console.log("API Key disponible en DashboardContent:", localApiKey);
-
-
   // Determinar si estamos en la ruta raíz del dashboard
   const isDashboardRoot = location.pathname === '/dashboard';
 

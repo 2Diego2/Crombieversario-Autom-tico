@@ -1,5 +1,5 @@
 .MailsEnviados{
-      max-width: 900px;
+  max-width: 900px;
   margin: 20px auto;
   background: white;
   padding: 20px;
@@ -7,8 +7,8 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 
 }
+
 .mails {
-  
   display: inline-block;          /* Se encoge al tamaño de su contenido */
   margin: 20px auto;              /* Centrado horizontal (necesita display inline-block) */
   padding: 10px 20px;             /* Ajusta a tu gusto */
