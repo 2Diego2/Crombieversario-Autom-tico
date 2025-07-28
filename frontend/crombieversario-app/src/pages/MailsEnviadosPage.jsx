@@ -79,14 +79,14 @@ const MailsEnviadosPage = () => {
       ) : mails.length === 0 ? (
         <p>No hay mails enviados.</p>
       ) : (
-        <table className="tablaMails">
+        <div class="tabla"><table className="tablaMails">
           <thead>
             <tr>
               <th>Nombre</th>
               <th>Apellido</th>
               <th>Email</th>
               <th>Leído</th>
-              <th>Años de Aniversario</th>
+              <th>Aniversario</th>
               <th>Fecha de envío</th>
             </tr>
           </thead>
@@ -102,7 +102,7 @@ const MailsEnviadosPage = () => {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       )}
     </div>
   );
