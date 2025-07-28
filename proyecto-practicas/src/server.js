@@ -6,7 +6,7 @@ const crypto = require("crypto");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const updateEnvFile = require('./utils/saveEnv');
-const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, recordEmailOpen, getYearlyEmailStats, findUserByEmail, createUser, updateUserRole } = require('./db'); 
+const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats, getLast7DaysTotals, findUserByEmail, createUser, updateUserRole } = require('./db'); 
 const multer = require('multer');
 const fs = require('fs');
 
@@ -409,6 +409,33 @@ app.get('/api/email-stats/yearly', authenticateToken, authorize([ROLES.SUPER_ADM
     }
 });
 console.log('--- Ruta /api/email-stats/yearly registrada con éxito ---');
+
+app.get('/api/email-stats/monthly', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
+  console.log('Recibida petición GET /api/email-stats/monthly ');
+  try {
+    const stats = await getMonthlyEmailStats();
+    res.json(stats);
+  } catch (error) {
+    console.error('Error en el endpoint /api/email-stats/monthly:', error);
+    res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
+  }
+});
+console.log('--- Successfully registered /api/email-stats/monthly route ---');
+
+
+console.log('--- Attempting to register /api/email-stats/week route ---');
+app.get('/api/email-stats/week', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
+  console.log('Recibida petición GET /api/email-stats/week ');
+  try {
+    const stats = await getLast7DaysTotals();
+    res.json(stats);
+  } catch (error) {
+    console.error('Error en el endpoint /api/email-stats/week:', error);
+    res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
+  }
+});
+console.log('--- Successfully registered /api/email-stats/week route ---');
+
 
 app.post('/api/upload-image/:anniversaryNumber', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => { 
     try {

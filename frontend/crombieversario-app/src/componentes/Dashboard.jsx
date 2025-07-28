@@ -117,7 +117,7 @@ function DashboardContent({ onLogout, userEmail, userRole }) {
           </div>
 
           <div className="imagenCrombie">
-            <img src={coloresCrombie} alt="coloresCrombie" className="coloresCrombie" />{" "}
+            <img src={coloresCrombie} alt="coloresCrombie" className="coloresCrombie" />
           </div>
 
           <div className="div4">

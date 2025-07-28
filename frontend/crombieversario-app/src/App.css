@@ -1,19 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap");
 
 :root {
-  --colorFondo: #f6f6f3;
-  --colorCaja: #ffffff;
-  --hover: #f0f0f0;
-  --colorAdmin: #ffcd71;
-  --colorMailError: #fff7e8;
-  --colorLogOut: #ba3030;
-  --colorVerMas: #734a00;
-  --colorCrombieVioleta: #80319b;
-  --colorCrombieCeleste: #25b2e2;
-  --colorCrombieAmarillo: #ffb12a;
-  --colorCrombieRosa: #ee326c;
-  --colorCrombieVerde: #1bb55f;
-  --border-radius: 25px;
   --fonts: "Source Sans Pro", sans-serif;
   --colorCaja: #FAFAFB;       /* gris muy claro */
   --colorCajaAlt: #FFFFFF;    /* blanco puro para jerarquía */
@@ -54,7 +41,6 @@ img {
 body {
   font-family: var(--fonts);
   background-image: url("./assets/FondoAzulCrombie.png"),url("./assets/CrombieDegradado.webp"), url("./assets/FondoAzulCrombie2.png");
-
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -68,9 +54,6 @@ body {
   align-items: flex-start;
   min-height: 100vh;
   padding: var(--padding-box);
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  height: 100%;
-  min-height: 0;
 }
 .parent {
 position: relative;
@@ -79,18 +62,6 @@ position: relative;
   min-width: 1024px;     /* Mantiene legibilidad en pantallas pequeñas */
   margin: 0 auto;        /* Centra el grid */
   display: grid;
-  /* grid-template-columns: 280px repeat(4, 1fr); 
-  grid-template-rows: auto; 
-  gap: 20px;
-  width: 100%;
-  max-width: 1200px;
-  min-height: calc(100vh - 40px);
-  height: 100%;
-
-  grid-template-areas:
-    "sidebar stats stats stats stats"
-    "sidebar mails-sent mails-sent mail-imgs mail-imgs"
-    "sidebar events events mail-message mail-message"; */
   gap: 1.5rem;
   grid-template-columns: 1fr;  /* 1 columna por defecto */
 }
@@ -98,17 +69,19 @@ position: relative;
 
 /*caja side-bar*/
 aside.div1 {
-  grid-area: sidebar;
+  position: fixed;
+  top: 0;
+  left: 0; /* o right:0, según tu layout */
+  height: 100vh;
+  width: 250px; /* define un ancho */
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   padding: var(--padding-box);
-  gap: 20px;
   background-color: var(--colorCaja);
   border-radius: var(--border-radius);
-  height: auto; 
-  min-height: 100%; 
+  z-index: 100;
 }
+
 
 .logo.crombie {
   width: 100%; /* El logo ocupará el 100% del ancho de su contenedor (el aside) */
@@ -292,16 +265,20 @@ h2, .menu-item, .perfil-info {
 /* El elemento fijo - fondo animado */
 .coloresCrombie {
   position: fixed;
-  height: auto;
+  justify-content: center;
+  top: 40%;
+  left: 55%;
+  transform: translate(-50%, -50%);
   pointer-events: none;
   animation: slideLogo 6s ease-in-out infinite;
   z-index: -1; /* detrás del .parent */
+
 }
 
 @keyframes slideLogo {
  0%   { transform: translate(0, 0) rotate(0deg); }
-  25%  { transform: translate(8px, -100px) rotate(1deg); }
-  50%  { transform: translate(36px, 0) rotate(0deg); }
+  25%  { transform: translate(90px, -200px) rotate(1deg); }
+  50%  { transform: translate(106px, 0) rotate(0deg); }
   75%  { transform: translate(50px, 5px) rotate(-1deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
@@ -312,20 +289,15 @@ h2, .menu-item, .perfil-info {
 }
 
 .div5 {
-  display: flex;
   grid-area: mail-message;
-  height: 100%;
-  min-height: 0;
 }
 
 .mensajeEstilo{
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: none;
   background-color: #f8f8f8;
   border: 1px solid #ddd;
   padding: 15px;
   border-radius: 5px;
+  max-height: 300px;
   overflow-y: auto;  /*Añade scroll si el contenido es muy largo */
   white-space: pre-wrap; /* Mantiene saltos de línea y espacios */
   word-wrap: break-word; /* Evita desbordamiento de palabras largas */
@@ -343,8 +315,6 @@ h2, .menu-item, .perfil-info {
   background-color: var(--colorCaja);
   border-radius: var(--border-radius);
   padding: var(--padding-box);
-  width: 100%;
-  height: 100%;
 }
 
 @media (min-width: 1024px) {
