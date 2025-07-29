@@ -24,7 +24,6 @@
 }
 
 .empleados-table-scroll-container2 {
-  max-height: 300px; /* o el alto que prefieras */
   overflow-y: auto;
   margin-top: 10px;
 }
