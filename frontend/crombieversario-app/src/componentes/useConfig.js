@@ -12,8 +12,8 @@ function useConfig() {
   // Asegúrate de tener VITE_API_BASE_URL en tu archivo .env de React (ej. .env, .env.development)
   // Ej: VITE_API_BASE_URL=/api  (si usas el proxy de Vite en desarrollo)
   // Ej: VITE_API_BASE_URL=http://localhost:3033/api (si no usas proxy, o para producción con la URL completa)
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  console.log(`API_BASE_URL: ${API_BASE_URL}`);
   const [config, setConfig] = useState({ messageTemplate: "", imagePaths: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

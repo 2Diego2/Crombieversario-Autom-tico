@@ -36,9 +36,9 @@ const CalendarioPage = () => {
   if (error) {
     return (
       <div className="calendario-page-container">
-        <h1>Error al Cargar Eventos</h1>
+        <h1>Error al cargar eventos</h1>
         <p style={{ color: 'red' }}>{error}</p>
-        <p>Por favor, intenta recargar la página o contacta al soporte.</p>
+        <p>Por favor, intentá recargar la página o contactá al soporte.</p>
       </div>
     );
   }
@@ -70,7 +70,7 @@ const CalendarioPage = () => {
 
 
         <div className="events-list">
-          <h2>Próximos Eventos (7 Días)</h2>
+          <h2>Próximos eventos (7 días)</h2>
           <div className="empleados-table-scroll-container2">
             <table className="empleados-table">
               <thead>

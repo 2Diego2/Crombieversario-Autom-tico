@@ -5,7 +5,7 @@ import useConfig from '../componentes/useConfig'; // Asegúrate de que este sea 
 
 const useEstadisticasMail = () => {
   // *** Define API_BASE_URL aquí directamente ***
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const { currentAuthToken, handleAuthError: useConfigHandleAuthError } = useConfig();
   const [EstadisticasAnuales, setEstadisticasAnuales] = useState([]);
