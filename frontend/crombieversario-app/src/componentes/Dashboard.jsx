@@ -1,5 +1,5 @@
 // src/componentes/DashboardContent.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
 
 // Importa los hooks y componentes que dependen de la autenticación
@@ -8,7 +8,6 @@ import useEventosProximos from './useEventosProximos';
 import Estadisticas from './Estadisticas';
 
 // Importa las imágenes y páginas específicas del dashboard
-import gaelMailEnviado from '../assets/gael.PNG';
 import coloresCrombie from '../assets/coloresCrombie.png';
 
 // Importa las páginas que van en las rutas del dashboard
@@ -17,6 +16,7 @@ import MailsEnviadosPage from '../pages/MailsEnviadosPage';
 import MailsErrorPage from '../pages/MailsErrorPage';
 import CalendarioPage from '../pages/Calendario';
 import EditorMensaje from '../pages/EditorMensaje';
+import UltimoMailEnviado from '../componentes/UltimoMailEnviado';
 
 // Iconos
 import { IoPeopleSharp, IoCalendarNumberSharp, IoHomeSharp, IoChatboxEllipses, IoMailUnread, IoMail } from "react-icons/io5";
@@ -96,20 +96,12 @@ function DashboardContent({ onLogout, userEmail, userRole, userProfileImage }) {
           </div>
 
           <div className="div3">
-            <h2>Mails enviados</h2>
-            <div>
-              <div className="perfil-info2">
-                <img src={gaelMailEnviado} alt="persona2" className="persona2" />
-                <div>
-                  <label htmlFor="empleado">nombreEmpleado apellidoEmpleado</label>
-                  <label htmlFor="ciudadYLugar" className="ciudadYLugar">ciudadYLugarDeTrabajo</label>
-                </div>
-              </div>
+            <h2>Último mail enviado</h2>
+            <UltimoMailEnviado />
               <Link to="/dashboard/mails-enviados">
-                <button className="verMas">Ver más</button>
+                <button className="verMas" style={{ marginTop: '15px' }}>Ver más</button>
               </Link>
             </div>
-          </div>
 
           <div className="imagenCrombie">
             <img src={coloresCrombie} alt="coloresCrombie" className="coloresCrombie" />
