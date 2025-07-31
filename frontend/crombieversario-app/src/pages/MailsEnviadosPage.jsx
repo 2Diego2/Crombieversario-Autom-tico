@@ -2,72 +2,51 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import useConfig from '../componentes/useConfig';
+import useConfig from '../componentes/useConfig'; 
+import useAuth from '../componentes/useAuth'; 
 import './MailsEnviadosPage.css';
 
-const MailsEnviadosPage = () => {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
-  const { currentAuthToken, handleAuthError: useConfigHandleAuthError } = useConfig();
+function MailsEnviadosPage() {
+  const { API_BASE_URL } = useConfig();
+  const { getAuthHeader, handleAuthError } = useAuth(); 
 
   const [mails, setMails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const getAuthHeader = useCallback(() => {
-    const token = localStorage.getItem('jwtToken');
-    if (token) {
-      return { Authorization: `Bearer ${token}` };
-    }
-    return {};
-  }, []);
-
-  const handleLocalError = useCallback((err) => {
-    if (useConfigHandleAuthError) {
-      useConfigHandleAuthError(err);
-    } else {
-      if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
-        localStorage.removeItem('jwtToken');
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('userEmail');
-        setError("Sesión expirada o no autorizado. Por favor, inicia sesión de nuevo.");
-        window.location.href = '/login';
-      } else {
-        setError("Error en la petición: " + (err.response?.data?.message || err.message || err.toString()));
-      }
-    }
-  }, [useConfigHandleAuthError]);
-
-
   const fetchMailsEnviados = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-    if (!currentAuthToken) {
+    if (!API_BASE_URL) {
+      setError("URL base de la API no definida. Retrasando la carga de mails enviados.");
       setLoading(false);
-      setError("No autenticado. Por favor, inicie sesión.");
       return;
     }
 
-    const requestUrl = `${API_BASE_URL}/api/aniversarios-enviados`;
+    const requestUrl = `${API_BASE_URL}/api/aniversarios-enviados`; // <<< CORREGIR POSIBLE TYPO: API_BASE_URL
 
     try {
       const response = await axios.get(requestUrl, {
-        headers: getAuthHeader(),
+        headers: getAuthHeader(), // Usamos getAuthHeader de useAuth
       });
       setMails(response.data);
     } catch (err) {
       console.error('Error al obtener los mails enviados:', err);
-      handleLocalError(err);
+      handleAuthError(err); 
+      if (!axios.isAxiosError(err) || (err.response?.status !== 401 && err.response?.status !== 403)) {
+        setError("Error en la petición: " + (err.response?.data?.message || err.message || err.toString()));
+      }
     } finally {
       setLoading(false);
     }
-  }, [API_BASE_URL, currentAuthToken, getAuthHeader, handleLocalError]);
-
+  }, [API_BASE_URL, getAuthHeader, handleAuthError]); 
 
   useEffect(() => {
-    fetchMailsEnviados();
-  }, [fetchMailsEnviados]);
-
+    if (API_BASE_URL) {
+      fetchMailsEnviados();
+    }
+  }, [fetchMailsEnviados, API_BASE_URL]); 
 
   return (
     <div className = "MailsEnviados">
@@ -79,7 +58,7 @@ const MailsEnviadosPage = () => {
       ) : mails.length === 0 ? (
         <p>No hay mails enviados.</p>
       ) : (
-        <div class="tabla"><table className="tablaMails">
+        <div className="tabla"><table className="tablaMails">
           <thead>
             <tr>
               <th>Nombre</th>

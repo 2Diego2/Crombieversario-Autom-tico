@@ -1,0 +1,123 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Asegura que esté por encima de otros elementos */
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    max-height: 90vh; /* Limita la altura para evitar que sea demasiado grande */
+    overflow-y: auto; /* Permite scroll si el contenido es largo */
+    color: #333; /* Color de texto general */
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.5em;
+    color: #2c3e50;
+}
+
+.modal-close-button {
+    background: none;
+    border: none;
+    font-size: 2em;
+    cursor: pointer;
+    color: #888;
+    line-height: 1; /* Para alinear bien la 'x' */
+}
+
+.modal-close-button:hover {
+    color: #555;
+}
+
+.modal-body {
+    font-size: 1em;
+    line-height: 1.6;
+}
+
+/* Estilos específicos para los inputs y botones dentro del modal, si los usas */
+.modal-input-group {
+    margin-bottom: 15px;
+}
+
+.modal-input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.modal-input-group input[type="password"] {
+    width: calc(100% - 20px); /* Ajusta el ancho para el padding */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.modal-actions {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.modal-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-left: 10px;
+}
+
+.modal-actions .btn-confirm {
+    background-color: #4CAF50; /* Un verde */
+    color: white;
+}
+
+.modal-actions .btn-confirm:hover {
+    background-color: #45a049;
+}
+
+.modal-actions .btn-cancel {
+    background-color: #f44336; /* Un rojo */
+    color: white;
+}
+
+.modal-actions .btn-cancel:hover {
+    background-color: #da190b;
+}
+
+/* Opcional: Media queries para pantallas más pequeñas */
+@media (max-width: 600px) {
+    .modal-content {
+        width: 95%;
+        margin: 10px;
+    }
+    .modal-actions button {
+        width: 100%;
+        margin-left: 0;
+        margin-bottom: 10px;
+    }
+}

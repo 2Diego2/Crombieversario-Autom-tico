@@ -1,13 +1,9 @@
 // src/componentes/useEventosProximos.js
 import { useState, useEffect, useCallback } from 'react';
+import useConfig from '../componentes/useConfig';
 
 const useEventosProximos = () => {
-  // Usamos la variable de entorno de Vite para la URL base
-  // Asegúrate de que tu .env en el frontend tenga VITE_API_BASE_URL
-  // Ej: VITE_API_BASE_URL=/api  (si usas el proxy de Vite en desarrollo)
-  // Ej: VITE_API_BASE_URL=http://localhost:3033/api (si no usas proxy, o para producción)
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
-
+  const { API_BASE_URL } = useConfig();
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [allEventsForCalendar, setAllEventsForCalendar] = useState([]); // Nuevo estado para todos los eventos del calendario
   const [loading, setLoading] = useState(true); // Añadimos estado de carga

@@ -1,6 +1,7 @@
 // src/componentes/useConfig.js
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import useAuth from './useAuth';
 
 /**
  * Custom hook para obtener y gestionar la configuración de la aplicación
@@ -9,64 +10,41 @@ import axios from "axios";
  */
 function useConfig() {
   // Usamos la variable de entorno de Vite.
-  // Asegúrate de tener VITE_API_BASE_URL en tu archivo .env de React (ej. .env, .env.development)
-  // Ej: VITE_API_BASE_URL=/api  (si usas el proxy de Vite en desarrollo)
-  // Ej: VITE_API_BASE_URL=http://localhost:3033/api (si no usas proxy, o para producción con la URL completa)
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const [config, setConfig] = useState({ messageTemplate: "", imagePaths: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentAuthToken, setCurrentAuthToken] = useState(localStorage.getItem('jwtToken'));
 
-  // Función para obtener el token JWT del localStorage
-  const getAuthHeader = useCallback(() => {
-    const token = localStorage.getItem('jwtToken');
-    if (token) {
-      return { Authorization: `Bearer ${token}` };
-    }
-    return {};
-  }, []); // Sin dependencias, se memoriza una vez
+  const { getAuthHeader, handleAuthError } = useAuth();
 
-    // Función para redirigir al login si el token no es válido
-  const handleAuthError = useCallback((err) => {
-    if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
-      localStorage.removeItem('jwtToken');
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('userEmail');
-      setCurrentAuthToken(null);
-      setError("Sesión expirada o no autorizado. Por favor, inicia sesión de nuevo.");
-      // Redirige al login. Asegúrate de que tu router de React tenga una ruta para '/login'
-      window.location.href = '/login';
-    } else {
-      setError("Error en la petición: " + (err.response?.data?.message || err.message));
-    }
-  }, []);
 
   const fetchConfigData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await axios.get(`${API_BASE_URL}/api/config`, {
-        headers: getAuthHeader(),
+        headers: getAuthHeader(), // Usar getAuthHeader de useAuth
       });
       setConfig(response.data);
     } catch (err) {
       console.error("Error al cargar la configuración:", err);
-      handleAuthError(err); // Llama a la función de manejo de errores de autenticación
+      // La función handleAuthError de useAuth ya maneja la redirección y el mensaje de error
+      handleAuthError(err);
+      // Si quieres mostrar un mensaje de error específico en este hook para otros errores, hazlo aquí
+      if (!axios.isAxiosError(err) || (err.response?.status !== 401 && err.response?.status !== 403)) {
+        setError("Error en la petición: " + (err.response?.data?.message || err.message));
+      }
     } finally {
       setLoading(false);
     }
-  }, [API_BASE_URL, getAuthHeader, handleAuthError]); // Depende de API_BASE_URL
+  }, [API_BASE_URL, getAuthHeader, handleAuthError]);
 
   // Efecto para cargar la configuración al montar el componente
   useEffect(() => {
-    const handleStorageChange = () => {
-        setCurrentAuthToken(localStorage.getItem('jwtToken'));
-    };
-    window.addEventListener('storage', handleStorageChange);
+    // Ya no es necesario escuchar 'storage' aquí para currentAuthToken
+    // Si la sesión cambia (login/logout), useAuth ya lo manejará y redirigirá.
     fetchConfigData();
-    return () => window.removeEventListener('storage', handleStorageChange);
   }, [fetchConfigData]);
 
   // Funciones para modificar la configuración
@@ -75,14 +53,14 @@ function useConfig() {
     try {
       const response = await axios.put(`${API_BASE_URL}/api/config`,
         { messageTemplate, imagePaths },
-        { headers: getAuthHeader() } // Usamos el JWT aquí
+        { headers: getAuthHeader() } // Usar getAuthHeader de useAuth
       );
       setConfig(response.data); // Actualizar el estado con la nueva config
       return response.data;
     } catch (err) {
       console.error("Error al actualizar la configuración:", err);
       handleAuthError(err);
-      throw err; // Relanza el error para que el componente que llama pueda manejarlo
+      throw err;
     }
   }, [API_BASE_URL, getAuthHeader, handleAuthError]);
 
@@ -96,12 +74,11 @@ function useConfig() {
         formData,
         {
           headers: {
-            ...getAuthHeader(),
-            'Content-Type': 'multipart/form-data' // axios lo setea automáticamente con FormData, pero lo dejamos por claridad
+            ...getAuthHeader(), // Usar getAuthHeader de useAuth
+            'Content-Type': 'multipart/form-data'
           }
         }
       );
-      // No actualizamos config aquí, el componente que llama debería refetchConfigData si necesita la última lista de imágenes
       return response.data;
     } catch (err) {
       console.error("Error al subir la imagen:", err);
@@ -117,7 +94,6 @@ function useConfig() {
         headers: getAuthHeader(),
         data: { imageUrl }
       });
-      // No actualizamos config aquí, el componente que llama debería refetchConfigData si necesita la última lista de imágenes
       return response.data;
     } catch (err) {
       console.error("Error al eliminar la imagen:", err);
@@ -131,12 +107,11 @@ function useConfig() {
     config,
     loading,
     error,
-    currentAuthToken,
-    API_BASE_URL, // <--- ¡¡¡AÑADE ESTA LÍNEA AQUÍ!!!
+    API_BASE_URL,
     updateConfigApi,
     uploadImageApi,
     deleteImageApi,
-    refetchConfig: fetchConfigData // Permite recargar la config manualmente
+    refetchConfig: fetchConfigData
   };
 }
 

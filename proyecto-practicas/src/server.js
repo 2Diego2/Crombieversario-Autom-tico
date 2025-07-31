@@ -6,7 +6,7 @@ const crypto = require("crypto");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const updateEnvFile = require('./utils/saveEnv');
-const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats, getLast7DaysTotals, findUserByEmail, createUser, updateUserRole } = require('./db'); 
+const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, User, recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats, getLast7DaysTotals, findUserByEmail, createUser, updateUserRole } = require('./db'); 
 const multer = require('multer');
 const fs = require('fs');
 
@@ -14,9 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 3033;
 
 // --- Configuración de Multer para Subida de Archivos ---
-// Mantenemos tu UPLOADS_DIR original
 const UPLOADS_DIR = path.join(__dirname, '../public/uploads'); // Carpeta donde se guardarán las imágenes
-// Asegúrate de que la carpeta de uploads exista
 if (!fs.existsSync(UPLOADS_DIR)) {
     fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
@@ -67,10 +65,12 @@ const upload = multer({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Configuración CORS
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
+    res.header('Access-Control-Allow-Credentials', true); // Importante para cookies/sesiones si las usas
     if (req.method === 'OPTIONS') {
         return res.sendStatus(200);
     }
@@ -235,16 +235,12 @@ app.post('/api/users/create', authenticateToken, authorize(ROLES.SUPER_ADMIN), a
         return res.status(400).json({ message: 'Rol de usuario inválido.' });
     }
 
-    try {
+     try {
         const existingUser = await findUserByEmail(email);
         if (existingUser) {
             return res.status(409).json({ message: 'Este email ya está registrado.' });
         }
-
-        const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(password, salt);
-
-        const newUser = await createUser(email, passwordHash, role); // Crea con el rol especificado
+        const newUser = await createUser(email, password, role);
         res.status(201).json({ message: `Usuario ${role} creado exitosamente.`, userId: newUser._id });
 
     } catch (error) {
@@ -253,44 +249,78 @@ app.post('/api/users/create', authenticateToken, authorize(ROLES.SUPER_ADMIN), a
     }
 });
 
-// RUTA PARA QUE UN SUPER_ADMIN ACTUALICE EL ROL DE UN USUARIO EXISTENTE
-app.put('/api/users/:userId/role', authenticateToken, authorize(ROLES.SUPER_ADMIN), async (req, res) => {
-    const { userId } = req.params;
-    const { newRole } = req.body;
+app.put('/api/users/update-role-password', authenticateToken, authorize([ROLES.SUPER_ADMIN]), async (req, res) => {
+    const { email, newRole, newPassword } = req.body; // 'email' del usuario a modificar
 
-    if (!newRole || !Object.values(ROLES).includes(newRole)) {
-        return res.status(400).json({ message: 'Rol inválido proporcionado.' });
+    if (!email) {
+        return res.status(400).json({ message: 'El correo electrónico del usuario es requerido.' });
+    }
+    if (!newRole && !newPassword) {
+        return res.status(400).json({ message: 'Se requiere al menos un nuevo rol o una nueva contraseña.' });
     }
 
     try {
-        const updatedUser = await updateUserRole(userId, newRole);
-        res.json({ message: `Rol del usuario ${updatedUser.email} actualizado a ${newRole} exitosamente.`, user: updatedUser });
-    } catch (error) {
-        console.error('Error al actualizar rol de usuario:', error);
-        if (error.message === 'Usuario no encontrado.') {
-            return res.status(404).json({ message: error.message });
+        const userToUpdate = await findUserByEmail(email);
+        if (!userToUpdate) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
         }
-        res.status(500).json({ message: 'Error interno del servidor al actualizar rol.' });
+
+        let roleToSet = userToUpdate.role;
+        // Validar el nuevo rol si se proporciona
+        if (newRole) {
+            if (!Object.values(ROLES).includes(newRole)) {
+                 return res.status(400).json({ message: `Rol inválido: ${newRole}. Roles permitidos: ${Object.values(ROLES).join(', ')}.` });
+            }
+            roleToSet = newRole;
+        }
+
+        // Llamada a la función updateUserRole con email, nuevo rol y nueva contraseña (si existe)
+        const updatedUser = await updateUserRole(email, roleToSet, newPassword);
+        if (updatedUser) {
+            res.status(200).json({ message: 'Usuario actualizado con éxito.', user: { email: updatedUser.email, role: updatedUser.role } });
+        } else {
+            res.status(404).json({ message: 'Usuario no encontrado o no se pudo actualizar.' });
+        }
+    } catch (error) {
+        console.error('Error al actualizar rol/contraseña de usuario:', error);
+        res.status(500).json({ message: 'Error interno del servidor al actualizar usuario.' });
     }
 });
 
 // Middleware para servir archivos estáticos (MANTENEMOS TU RUTA ORIGINAL)
 app.use('/uploads', express.static(UPLOADS_DIR)); // Sigue sirviendo /public/uploads como /uploads
+app.use(express.static(path.join(__dirname, '../frontend/crombieversario-app/dist'))); // Servir archivos de la build de React
 
 // ENDPOINT para obtener trabajadores desde el archivo JSON local
-app.get('/trabajadores', (req, res) => {
+app.get('/trabajadores', async (req, res) => {
     const trabajadoresPath = path.join(__dirname, '../data/trabajadores.json');
-    fs.readFile(trabajadoresPath, 'utf-8', (err, data) => {
+    fs.readFile(trabajadoresPath, 'utf-8', async (err, data) => {
         if (err) {
             console.error('Error al leer trabajadores.json:', err);
             return res.status(500).json({ error: 'No se pudo leer el archivo de trabajadores.' });
         }
         try {
             const trabajadores = JSON.parse(data);
-            res.json(trabajadores);
+
+            // Obtener todos los usuarios del sistema de autenticación
+            // Asegúrate de que User esté importado correctamente
+            const users = await User.find({}, 'email role').lean();
+            const userRolesMap = new Map(users.map(u => [u.email, u.role]));
+
+            // Combinar datos de empleados con roles de usuario y añadir un 'id'
+            const empleadosConRoles = trabajadores.map(empleado => {
+                const role = userRolesMap.get(empleado.mail) || 'none';
+                return {
+                    ...empleado,
+                    id: empleado.mail, // <--- AÑADIDO: Usa el mail como ID único para React keys
+                    role
+                };
+            });
+
+            res.json(empleadosConRoles);
         } catch (parseErr) {
-            console.error('Error al parsear trabajadores.json:', parseErr);
-            res.status(500).json({ error: 'Error de formato en trabajadores.json.' });
+            console.error('Error al parsear trabajadores.json o combinar datos:', parseErr);
+            res.status(500).json({ error: 'Error de formato en trabajadores.json o al procesar datos de usuario.' });
         }
     });
 });
@@ -332,7 +362,7 @@ app.get('/api/aniversarios-error', authenticateToken, authorize([ROLES.SUPER_ADM
     }
 });
 
-// NUEVOS ENDPOINTS para la configuración
+// ENDPOINTS para la configuración
 app.get('/api/config', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
     try {
         const config = await getConfig();

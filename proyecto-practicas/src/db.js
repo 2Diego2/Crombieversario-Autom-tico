@@ -1,5 +1,6 @@
 // db.js
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 // *Definición de Esquemas y Modelos*
 
@@ -8,7 +9,7 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
-    role: { type: String, enum: ['super_admin', 'staff'], default: 'staff' },
+    role: { type: String, enum: ['super_admin', 'staff'], default: 'staff' }, // Asegúrate de que los roles coincidan
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
@@ -35,11 +36,11 @@ async function findUserByEmail(email) {
  * @param {string} [role='admin_interfaz'] El rol del usuario.
  * @returns {Promise<Object>} El objeto del usuario creado.
  */
-async function createUser(email, passwordHash, role = 'staff') {
+async function createUser(email, password, role = 'staff') { // Cambiado default a 'staff' si ese es el rol base
     try {
+        const passwordHash = await bcrypt.hash(password, 10);
         const newUser = new User({ email, passwordHash, role });
         await newUser.save();
-        console.log(`Usuario creado: ${email} con rol: ${role}`);
         return newUser;
     } catch (error) {
         console.error('Error al crear usuario:', error);
@@ -47,15 +48,13 @@ async function createUser(email, passwordHash, role = 'staff') {
     }
 }
 
-async function updateUserRole(userId, newRole) {
+async function updateUserRole(email, newRole, newPassword = null) {
     try {
-        const user = await User.findById(userId);
-        if (!user) {
-            throw new Error('Usuario no encontrado.');
+        const update = { role: newRole };
+        if (newPassword) {
+            update.passwordHash = await bcrypt.hash(newPassword, 10);
         }
-        user.role = newRole;
-        await user.save();
-        console.log(`Rol del usuario ${user.email} actualizado a ${newRole}`);
+        const user = await User.findOneAndUpdate({ email }, update, { new: true });
         return user;
     } catch (error) {
         console.error('Error al actualizar rol de usuario:', error);
@@ -76,16 +75,6 @@ const sentLogSchema = new mongoose.Schema({
 }, { timestamps: true }); // 'timestamps: true' añade 'createdAt' y 'updatedAt' automáticamente
 const SentLog = mongoose.model('SentLog', sentLogSchema);
 
-const configSchema = new mongoose.Schema({
-    // Podrías tener un único documento de configuración, por eso el `name`
-    name: { type: String, required: true, unique: true, default: 'main_config' },
-    messageTemplate: { type: String, required: true },
-    // Si las imágenes son fijas y solo se seleccionan, guardas sus rutas aquí.
-    // Si la gestión es más dinámica (subir nuevas), necesitarías otro enfoque.
-    imagePaths: [{ type: String }], // Array de rutas de imágenes
-    lastUpdated: { type: Date, default: Date.now }
-}, { timestamps: true }); // Añade createdAt y updatedAt
-
 const failedEmailLogSchema = new mongoose.Schema({
     nombre: { type: String, required: true },
     apellido: { type: String, required: true },
@@ -97,6 +86,15 @@ const failedEmailLogSchema = new mongoose.Schema({
 }, { timestamps: true });
 const FailedEmailLog = mongoose.model('FailedEmailLog', failedEmailLogSchema);
 
+const configSchema = new mongoose.Schema({
+    // Podrías tener un único documento de configuración, por eso el `name`
+    name: { type: String, required: true, unique: true, default: 'main_config' },
+    messageTemplate: { type: String, required: true },
+    // Si las imágenes son fijas y solo se seleccionan, guardas sus rutas aquí.
+    // Si la gestión es más dinámica (subir nuevas), necesitarías otro enfoque.
+    imagePaths: [{ type: String }], // Array de rutas de imágenes
+    lastUpdated: { type: Date, default: Date.now }
+}, { timestamps: true }); // Añade createdAt y updatedAt
 const Config = mongoose.model('Config', configSchema);
 
 // *Función de Conexión a la Base de Datos*
@@ -484,6 +482,7 @@ module.exports = {
     SentLog,
     Config,
     FailedEmailLog,
+    User,
     recordFailedEmail,
     getFailedEmailsToRetry,
     updateFailedEmailStatus,

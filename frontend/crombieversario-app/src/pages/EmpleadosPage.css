@@ -156,6 +156,13 @@
   font-weight: bold;
 }
 
+.role-select{
+  padding: 8px;
+  border-radius: 5px;
+  font-family: var(--fonts);
+  font-size: 1em;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .empleados-page {

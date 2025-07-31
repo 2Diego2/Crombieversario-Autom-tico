@@ -1,41 +1,25 @@
 // src/pages/MailsErrorPage.jsx
 
 import React, { useEffect, useState, useCallback } from 'react';
-import useConfig from '../componentes/useConfig';
-import './MailsEnviadosPage.css';
+import useConfig from '../componentes/useConfig'; // Correcto
+import useAuth from '../componentes/useAuth';  
+import './MailsEnviadosPage.css'; 
 import axios from 'axios';
 
 const MailsErrorPage = () => {
-    const { API_BASE_URL, currentAuthToken, handleAuthError: useConfigHandleAuthError } = useConfig();
+    const { API_BASE_URL } = useConfig(); 
+    const { getAuthHeader, handleAuthError } = useAuth(); 
     const [mailsConError, setMailsConError] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const handleLocalError = useCallback((err) => {
-        if (useConfigHandleAuthError) {
-            useConfigHandleAuthError(err);
-        } else {
-            if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
-                localStorage.removeItem('jwtToken');
-                localStorage.removeItem('userRole');
-                localStorage.removeItem('userEmail');
-                setError("Sesión expirada o no autorizado. Por favor, inicia sesión de nuevo.");
-                window.location.href = '/login';
-            } else {
-                setError("Error en la petición: " + (err.response?.data?.message || err.message || err.toString()));
-            }
-        }
-    }, [useConfigHandleAuthError]);
-
-
     const fetchMails = useCallback(async () => {
-        if (!currentAuthToken) {
+        if (!API_BASE_URL) {
+            setError("URL base de la API no definida. Retrasando la carga de mails con error.");
             setLoading(false);
-            setError("No autenticado. Por favor, inicie sesión.");
             return;
         }
-
-        // Aquí también agregamos el log, para ver el valor justo antes de la petición
+        
         console.log('DEBUG fetchMails: API_BASE_URL antes de la petición:', API_BASE_URL);
         console.log('➡️ lanzando fetch a', `${API_BASE_URL}/api/aniversarios-error`);
         setLoading(true);
@@ -44,9 +28,7 @@ const MailsErrorPage = () => {
             const response = await axios.get(
                 `${API_BASE_URL}/api/aniversarios-error`,
                 {
-                    headers: {
-                        'Authorization': `Bearer ${currentAuthToken}`
-                    }
+                    headers: getAuthHeader() // <<< Usamos getAuthHeader de useAuth
                 }
             );
 
@@ -54,16 +36,24 @@ const MailsErrorPage = () => {
             setMailsConError(response.data);
         } catch (err) {
             console.error('❌ fallo fetchMails:', err);
-            handleLocalError(err);
+            handleAuthError(err); 
+
+            // Si el error no es 401/403 (ya manejado por handleAuthError)
+            // y quieres mostrar un mensaje de error específico en esta página:
+            if (!axios.isAxiosError(err) || (err.response?.status !== 401 && err.response?.status !== 403)) {
+                setError("Error en la petición: " + (err.response?.data?.message || err.message || err.toString()));
+            }
         } finally {
             setLoading(false);
         }
-    }, [API_BASE_URL, currentAuthToken, handleLocalError]);
-
+    }, [API_BASE_URL, getAuthHeader, handleAuthError]);
 
     useEffect(() => {
-        fetchMails();
-    }, [fetchMails]);
+        // Disparamos fetchMails solo si API_BASE_URL ya está definido.
+        if (API_BASE_URL) {
+            fetchMails();
+        }
+    }, [fetchMails, API_BASE_URL]); 
 
 
     return (

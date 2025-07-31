@@ -20,7 +20,7 @@ import EditorMensaje from '../pages/EditorMensaje';
 
 // Iconos
 import {  IoPeopleSharp,  IoCalendarNumberSharp,IoHomeSharp,IoChatboxEllipses,IoMailUnread,IoMail } from "react-icons/io5";
-import { LuMailWarning, LuMail, LuLogOut } from "react-icons/lu";
+import { LuLogOut } from "react-icons/lu";
 
 // Logo
 import LogoCrombie from '../assets/Logo.png';
@@ -29,7 +29,7 @@ import LogoCrombie from '../assets/Logo.png';
 function DashboardContent({ onLogout, userEmail, userRole }) {
   const location = useLocation();
 
-  const { config, loading: configLoading, error: configError, localApiKey } = useConfig();
+  const { config, loading: configLoading, error: configError } = useConfig();
   const { upcomingEvents, loading: eventsLoading, error: eventsError } = useEventosProximos();
 
   // Redirección si la sesión expira/es inválida
@@ -168,7 +168,7 @@ function DashboardContent({ onLogout, userEmail, userRole }) {
         <div className="main-content-pages">
           <Routes>
             {/* Las rutas aquí son relativas a "/dashboard/" */}
-            <Route path="empleados" element={<EmpleadosPage />} />
+            <Route path="empleados" element={<EmpleadosPage userRole={userRole}/>} />
             <Route path="mails-enviados" element={<MailsEnviadosPage />} />
             <Route path="mail-error" element={<MailsErrorPage />} />
             <Route path="calendario" element={<CalendarioPage />} />

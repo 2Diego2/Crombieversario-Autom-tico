@@ -1,13 +1,12 @@
 // src/componentes/useEstadisticasMail.js
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import useConfig from '../componentes/useConfig'; // Asegúrate de que este sea el path correcto a useConfig
+import useConfig from '../componentes/useConfig';
+import useAuth from '../componentes/useAuth'; 
 
 const useEstadisticasMail = () => {
-  // *** Define API_BASE_URL aquí directamente ***
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
-
-  const { currentAuthToken, handleAuthError: useConfigHandleAuthError } = useConfig();
+  const { API_BASE_URL } = useConfig();
+  const { getAuthHeader, handleAuthError } = useAuth();
   const [EstadisticasAnuales, setEstadisticasAnuales] = useState([]);
   const [DataTortaAnioActual, setDataTortaAnioActual] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,49 +14,24 @@ const useEstadisticasMail = () => {
 
   const ANIO_ACTUAL = new Date().getFullYear();
 
-  const getAuthHeader = useCallback(() => {
-    const token = localStorage.getItem('jwtToken');
-    if (token) {
-      return { Authorization: `Bearer ${token}` };
-    }
-    return {};
-  }, []);
-
-  const handleLocalError = useCallback((err) => {
-    if (useConfigHandleAuthError) {
-      useConfigHandleAuthError(err);
-    } else {
-      if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
-        localStorage.removeItem('jwtToken');
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('userEmail');
-        setError("Sesión expirada o no autorizado. Por favor, inicia sesión de nuevo.");
-        window.location.href = '/login';
-      } else {
-        setError("Error en la petición: " + (err.response?.data?.message || err.message || err.toString()));
-      }
-    }
-  }, [useConfigHandleAuthError]);
-
-
   const fetchEmailStats = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-    if (!currentAuthToken) {
-      setError("No autenticado. Por favor, inicie sesión.");
+    if (!API_BASE_URL) {
+      setError("URL base de la API no definida. Retrasando la carga de estadísticas.");
       setLoading(false);
       return;
     }
 
-    const requestUrl = `${API_BASE_URL}/api/email-stats/yearly`; // Construye la URL
+    const requestUrl = `${API_BASE_URL}/api/email-stats/yearly`;
 
     try {
       const response = await axios.get(requestUrl, {
-        headers: getAuthHeader()
+        headers: getAuthHeader() // Usamos getAuthHeader de useAuth
       });
 
-      const data = response.data; // Axios ya parsea el JSON automáticamente
+      const data = response.data;
 
       // 1. Preparar datos para el Gráfico de Líneas
       if (Array.isArray(data)) {
@@ -68,7 +42,7 @@ const useEstadisticasMail = () => {
         }));
         setEstadisticasAnuales(processedLineData);
 
-      // 2. Preparar datos para el Gráfico de Torta (del año actual)
+        // 2. Preparar datos para el Gráfico de Torta (del año actual)
         const statsForCurrentYear = data.find(item => item.year === ANIO_ACTUAL);
 
         if (statsForCurrentYear) {
@@ -93,15 +67,26 @@ const useEstadisticasMail = () => {
 
     } catch (err) {
       console.error("Error al obtener las estadísticas de email:", err);
-      handleLocalError(err); // Llama a la función de manejo de errores de autenticación
+      // Llama a handleAuthError de useAuth para manejar errores de autenticación/autorización
+      handleAuthError(err); // <<< Usamos handleAuthError de useAuth
+
+      // Si el error no es 401/403 (ya manejado por handleAuthError)
+      // y quieres mostrar un mensaje de error específico en este hook:
+      if (!axios.isAxiosError(err) || (err.response?.status !== 401 && err.response?.status !== 403)) {
+        setError("Error en la petición: " + (err.response?.data?.message || err.message || err.toString()));
+      }
     } finally {
       setLoading(false);
     }
-  }, [API_BASE_URL, currentAuthToken, getAuthHeader, handleLocalError, ANIO_ACTUAL]);
+  }, [API_BASE_URL, getAuthHeader, handleAuthError, ANIO_ACTUAL]); // <<< Dependencias actualizadas
 
   useEffect(() => {
-    fetchEmailStats();
-  }, [fetchEmailStats]); // Dependencia del useCallback para ejecutar una vez al montar
+    // Disparamos fetchEmailStats solo si API_BASE_URL ya está definido.
+    // Esto asegura que no intentemos hacer una petición a "undefined/api/..."
+    if (API_BASE_URL) {
+      fetchEmailStats();
+    }
+  }, [fetchEmailStats, API_BASE_URL]); // <<< Añadir API_BASE_URL como dependencia
 
   // Devuelve los estados y datos que el componente necesitará
   return { EstadisticasAnuales, DataTortaAnioActual, loading, error, ANIO_ACTUAL, refetchEmailStats: fetchEmailStats };
