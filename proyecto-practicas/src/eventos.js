@@ -130,7 +130,7 @@ async function MensajeMail(nombre, nroAniversario, empleadoEmail) {
   }
 
   htmlContent += `
-  <img src="${trackingPixelUrl}" width="1" height="1" border="0" alt="" style="display:none !important; min-height:1px; width:1px; border-width:0 !important; margin-top:0 !important; margin-bottom:0 !important; margin-right:0 !important; margin-left:0 !important; padding-top:0 !important; padding-bottom:0 !important; padding-right:0 !important; padding-left:0 !important;" />
+  <img src="${trackingPixelUrl}" width="1" height="1" alt="" border="0" style="border:0; margin:0; padding:0; line-height:0;" >
             </div>
         </body>
         </html>
