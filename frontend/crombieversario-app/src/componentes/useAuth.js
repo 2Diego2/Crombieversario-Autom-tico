@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 /**
- * Custom hook para gestionar la autenticación (tokens JWT) y errores de autorización.
+ * Gestionar la autenticación (tokens JWT) y errores de autorización.
  */
 function useAuth() {
   const navigate = useNavigate();
@@ -18,21 +18,27 @@ function useAuth() {
     return {};
   }, []);
 
+  const logout = useCallback(() => {
+    localStorage.removeItem('jwtToken');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userProfileImage'); // Asegúrate de limpiar también la URL de la imagen de perfil
+    navigate('/login', { replace: true });
+    toast.info('Has cerrado sesión correctamente.'); // Mensaje opcional al cerrar sesión
+  }, [navigate]);
+
   // Función para manejar errores de autenticación/autorización
   const handleAuthError = useCallback((error) => {
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       toast.error('Sesión expirada o no autorizada. Por favor, inicia sesión de nuevo.');
-      localStorage.removeItem('jwtToken');
-      localStorage.removeItem('userEmail');
-      localStorage.removeItem('userRole');
-      navigate('/login', { replace: true });
+      logout(); // Llama a la función logout centralizada
     } else {
-      // Otros errores no relacionados con auth, quizás ya manejados por el llamador
       console.error("Error no auth en handleAuthError:", error);
+      // Aquí podrías agregar un toast.error genérico si lo deseas para otros tipos de errores
     }
-  }, [navigate]);
+  }, [logout]);
 
-  return { getAuthHeader, handleAuthError };
+  return { getAuthHeader, handleAuthError, logout };
 }
 
 export default useAuth;

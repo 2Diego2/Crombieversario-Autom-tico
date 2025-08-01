@@ -1,7 +1,6 @@
 // src/componentes/LoginForm.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
 function LoginForm({ onLoginSuccess }) {
@@ -9,8 +8,7 @@ function LoginForm({ onLoginSuccess }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-
+  
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
@@ -23,14 +21,16 @@ function LoginForm({ onLoginSuccess }) {
         password,
       });
 
-      const { token, user } = response.data;
+      // Asegúrate de que 'user' en la respuesta del servidor contenga 'profileImageUrl'
+      const { token, user } = response.data; // user debería ser un objeto como { email, role, profileImageUrl }
 
-      localStorage.setItem('jwtToken', token);
-      localStorage.setItem('userEmail', user.email);
-      localStorage.setItem('userRole', user.role);
+      onLoginSuccess({
+        token,
+        email: user.email,
+        role: user.role,
+        profileImageUrl: user.profileImageUrl || null // Asegúrate de pasar la imagen o null si no existe
+      });
 
-      onLoginSuccess();
-      navigate('/dashboard', { replace: true });
     } catch (err) {
       console.error('Error de inicio de sesión:', err);
       if (err.response) {

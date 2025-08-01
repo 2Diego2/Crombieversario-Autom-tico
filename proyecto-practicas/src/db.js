@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
     role: { type: String, enum: ['super_admin', 'staff'], default: 'staff' }, // Asegúrate de que los roles coincidan
+    profileImageUrl: { type: String, default: 'LogoSolo.jpg' },
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
@@ -36,10 +37,10 @@ async function findUserByEmail(email) {
  * @param {string} [role='admin_interfaz'] El rol del usuario.
  * @returns {Promise<Object>} El objeto del usuario creado.
  */
-async function createUser(email, password, role = 'staff') { // Cambiado default a 'staff' si ese es el rol base
+async function createUser(email, password, role = 'staff', profileImageUrl = 'LogoSolo.jpg') { // Cambiado default a 'staff' si ese es el rol base
     try {
         const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = new User({ email, passwordHash, role });
+        const newUser = new User({ email, passwordHash, role, profileImageUrl });
         await newUser.save();
         return newUser;
     } catch (error) {

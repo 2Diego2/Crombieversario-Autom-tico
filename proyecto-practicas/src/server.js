@@ -159,7 +159,7 @@ function authorize(requiredRoles) { // Ahora acepta un array de roles
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
 
-    // 1. Validar dominio del correo (¡AHORA DESCOMENTADO!)
+    // 1. Validar dominio del correo
     // if (!email || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
     //     return res.status(400).json({ message: `Dominio de correo no permitido o email faltante. Debe ser ${ALLOWED_EMAIL_DOMAIN}` });
     // }
@@ -180,10 +180,28 @@ app.post('/api/login', async (req, res) => {
             return res.status(400).json({ message: 'Credenciales inválidas.' });
         }
 
+        
+        let finalProfileImageUrlForClient = user.profileImageUrl;
+        // Ensure the stored URL, when sent to the client, is absolute
+        if (finalProfileImageUrlForClient) {
+            if (!finalProfileImageUrlForClient.startsWith('/')) {
+                finalProfileImageUrlForClient = `/${finalProfileImageUrlForClient}`;
+            }
+        } else {
+            // If profileImageUrl is null or undefined from the DB, use the default absolute path
+            finalProfileImageUrlForClient = '/LogoSolo.jpg';
+        }
+
         // 4. Generar Token JWT
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '1h' }); // Token válido por 1 hora
 
-        res.json({ message: 'Login exitoso', token, user: { id: user._id, email: user.email, role: user.role } });
+        res.json({ message: 'Login exitoso', token, user: {
+                id: user._id,
+                email: user.email,
+                role: user.role,
+                profileImageUrl: finalProfileImageUrlForClient // Send the absolute URL
+            }
+        });
 
     } catch (error) {
         console.error('Error en el proceso de login:', error);
@@ -223,7 +241,7 @@ app.post('/api/register-admin', requireApiKey, async (req, res) => {
 
 // RUTA PARA QUE UN SUPER_ADMIN CREE OTROS USUARIOS (staff o super_admin)
 app.post('/api/users/create', authenticateToken, authorize(ROLES.SUPER_ADMIN), async (req, res) => {
-    const { email, password, role } = req.body; // Ahora el rol puede venir en el cuerpo
+    const { email, password, role, profileImageUrl } = req.body;
 
     // Validaciones: email, password, dominio
     // if (!email || !password || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
@@ -240,7 +258,14 @@ app.post('/api/users/create', authenticateToken, authorize(ROLES.SUPER_ADMIN), a
         if (existingUser) {
             return res.status(409).json({ message: 'Este email ya está registrado.' });
         }
-        const newUser = await createUser(email, password, role);
+        let finalProfileImageUrl;
+        if (profileImageUrl) {
+            finalProfileImageUrl = profileImageUrl.startsWith('/') ? profileImageUrl : `/${profileImageUrl}`;
+        } else {
+            finalProfileImageUrl = '/LogoSolo.jpg';
+        }
+        
+        const newUser = await createUser(email, password, role, finalProfileImageUrl);
         res.status(201).json({ message: `Usuario ${role} creado exitosamente.`, userId: newUser._id });
 
     } catch (error) {
@@ -290,6 +315,7 @@ app.put('/api/users/update-role-password', authenticateToken, authorize([ROLES.S
 // Middleware para servir archivos estáticos (MANTENEMOS TU RUTA ORIGINAL)
 app.use('/uploads', express.static(UPLOADS_DIR)); // Sigue sirviendo /public/uploads como /uploads
 app.use(express.static(path.join(__dirname, '../frontend/crombieversario-app/dist'))); // Servir archivos de la build de React
+app.use(express.static(path.join(__dirname, '../public')));
 
 // ENDPOINT para obtener trabajadores desde el archivo JSON local
 app.get('/trabajadores', async (req, res) => {

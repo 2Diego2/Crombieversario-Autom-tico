@@ -19,28 +19,24 @@ import CalendarioPage from '../pages/Calendario';
 import EditorMensaje from '../pages/EditorMensaje';
 
 // Iconos
-import {  IoPeopleSharp,  IoCalendarNumberSharp,IoHomeSharp,IoChatboxEllipses,IoMailUnread,IoMail } from "react-icons/io5";
+import { IoPeopleSharp, IoCalendarNumberSharp, IoHomeSharp, IoChatboxEllipses, IoMailUnread, IoMail } from "react-icons/io5";
 import { LuLogOut } from "react-icons/lu";
 
 // Logo
 import LogoCrombie from '../assets/Logo.png';
 
 
-function DashboardContent({ onLogout, userEmail, userRole }) {
+function DashboardContent({ onLogout, userEmail, userRole, userProfileImage }) {
   const location = useLocation();
 
   const { config, loading: configLoading, error: configError } = useConfig();
   const { upcomingEvents, loading: eventsLoading, error: eventsError } = useEventosProximos();
 
-  // Redirección si la sesión expira/es inválida
-  if (configError || eventsError) {
-    if ((configError && (configError.includes('Sesión expirada') || configError.includes('no autorizado'))) ||
-        (eventsError && (eventsError.includes('Sesión expirada') || eventsError.includes('no autorizado')))) {
-        console.warn('Token inválido o expirado detectado en DashboardContent. Forzando logout.');
-        onLogout();
-        return <div className="error-screen">Tu sesión ha expirado o es inválida. Redirigiendo al login...</div>;
-    }
-    return <div className="error-screen">Error al cargar datos: {configError || eventsError}</div>;
+  if (configError) {
+    return <div className="error-screen">Error al cargar la configuración del dashboard: {configError}</div>;
+  }
+  if (eventsError) {
+    return <div className="error-screen">Error al cargar los eventos próximos: {eventsError}</div>;
   }
 
   // Si aún está cargando, muestra la pantalla de carga
@@ -79,8 +75,8 @@ function DashboardContent({ onLogout, userEmail, userRole }) {
         <div className="footer-aside">
           <div className="perfil-info">
             <img
-              src="https://th.bing.com/th/id/R.0301819f445a8855c4a577a6763fb62d?rik=TT%2fgaYZuz1YEig&riu=http%3a%2f%2fanhede.se%2fwp-content%2fuploads%2f2014%2f01%2f130221-2528.jpg&ehk=LToqkipED3KxGj7CVuMoQrvi487RY2HN6IPZ59FCWNQ%3d&risl=&pid=ImgRaw&r=0"
-              alt="persona"
+              src={userProfileImage || "/LogoSolo.jpg"}
+              alt="Perfil del usuario"
               className="persona"
             />
             <span className="perfil">{userEmail || 'Usuario'} - {userRole || 'Rol Desconocido'}</span>
