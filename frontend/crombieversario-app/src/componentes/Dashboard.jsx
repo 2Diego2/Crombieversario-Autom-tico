@@ -92,7 +92,6 @@ function DashboardContent({ onLogout, userEmail, userRole, userProfileImage }) {
       {isDashboardRoot ? (
         <>
           <div className="div2">
-            <h2>Estadísticas</h2>
             <Estadisticas />
           </div>
 

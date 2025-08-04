@@ -355,15 +355,15 @@ app.get('/trabajadores', async (req, res) => {
 app.get('/api/aniversarios-enviados', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
     try {
         const enviados = await SentLog.find({});
-        res.json(enviados);
+        const enviadosOrdenados = enviados.sort((a, b) => new Date(b.sentDate) - new Date(a.sentDate));
+
+        res.json(enviadosOrdenados);
     } catch (error) {
         console.error('Error al obtener aniversarios enviados:', error);
         res.status(500).json({ error: 'Error al obtener aniversarios enviados.' });
     }
 });
-
-// Endpoint para obtener los mails con error desde la base de datos
-app.get('/api/aniversarios-error', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
+/*app.get('/api/aniversarios-error', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
     try {
         const fallos = await FailedEmailLog.find({
             $or: [
@@ -371,17 +371,49 @@ app.get('/api/aniversarios-error', authenticateToken, authorize([ROLES.SUPER_ADM
                 { status: { $exists: false } }
             ]
         });
-
-        const formattedFallos = fallos.map(fallo => ({
-            _id: fallo._id,
-            nombre: fallo.nombre, // Estos campos 'nombre' y 'apellido' no vienen de FailedEmailLog por defecto, pero se mantienen por tu estructura.
-            apellido: fallo.apellido, // Si FailedEmailLog no los tiene, siempre serán 'N/A'.
+        
+        const fallosOrdenados = fallos.sort((a, b) => new Date(b.attemptDate) - new Date(a.attemptDate));
+        // El resto del código para formatear la respuesta se mantiene igual.
+        const formattedFallos = fallosOrdenados.map(fallo => ({
+            _id: fallo._id, // Es buena práctica pasar el ID para el 'key' de React
+            nombre: fallo.nombre,
+            apellido: fallo.apellido,
             email: fallo.email,
             years: fallo.years,
             sentDate: fallo.attemptDate, // Ahora es attemptDate
             errorMessage: fallo.errorMessage
         }));
         res.json(formattedFallos);
+            // Ordenar desde el más reciente al más antiguo
+
+    } catch (error) {
+        console.error('Error al obtener aniversarios con error:', error);
+        res.status(500).json({ error: 'Error al obtener los registros de error.' });
+    }
+}); */
+app.get('/api/aniversarios-error', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
+    try {
+        // MODIFICACIÓN: La consulta ahora busca registros nuevos y antiguos.
+        const fallos = await FailedEmailLog.find({
+            $or: [
+                { status: 'failed' },
+                { status: { $exists: false } }
+            ]
+        });
+        
+        const fallosOrdenados = fallos.sort((a, b) => new Date(b.attemptDate) - new Date(a.attemptDate));
+        // El resto del código para formatear la respuesta se mantiene igual.
+        const formattedFallos = fallosOrdenados.map(fallo => ({
+            _id: fallo._id, // Es buena práctica pasar el ID para el 'key' de React
+            nombre: fallo.nombre,
+            apellido: fallo.apellido,
+            email: fallo.email,
+            years: fallo.years,
+            sentDate: fallo.attemptDate,
+            errorMessage: fallo.errorMessage
+        }));
+        res.json(formattedFallos);
+
     } catch (error) {
         console.error('Error al obtener aniversarios con error:', error);
         res.status(500).json({ error: 'Error al obtener los registros de error.' });

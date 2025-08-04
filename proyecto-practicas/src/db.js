@@ -301,9 +301,9 @@ async function getYearlyEmailStats() {
                     opened: 1 // Incluye el conteo de abiertos
                 }
             },
-            {
+            /*{
                 $sort: { year: 1 } // Ordena los resultados por año ascendente
-            }
+            }*/
         ]);
         console.log('Estadísticas anuales de email obtenidas:', stats);
         return stats;
@@ -355,9 +355,9 @@ async function getMonthlyEmailStats() {
         }
       },
       // 4) Ordena por año y mes ascendente
-      {
+      /*{
         $sort: { year: 1, month: 1 }
-      }
+      }*/
     ]);
 
     console.log('Estadísticas mensuales de email obtenidas:', stats);
@@ -370,58 +370,45 @@ async function getMonthlyEmailStats() {
 
 async function getLast7DaysTotals() {
   try {
+    const end   = new Date();                // ahora
+    const start = new Date(end);            
+    start.setDate(end.getDate() - 6);        // hace 6 días, para cubrir 7 jornadas (incluye hoy)
+
     const stats = await SentLog.aggregate([
-      // 1) Selecciona sólo documentos con sentDate válido
       {
         $match: {
-          sentDate: { $exists: true, $type: "date" }
+          sentDate: { $gte: start, $lte: end }
         }
       },
-      // 2) Agrupa por año y mes del sentDate
       {
         $group: {
-          _id: {
-            year:  { $year:  "$sentDate" },
-            month: { $month: "$sentDate" },
-            day: {$day: "$sentDate"}
+          _id: null,
+          sent: {
+            $sum: 1
           },
-          sent:   { $sum: 1 },
           opened: {
-            $sum: {
-              $cond: [{ $eq: ["$opened", true] }, 1, 0]
-            }
+            $sum: { $cond: [{ $eq: ["$opened", true] }, 1, 0] }
           },
           unread: {
-            // Cuenta los no leídos: opened === false
-            $sum: {
-              $cond: [{ $eq: ["$opened", false] }, 1, 0]
-            }
+            $sum: { $cond: [{ $eq: ["$opened", false] }, 1, 0] }
           }
         }
       },
-      // 3) Proyecta los campos que te interesan
       {
         $project: {
-          _id:    0,
-          year:   "$_id.year",
-          month:  "$_id.month",
-          day: "$_id.day",
-          sent:   1,
+          _id: 0,
+          sent: 1,
           opened: 1,
           unread: 1
         }
-      },
-      // 4) Ordena por año, mes y dia  ascendente
-      {
-        $sort: { year: 1, month: 1 , day : 1}
       }
     ]);
-
-    console.log('Estadísticas de los ultimos 7 dias obtenidas:', stats);
-    return stats;
-  } catch (error) {
-    console.error('Error al obtener estadísticas de la ultima semana:', error.message);
-    throw error;
+    
+    console.log('Estadísticas de la semana obtenidas:', stats);
+    return stats[0] || { sent: 0, opened: 0, unread: 0 };
+  } catch (err) {
+    console.error("Error al obtener totales últimos 7 días:", err);
+    throw err;
   }
 }
 
