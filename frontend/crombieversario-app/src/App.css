@@ -84,7 +84,8 @@ body {
     "mails-sent"
     "mail-imgs"
     "events"
-    "mail-message";
+    "mail-message"
+    "content-pages"; /* Agregado */;
 }
 
 /* Caja de la barra lateral (sidebar) */
@@ -108,7 +109,7 @@ aside.div1 {
   width: 100%;
   max-width: 300px;
   display: block;
-  margin: 0 auto 20px auto; /* Centrar y añadir margen inferior */
+  margin: 0 auto 1px auto; /* Centrar y añadir margen inferior */
 }
 
 .side-bar {
@@ -134,10 +135,11 @@ aside.div1 {
   font-size: 1rem;
   transition: background-color 0.2s ease, color 0.2s ease;
   padding: 10px 15px;
+  margin: 0 auto 3px auto; /* Centrar y añadir margen inferior */
 }
 
 .menu-item:hover {
-  background-color: var(--acentoPrimario); /* Usar acentoPrimario para hover */
+  background-color: var(--colorCrombieAmarillo); /* Usar acentoPrimario para hover */
   color: white; /* Texto blanco en hover si el fondo es azul */
 }
 
@@ -206,8 +208,51 @@ aside.div1 {
     color: white; /* Texto blanco al hacer hover en el botón logout */
 }
 
+.div5{
+  background-color: var(--colorCaja);
+  color: var(--textoPrincipal);
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+  padding: var(--padding-box);
+  position: relative;
+}
 
-.div2, .div3, .div4, .div5 { /* aside.div1 ya tiene sus estilos */
+/* .div5 {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%; /* O fija, ej: 100vh si querés pantalla completa
+  background-color: var(--colorCaja);
+  color: var(--textoPrincipal);
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+  padding: var(--padding-box);
+}
+
+h2 {
+  margin-bottom: 1rem;
+}
+
+.mensajeRender {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.renovar {
+  color: var(--azulPrincipal);
+  text-decoration: none;
+  font-weight: 500;
+}
+*/
+
+.div2, .div3, .div4 { /* aside.div1 ya tiene sus estilos */
   background-color: var(--colorCaja);
   color: var(--textoPrincipal);
   box-shadow: var(--box-shadow);
@@ -322,26 +367,53 @@ h2, .menu-item, .perfil-info {
 /* MEDIA QUERIES PARA RESPONSIVIDAD */
 
 /* Pequeñas tablets y pantallas hasta 1023px (móvil ya definido por defecto) */
-@media (min-width: 768px) {
+@media (max-width: 768px) {
   .parent {
-    grid-template-columns: 1fr; /* Mantenemos una columna principal, sidebar sigue arriba */
-    grid-template-areas:
-      "sidebar"
-      "stats"
-      "mails-sent"
-      "mail-imgs"
-      "events"
-      "mail-message"; /* Sigue apilado, pero con más espacio */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Reduce espacio vertical entre sidebar y contenido */
+    padding: 10px; /* Asegura que no haya márgenes grandes externos */
   }
 
   aside.div1 {
-    width: 100%;
-    position: relative;
-    height: auto;
-    min-height: 100px;
+    margin-bottom: 10px; /* Reduce espacio entre sidebar y contenido */
+  }
+
+  .main-content-pages {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  .empleados-page {
+    margin-top: 0;
+  }
+
+  .div4 {
+    max-height: 400px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .eventos-scroll {
+    overflow-y: auto;
+    max-height: 230px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding-right: 6px;
+    min-height: 32vh;
+  }
+
+  .eventos-scroll::-webkit-scrollbar {
+    width: 0;
+    background-color: transparent; /* Fondo transparente para scrollbar */
+  }
+
+  .eventos-scroll::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
   }
 }
-
 /* Desktop pequeño (1024px a 1439px) */
 @media (min-width: 1024px) {
   .parent {

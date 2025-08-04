@@ -163,7 +163,7 @@ function EditorMensaje() {
       {/* Sección de Edición del Mensaje */}
       <div style={{ marginBottom: "30px" }}>
         <label htmlFor="messageTemplate" className="mensaje">
-          Mensaje del Crombieversario:
+          Mensaje de Crombieversario:
         </label>
         <textarea
           id="messageTemplate"

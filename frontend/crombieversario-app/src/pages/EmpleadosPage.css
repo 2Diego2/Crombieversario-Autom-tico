@@ -1,11 +1,28 @@
+/* EmpleadosPage.css */
+
 .empleados-page {
-  padding: 20px;
-  background-color: var(--colorCaja);
-  border-radius: 8px;
-  flex-grow: 1; /* Permite que el contenedor ocupe el espacio disponible */
   display: flex;
   flex-direction: column;
-  width: 100%; /* Asegura que ocupe todo el ancho disponible */
+  flex-grow: 1;
+  overflow: hidden;
+  min-height: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  max-height: 90vh;
+  /* Ajusta la altura máxima según sea necesario */
+  overflow-y: auto;
+  /* Permite el scroll vertical si el contenido excede la altura máxima */
+  background-color: var(--colorCaja);
+  border-radius: var(--border-radius);
+  padding: var(--padding-box);
+  box-shadow: var(--box-shadow);
+}
+
+.empleados-page::-webkit-scrollbar {
+  width: 0px;
+  /* Oculta la barra de desplazamiento */
+  background: transparent;
 }
 
 .empleados-page h1 {
@@ -14,195 +31,185 @@
   margin-bottom: 15px;
 }
 
-/* Estilos para el buscador actualizados */
 .buscador2 {
   display: flex;
   align-items: center;
-  gap: 10px; /* Usando gap para el espaciado entre el icono y el input */
-  background-color: var(--colorCaja);
-  padding: 10px;
-  border-radius: 30px; 
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Ocupa todo el ancho disponible */
-  height: 40px; /* Altura fija para el buscador */
-  margin-bottom: 20px; /* Espacio debajo del buscador */
-  max-width: 400px; /* Limita el ancho del buscador para un mejor diseño */
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
 .buscador2 input {
-  background: transparent;
-  border: none;
-  padding: 8px; /* Padding para el input */
-  font-size: 16px; /* Tamaño de fuente para el input */
-  outline: none;
-  flex-grow: 1; /* Permite que el input ocupe el espacio restante */
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
 }
 
-/* Nuevo estilo para la barra de herramientas si se usa */
 .empleados-toolbar {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
 }
 
-/* Contenedor que hará la tabla scrolleable */
-.empleados-table-scroll-container {
+.empleados-table thead th {
+  background-color: #cca8d8;
+  /* Color de fondo para el encabezado de los scrolls tanto de Calendario como Empleados*/
+  color: #555;
+  font-weight: bold;
+  padding: 12px 20px;
+  /* Mantener un padding más generoso para el encabezado */
+  position: sticky;
+  /* Hace que el encabezado sea "pegajoso" al hacer scroll */
+  top: 0;
+  z-index: 2;
+  /* Asegura que el encabezado esté por encima del contenido al hacer scroll */
+}
+
+/*.empleados-table-scroll-container {
   max-height: calc(100vh - 250px);
-  overflow-y: auto;               /* Habilita el scroll vertical si el contenido excede la altura máxima */
+  overflow-y: auto;
+  /* Habilita el scroll vertical si el contenido excede la altura máxima *
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  background-color: var(--colorCaja);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  flex-grow: 1; /* Permite que el contenedor ocupe el espacio restante verticalmente */
-}
+  flex-grow: 1;
+  /* Permite que el contenedor ocupe el espacio restante verticalmente *
+  background-color: #cca8d8 ;
+}*/
+
 
 .empleados-table {
   width: 100%;
-  border-collapse: collapse; /* Elimina el espacio entre los bordes de las celdas */
-  table-layout: fixed; /* Ayuda a que las columnas tengan anchos fijos */
+  border-collapse: collapse;
+  /* Elimina el espacio entre los bordes de las celdas */
+  table-layout: fixed;
+  /* Ayuda a que las columnas tengan anchos fijos */
 }
 
-/* Estilos para las celdas de la tabla actualizados */
-.empleados-table th, .empleados-table td {
-  background-color: #ffffff;
-  padding: 2px; /* Padding actualizado a 2px */
+.empleados-table th,
+.empleados-table td {
+  background-color: #fff;
+  padding: 10px;
   text-align: left;
-  /* Mantener el border-bottom para th para la línea divisoria */
-  border-bottom: 2px solid #e0e0e0; /* Para th */
+  border-bottom: 1px solid #eee;
+  word-wrap: break-word;
+  /* Permite que el texto largo se divida en varias líneas */
+  white-space: normal;
+  /* Permite que el texto se ajuste al ancho de la celda */
 }
 
 .empleados-table thead th {
-  background-color: #cca8d8 ; /* Color de fondo para el encabezado de los scrolls tanto de Calendario como Empleados*/
-  color: #555;
-  font-weight: bold;
-  padding: 12px 20px; /* Mantener un padding más generoso para el encabezado */
-  position: sticky; /* Hace que el encabezado sea "pegajoso" al hacer scroll */
+  background-color: #cca8d8;
+  position: sticky;
   top: 0;
-  z-index: 2; /* Asegura que el encabezado esté por encima del contenido al hacer scroll */
+  z-index: 2;
 }
 
-.empleados-table tbody tr {
-  border-bottom: 1px solid #eee;
-}
-
-.empleados-table tbody tr:last-child {
-  border-bottom: none; /* No hay borde en la última fila */
-}
-
-.empleados-table tbody tr:hover td {
-  background-color: #f0f0f0; /* Efecto hover para las filas */
-  color: #ffffff; /* Cambia el color del texto al blanco */
-}
-
-/* Estilos para el contenedor del nombre del empleado actualizados */
 .nombreEmpleado {
   display: flex;
   align-items: center;
-  gap: 12px; /* Espaciado entre la foto y la info del empleado */
+  gap: 12px;
 }
 
-/* Renombrado de .empleado-avatar a .fotoEmpleado */
 .fotoEmpleado {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid #ddd; /* Pequeño borde para el avatar */
 }
 
-/* Estilos para el contenedor de información del empleado actualizados */
 .infoEmpleado {
   display: flex;
   flex-direction: column;
-  width: 100%; /* Ocupa todo el ancho disponible */
 }
 
-/* Nuevo estilo para filaDato si se usa */
-.filaDato {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
 
-/* Estilos para nombreApellido */
 .nombreApellido {
   font-weight: bold;
-  color: #333; /* Asegura que el color sea visible */
 }
 
-/* Estilos para fechaIngreso actualizados */
 .fechaIngreso {
-  font-size: 1em; /* Tamaño de fuente actualizado */
-  color: #777; /* Color actualizado */
-  white-space: nowrap; /* Evita que la fecha se divida en varias líneas */
-  margin-left: 18px;
+  font-size: 0.9em;
+  color: #666;
 }
 
-/* Estilos para empleadoEmail actualizados */
 .empleadoEmail {
-  font-size: 0.9em; /* Tamaño de fuente actualizado */
-  color: #555; /* Color actualizado */
+  font-size: 0.85em;
+  color: #999;
 }
 
-.loading-message, .error-message, .no-results {
+.loading-message,
+.error-message,
+.no-results {
   text-align: center;
   padding: 20px;
-  color: #666;
   font-style: italic;
 }
 
 .error-message {
-  color: #d9534f; /* Color rojo para mensajes de error */
+  color: #d9534f;
   font-weight: bold;
 }
 
-/* Responsive adjustments */
+.empleados-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .empleados-page {
-    margin: 10px;
+    font-size: 14px;
     padding: 15px;
-  }
-
-  .empleados-page h1 {
-    font-size: 1.8em;
   }
 
   .buscador2 {
     max-width: 100%;
   }
 
-  .empleados-table-scroll-container {
-    max-height: calc(100vh - 200px); /* Ajusta para pantallas más pequeñas */
-  }
-
-  .empleados-table th, .empleados-table td {
-    padding: 10px 15px;
-  }
-
-  .fotoEmpleado { /* Usar el nuevo nombre de clase */
+  .fotoEmpleado {
     width: 35px;
     height: 35px;
   }
 
-  .infoEmpleado span:first-child {
-    font-size: 0.9em;
+  .empleadoEmail,
+  .fechaIngreso {
+    font-size: 0.75em;
   }
 
-  .empleadoEmail, .fechaIngreso {
+  .empleados-table-scroll-container {
+    overflow-x: auto;
+  }
+
+  .empleados-table-scroll-container::-webkit-scrollbar {
+  width: 0px;
+  /* Oculta la barra de desplazamiento */
+  background: transparent;
+}
+
+  /* Ocultamos solo la segunda columna (fecha) en mobile */
+  .empleados-table thead th:nth-child(2),
+  .empleados-table td:nth-child(2) {
+    display: none;
+  }
+
+  .infoEmpleado::after {
+    content: "Fecha de ingreso: " attr(data-fecha);
+    display: block;
+    margin-top: 6px;
     font-size: 0.8em;
+    font-family: var(--fonts);
+    font-style: italic;
+    font-weight: 400;
+    color: #666;
   }
 }
+
 
 @media (max-width: 480px) {
   .empleados-page h1 {
     font-size: 1.5em;
-  }
-
-  .empleados-table-scroll-container {
-    max-height: calc(100vh - 180px); /* Ajusta aún más para móviles */
-  }
-
-  .empleados-table th, .empleados-table td {
-    padding: 8px 10px;
   }
 }

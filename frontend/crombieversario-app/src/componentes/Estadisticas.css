@@ -26,3 +26,14 @@
   width: 100%;
   height: 100%;
 }
+
+.titulo-torta {
+  padding-left: 90px; /* Ajustá según necesidad */
+}
+
+.recharts-legend-wrapper {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  margin-top: 10px;
+}

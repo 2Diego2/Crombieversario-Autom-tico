@@ -53,7 +53,6 @@ function DashboardContent({ onLogout, userEmail, userRole }) {
   // Determinar si estamos en la ruta raíz del dashboard
   const isDashboardRoot = location.pathname === '/dashboard';
 
-
   return (
     <div className="background">
       <div className="parent">
@@ -116,6 +115,7 @@ function DashboardContent({ onLogout, userEmail, userRole }) {
 
             <div className="div4">
               <h2>Próximos eventos (7 Días)</h2>
+              <div className='eventos-scroll'>
               {upcomingEvents.length > 0 ? (
                 upcomingEvents.map(event => (
                   <div className="perfil-info2" key={event.id}>
@@ -133,9 +133,11 @@ function DashboardContent({ onLogout, userEmail, userRole }) {
                     </div>
                   </div>
                 ))
+                
               ) : (
                 <p>No hay eventos próximos en los siguientes 7 días.</p>
               )}
+            </div>
             </div>
 
             <div className="div5">
