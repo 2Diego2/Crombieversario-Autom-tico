@@ -200,9 +200,9 @@ async function updateConfig(messageTemplate, imagePaths) {
     }
 }
 
-async function recordFailedEmail(email, years, errorMessage) {
+async function recordFailedEmail(nombre, apellido, email, years, errorMessage) {
     try {
-        const newFailedLog = new FailedEmailLog({ email, years, errorMessage });
+        const newFailedLog = new FailedEmailLog({ nombre, apellido, email, years, errorMessage });
         await newFailedLog.save();
         console.error(`Log de envío fallido registrado en DB para ${email} (${years} años): ${errorMessage}`);
     } catch (error) {

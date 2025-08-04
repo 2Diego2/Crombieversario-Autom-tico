@@ -108,7 +108,7 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
     );
 
     // 6. Registrar los envios fallidos
-    await recordFailedEmail(empleado.mail, empleado.nroAniversario, error.message);
+    await recordFailedEmail(empleado.nombre, empleado.apellido, empleado.mail, empleado.nroAniversario, error.message);
   }
 });
 
