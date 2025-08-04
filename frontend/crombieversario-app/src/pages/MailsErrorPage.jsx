@@ -65,18 +65,22 @@ const MailsErrorPage = () => {
           </thead>
           <tbody>
             {/* Mapeamos directamente sobre el estado */}
-            {mailsConError.map((mail) => (
-              <tr key={mail._id}>
-                <td>{mail.email}</td>
-                <td>{mail.years}</td>
+            {mailsConError.map((email) => (
+              <tr key={email._id}>
+                <td>{email.email}</td>
+                <td>{email.years}</td>
                 <td>
-                  {mail.attemptDate
-                    ? new Date(mail.attemptDate).toLocaleString('es-ES')
-                    : '—'}
+                  {new Date(email.sentDate).toLocaleString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
                 </td>
-                <td>{mail.enviado ? 'Sí ✅' : 'No ❌'}</td>
+                <td>{email.enviado ? 'Sí ✅' : 'No ❌'}</td>
                 {/* Puedes mostrar el mensaje de error si quieres */}
-                <td>{mail.errorMessage || 'No especificado'}</td>
+                <td>{email.errorMessage || 'No especificado'}</td>
               </tr>
             ))}
           </tbody>

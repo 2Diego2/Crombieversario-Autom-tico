@@ -55,7 +55,7 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
   }
 
   // 2. Generar el mensaje del correo (de la base de datos)
-  const mensajeHtml = await MensajeMail(empleado.nombre, empleado.nroAniversario); // Adjust MensajeMail to take nroAniversario
+  const mensajeHtml = await MensajeMail(empleado.nombre, empleado.nroAniversario, empleado.email); // Adjust MensajeMail to take nroAniversario
 
   // 3. Preparar los adjuntos de las imágenes (de la base de datos)
   let attachments = [];
@@ -115,7 +115,7 @@ console.log(`[DEBUG PATH] Intentando leer imagen desde esta ruta: "${physicalIma
 });
 
 // --- Función Principal de Ejecución ---
-cron.schedule(  "44 11 * * 1-5", async () => {
+cron.schedule(  "18 11 * * 1-5", async () => {
     // Conectar a la base de datos
     await connectDB();
     console.log("Base de datos conectada para la ejecución principal.");

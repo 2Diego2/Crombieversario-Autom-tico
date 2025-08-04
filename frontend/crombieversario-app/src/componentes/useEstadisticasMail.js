@@ -4,13 +4,11 @@ import { useState, useEffect } from 'react';
 const useEstadisticasMail = () => {
   const [EstadisticasAnuales, setEstadisticasAnuales] = useState([]); // Datos para el gráfico de líneas
   const [DataTortaAnioActual, setDataTortaAnioActual] = useState([]); // Datos para el gráfico de torta del año actual
-  const [loading, setLoading] = useState(true); // Estado de carga
-  const [error, setError] = useState(null); // Estado de error
+  const [loadingg, setLoading] = useState(true); // Estado de carga
+  const [errorr, setError] = useState(null); // Estado de error
 
   // Obtenemos el año actual dinámicamente
   const ANIO_ACTUAL = new Date().getFullYear();
-  /*const mes = date.getMonth() + 1; // Mes (0-11, por eso se suma 1)
-  const dia = date.getDate(); // Día del mes*/
 
   useEffect(() => {
     const fetchEmailStats = async () => {
@@ -74,7 +72,7 @@ const useEstadisticasMail = () => {
   }, []); // El array vacío asegura que se ejecute una sola vez al montar el componente
 
   // El custom hook devuelve los estados y datos que el componente necesitará
-  return { EstadisticasAnuales, DataTortaAnioActual, loading, error, ANIO_ACTUAL };
+  return { EstadisticasAnuales, DataTortaAnioActual, loadingg, errorr, ANIO_ACTUAL };
 };
 
 export default useEstadisticasMail;

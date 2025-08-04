@@ -2,7 +2,7 @@
 require('dotenv').config();
 const express = require('express');
 const crypto = require("crypto");
-const { connectDB, getConfig, updateConfig, SentLog , recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats , getLast7DaysTotals ,FailedEmailLog} = require('./db');
+const { connectDB, getConfig, updateConfig, SentLog , FailedEmailLog , recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats , getLast7DaysTotals} = require('./db');
 const updateEnvFile = require('./utils/saveEnv');
 const multer = require('multer'); // Importa multer
 const fs = require('fs'); // Para manejar archivos (eliminar)
@@ -109,14 +109,15 @@ app.get('/api/aniversarios-enviados', requireApiKey, async (req, res) => {
     try {
         // Busca solo los que tengan enviado: true
         const enviados = await SentLog.find({ enviado: true });
-        res.json(enviados);
+        const enviadosOrdenados = enviados.sort((a, b) => new Date(b.sentDate) - new Date(a.sentDate));
+
+        res.json(enviadosOrdenados);
     } catch (error) {
         console.error('Error al obtener aniversarios enviados:', error);
         res.status(500).json({ error: 'Error al obtener aniversarios enviados.' });
     }
 });
-
-app.get('/api/aniversarios-error', requireApiKey, async (req, res) => {
+/*app.get('/api/aniversarios-error', requireApiKey, async (req, res) => {
     try {
         // MODIFICACIÓN: La consulta ahora busca registros nuevos y antiguos.
         const fallos = await FailedEmailLog.find({
@@ -125,9 +126,10 @@ app.get('/api/aniversarios-error', requireApiKey, async (req, res) => {
                 { status: { $exists: false } }
             ]
         });
-
+        
+        const fallosOrdenados = fallos.sort((a, b) => new Date(b.attemptDate) - new Date(a.attemptDate));
         // El resto del código para formatear la respuesta se mantiene igual.
-        const formattedFallos = fallos.map(fallo => ({
+        const formattedFallos = fallosOrdenados.map(fallo => ({
             _id: fallo._id, // Es buena práctica pasar el ID para el 'key' de React
             nombre: 'N/A',
             apellido: 'N/A',
@@ -139,6 +141,38 @@ app.get('/api/aniversarios-error', requireApiKey, async (req, res) => {
             errorMessage: fallo.errorMessage
         }));
         res.json(formattedFallos);
+            // Ordenar desde el más reciente al más antiguo
+
+    } catch (error) {
+        console.error('Error al obtener aniversarios con error:', error);
+        res.status(500).json({ error: 'Error al obtener los registros de error.' });
+    }
+}); */
+app.get('/api/aniversarios-error', requireApiKey, async (req, res) => {
+    try {
+        // MODIFICACIÓN: La consulta ahora busca registros nuevos y antiguos.
+        const fallos = await FailedEmailLog.find({
+            $or: [
+                { status: 'failed' },
+                { status: { $exists: false } }
+            ]
+        });
+        
+        const fallosOrdenados = fallos.sort((a, b) => new Date(b.attemptDate) - new Date(a.attemptDate));
+        // El resto del código para formatear la respuesta se mantiene igual.
+        const formattedFallos = fallosOrdenados.map(fallo => ({
+            _id: fallo._id, // Es buena práctica pasar el ID para el 'key' de React
+            nombre: 'N/A',
+            apellido: 'N/A',
+            email: fallo.email,
+            years: fallo.years,
+            enviado: false,
+            opened: false,
+            sentDate: fallo.attemptDate,
+            errorMessage: fallo.errorMessage
+        }));
+        res.json(formattedFallos);
+
     } catch (error) {
         console.error('Error al obtener aniversarios con error:', error);
         res.status(500).json({ error: 'Error al obtener los registros de error.' });
@@ -304,6 +338,47 @@ app.delete('/api/delete-image', async (req, res) => {
 app.use((req, res, next) => { // This catch-all should be at the very end
     console.log(`❌ 404 Not Found: Request to ${req.method} ${req.originalUrl} did not match any routes.`);
     res.status(404).json({ error: 'Endpoint no encontrado.' });
+});
+
+// Nuevo endpoint para el pixel de seguimiento (no necesita autenticación)
+app.get('/track/:email/:anniversaryNumber', async (req, res) => {
+    const { email, anniversaryNumber } = req.params;
+
+    // Decodifica el email y el número de aniversario si están codificados en la URL
+    const decodedEmail = decodeURIComponent(email);
+    const decodedAnniversaryNumber = parseInt(anniversaryNumber);
+
+    console.log(`Pixel de seguimiento activado para: ${decodedEmail}, Aniversario: ${decodedAnniversaryNumber}`);
+
+    try {
+        // Registra la apertura en la base de datos (puedes crear una nueva colección o añadir un campo a SentLog)
+        // Aquí, por simplicidad, vamos a actualizar el log de envío existente o crear uno si no lo hay.
+        // Una forma más robusta sería una nueva colección 'EmailOpens'
+        await recordEmailOpen(decodedEmail, decodedAnniversaryNumber);
+
+        // Sirve un GIF transparente de 1x1 pixel
+        const pixel = Buffer.from(
+            'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+            'base64'
+        );
+        res.writeHead(200, {
+            'Content-Type': 'image/gif',
+            'Content-Length': pixel.length,
+        });
+        res.end(pixel);
+    } catch (error) {
+        console.error('Error al registrar apertura de email:', error);
+        // Si hay un error, aún así sirve el pixel para no romper la visualización del correo
+        const pixel = Buffer.from(
+            'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+            'base64'
+        );
+        res.writeHead(200, {
+            'Content-Type': 'image/gif',
+            'Content-Length': pixel.length,
+        });
+        res.end(pixel);
+    }
 });
 
 (async () => {

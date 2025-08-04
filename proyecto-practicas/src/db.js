@@ -191,41 +191,55 @@ async function updateFailedEmailStatus(logId, newStatus) {
     }
 }
 
+
+// db.js - Versión para depuración
+
 async function recordEmailOpen(email, years) {
+    console.log('--- Iniciando recordEmailOpen ---');
+    console.log(`Recibido: email=${email}, tipo=${typeof email}`);
+    console.log(`Recibido: years=${years}, tipo=${typeof years}`);
+
+    const numericYears = parseInt(years);
+    if (isNaN(numericYears)) {
+        console.error('ERROR: "years" no es un número válido. Saliendo.');
+        return;
+    }
+
+    const query = {
+        email: email,
+        years: numericYears,
+        opened: false
+    };
+
+    console.log('Ejecutando findOneAndUpdate con la siguiente consulta:', query);
+
     try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Establecer a la medianoche de hoy
-
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1); // Medianoche de mañana
-
-        // Encuentra el log de envío más reciente para hoy y actualízalo
         const updatedLog = await SentLog.findOneAndUpdate(
-            {
-                email: email,
-                years: years,
-                sentDate: {
-                    $gte: today,
-                    $lt: tomorrow
-                },
-                opened: false // Solo actualiza si no ha sido marcado como abierto
-            },
+            query,
             {
                 $set: {
                     opened: true,
-                    openedAt: Date.now()
+                    openedAt: new Date()
                 }
             },
-            { new: true } // Devuelve el documento actualizado
+            {
+                new: true,
+                sort: { sentDate: -1 }
+            }
         );
 
         if (updatedLog) {
-            console.log(`Apertura de email registrada en DB para ${email} (${years} años).`);
+            console.log('✅ ÉXITO: Documento actualizado en la BD:', updatedLog);
         } else {
-            console.warn(`No se encontró un log de envío pendiente de apertura para ${email} (${years} años) o ya estaba marcado como abierto.`);
+            console.warn('⚠️ ADVERTENCIA: No se encontró ningún documento que coincida con la consulta. Verifique los datos en la colección "sentlogs".');
+            // Como extra, busca si ya fue abierto
+            const alreadyOpened = await SentLog.findOne({ email: email, years: numericYears, opened: true }).sort({ sentDate: -1 });
+            if (alreadyOpened) {
+                console.log('INFO: Se encontró un registro que ya estaba marcado como abierto.');
+            }
         }
     } catch (error) {
-        console.error(`Error al registrar apertura de email para ${email}: ${error.message}`);
+        console.error(`❌ ERROR GRAVE al ejecutar la consulta en la BD: ${error.message}`);
     }
 }
 
@@ -257,9 +271,9 @@ async function getYearlyEmailStats() {
                     opened: 1 // Incluye el conteo de abiertos
                 }
             },
-            {
+            /*{
                 $sort: { year: 1 } // Ordena los resultados por año ascendente
-            }
+            }*/
         ]);
         console.log('Estadísticas anuales de email obtenidas:', stats);
         return stats;
@@ -311,9 +325,9 @@ async function getMonthlyEmailStats() {
         }
       },
       // 4) Ordena por año y mes ascendente
-      {
+      /*{
         $sort: { year: 1, month: 1 }
-      }
+      }*/
     ]);
 
     console.log('Estadísticas mensuales de email obtenidas:', stats);
@@ -326,58 +340,45 @@ async function getMonthlyEmailStats() {
 
 async function getLast7DaysTotals() {
   try {
+    const end   = new Date();                // ahora
+    const start = new Date(end);            
+    start.setDate(end.getDate() - 6);        // hace 6 días, para cubrir 7 jornadas (incluye hoy)
+
     const stats = await SentLog.aggregate([
-      // 1) Selecciona sólo documentos con sentDate válido
       {
         $match: {
-          sentDate: { $exists: true, $type: "date" }
+          sentDate: { $gte: start, $lte: end }
         }
       },
-      // 2) Agrupa por año y mes del sentDate
       {
         $group: {
-          _id: {
-            year:  { $year:  "$sentDate" },
-            month: { $month: "$sentDate" },
-            day: {$day: "$sentDate"}
+          _id: null,
+          sent: {
+            $sum: 1
           },
-          sent:   { $sum: 1 },
           opened: {
-            $sum: {
-              $cond: [{ $eq: ["$opened", true] }, 1, 0]
-            }
+            $sum: { $cond: [{ $eq: ["$opened", true] }, 1, 0] }
           },
           unread: {
-            // Cuenta los no leídos: opened === false
-            $sum: {
-              $cond: [{ $eq: ["$opened", false] }, 1, 0]
-            }
+            $sum: { $cond: [{ $eq: ["$opened", false] }, 1, 0] }
           }
         }
       },
-      // 3) Proyecta los campos que te interesan
       {
         $project: {
-          _id:    0,
-          year:   "$_id.year",
-          month:  "$_id.month",
-          day: "$_id.day",
-          sent:   1,
+          _id: 0,
+          sent: 1,
           opened: 1,
           unread: 1
         }
-      },
-      // 4) Ordena por año, mes y dia  ascendente
-      {
-        $sort: { year: 1, month: 1 , day : 1}
       }
     ]);
-
-    console.log('Estadísticas de los ultimos 7 dias obtenidas:', stats);
-    return stats;
-  } catch (error) {
-    console.error('Error al obtener estadísticas de la ultima semana:', error.message);
-    throw error;
+    
+    console.log('Estadísticas de la semana obtenidas:', stats);
+    return stats[0] || { sent: 0, opened: 0, unread: 0 };
+  } catch (err) {
+    console.error("Error al obtener totales últimos 7 días:", err);
+    throw err;
   }
 }
 

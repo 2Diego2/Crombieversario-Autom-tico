@@ -15,11 +15,11 @@ const MailsEnviadosPage = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${API_BASE_URL}/api/aniversarios-enviados`, {
+        const resp = await fetch(`${API_BASE_URL}/api/aniversarios-enviados`, {
           headers: { 'x-api-key': localApiKey }
         });
-        if (!response.ok) throw new Error('Error al obtener mails enviados');
-        const data = await response.json();
+        if (!resp.ok) throw new Error(`Error ${resp.status} al obtener mails`);
+        const data = await resp.json();
         setMails(data);
       } catch (err) {
         setError(err.message);
@@ -32,37 +32,46 @@ const MailsEnviadosPage = () => {
   }, [API_BASE_URL, localApiKey]);
 
   return (
-    <div className = "MailsEnviados">
-      <h2 className="mails">Mails enviados</h2>
+    <div className="MailsEnviadosPage">
+      <h1>Mails Enviados</h1>
+
       {loading ? (
-        <p>Cargando...</p>
+        <p>Cargando mails enviados...</p>
       ) : error ? (
-        <p style={{ color: 'red' }}>{error}</p>
+        <p className="error">Error: {error}</p>
       ) : mails.length === 0 ? (
         <p>No hay mails enviados.</p>
       ) : (
-        <table class="tablaMails">
+        <table className="tablaMails">
           <thead>
             <tr>
-             <th>Nombre</th>
-             <th>Apellido</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
               <th>Email</th>
-               <th>Leido</th>
+              <th>Leído</th>
               <th>Enviado</th>
-             <th>Años de Aniversario</th> {/* Add this column to show years */}
-             <th>Fecha de envío</th>
+              <th>Años de Aniversario</th>
+              <th>Fecha de envío</th>
             </tr>
           </thead>
           <tbody>
-            {mails.map((mail, idx) => (
-              <tr key={mail._id || idx}>
-                <td>{mail.nombre}</td>
-                <td>{mail.apellido}</td>
-                <td>{mail.email}</td> 
-                <td>{mail.opened ? 'Si ✅' : 'No ❌'}</td>  
-                <td>{mail.enviado ? 'Sí ✅' : 'No ❌'}</td> 
-                <td>{mail.years}</td> 
-                <td>{new Date(mail.sentDate).toLocaleString('es-ES')}</td> {/* Corrected: Use mail.sentDate */}
+            {mails.map((email, idx) => (
+              <tr key={email._id || idx}>
+                <td>{email.nombre}</td>
+                <td>{email.apellido}</td>
+                <td>{email.email}</td>
+                <td>{email.opened ? 'Sí ✅' : 'No ❌'}</td>
+                <td>{email.enviado ? 'Sí ✅' : 'No ❌'}</td>
+                <td>{email.years}</td>
+                <td>
+                  {new Date(email.sentDate).toLocaleString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </td>
               </tr>
             ))}
           </tbody>

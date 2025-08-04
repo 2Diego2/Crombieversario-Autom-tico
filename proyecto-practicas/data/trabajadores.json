@@ -7,13 +7,21 @@
     "imagen": "sukuna.jpg",
     "email": "ais.com"
   },
+   {
+    "nombre": "Prueba7",
+    "apellido": "Abelleyra",
+    "fechaEntrada": "2024-08-07",
+    "cumpleanios": "1990-08-27",
+    "imagen": "sukuna.jpg",
+    "email": "diegoabelleyra74@gmail.com"
+  },
   {
     "nombre": "Ana",
     "apellido": "García",
     "fechaEntrada": "2024-07-25",
     "cumpleanios": "1985-12-05",
     "imagen": "sukuna.jpg",
-    "email": "gmail.com"
+    "email": "anagar@gmail.com"
   },
   {
     "nombre": "Juan",
@@ -214,5 +222,125 @@
     "cumpleanios": "1985-08-29",
     "imagen": "sukuna.jpg",
     "email": "com"
+  },
+   {
+    "nombre": "Lucía",
+    "apellido": "Silva",
+    "fechaEntrada": "2023-03-01",
+    "cumpleanios": "1991-04-11",
+    "imagen": "sukuna.jpg",
+    "email": "lucia.silva@gmail.com"
+  },
+  {
+    "nombre": "Tomás",
+    "apellido": "Alonso",
+    "fechaEntrada": "2022-10-30",
+    "cumpleanios": "1990-12-01",
+    "imagen": "sukuna.jpg",
+    "email": "tomas.alonso@gmail.com"
+  },
+  {
+    "nombre": "Camila",
+    "apellido": "Navarro",
+    "fechaEntrada": "2020-05-18",
+    "cumpleanios": "1994-02-09",
+    "imagen": "sukuna.jpg",
+    "email": "camila.navarro@gmail.com"
+  },
+  {
+    "nombre": "Hernán",
+    "apellido": "Peña",
+    "fechaEntrada": "2019-07-22",
+    "cumpleanios": "1986-11-06",
+    "imagen": "sukuna.jpg",
+    "email": "hernan.pena@gmail.com"
+  },
+  {
+    "nombre": "Paula",
+    "apellido": "Cabrera",
+    "fechaEntrada": "2021-01-03",
+    "cumpleanios": "1993-10-19",
+    "imagen": "sukuna.jpg",
+    "email": "paula.cabrera@gmail.com"
+  },
+  {
+    "nombre": "Agustín",
+    "apellido": "Ibarra",
+    "fechaEntrada": "2018-04-11",
+    "cumpleanios": "1989-03-02",
+    "imagen": "sukuna.jpg",
+    "email": "agustin.ibarra@gmail.com"
+  },
+  {
+    "nombre": "Florencia",
+    "apellido": "Molina",
+    "fechaEntrada": "2023-08-09",
+    "cumpleanios": "1995-05-29",
+    "imagen": "sukuna.jpg",
+    "email": "florencia.molina@gmail.com"
+  },
+  {
+    "nombre": "Ramiro",
+    "apellido": "Suárez",
+    "fechaEntrada": "2022-02-17",
+    "cumpleanios": "1987-07-04",
+    "imagen": "sukuna.jpg",
+    "email": "ramiro.suarez@gmail.com"
+  },
+  {
+    "nombre": "Verónica",
+    "apellido": "Carrizo",
+    "fechaEntrada": "2021-09-01",
+    "cumpleanios": "1990-06-11",
+    "imagen": "sukuna.jpg",
+    "email": "veronica.carrizo@gmail.com"
+  },
+  {
+    "nombre": "Matías",
+    "apellido": "Sosa",
+    "fechaEntrada": "2019-11-19",
+    "cumpleanios": "1988-02-20",
+    "imagen": "sukuna.jpg",
+    "email": "matias.sosa@gmail.com"
+  },
+  {
+    "nombre": "Julieta",
+    "apellido": "Paz",
+    "fechaEntrada": "2020-07-07",
+    "cumpleanios": "1991-09-25",
+    "imagen": "sukuna.jpg",
+    "email": "julieta.paz@gmail.com"
+  },
+  {
+    "nombre": "Esteban",
+    "apellido": "Domínguez",
+    "fechaEntrada": "2022-05-12",
+    "cumpleanios": "1985-12-17",
+    "imagen": "sukuna.jpg",
+    "email": "esteban.dominguez@gmail.com"
+  },
+  {
+    "nombre": "Claudia",
+    "apellido": "Reyes",
+    "fechaEntrada": "2018-06-06",
+    "cumpleanios": "1992-03-30",
+    "imagen": "sukuna.jpg",
+    "email": "claudia.reyes@gmail.com"
+  },
+  {
+    "nombre": "Mauricio",
+    "apellido": "Benítez",
+    "fechaEntrada": "2020-02-24",
+    "cumpleanios": "1986-08-10",
+    "imagen": "sukuna.jpg",
+    "email": "mauricio.benitez@gmail.com"
+  },
+  {
+    "nombre": "Daniela",
+    "apellido": "Muñoz",
+    "fechaEntrada": "2023-12-04",
+    "cumpleanios": "1993-01-14",
+    "imagen": "sukuna.jpg",
+    "email": "daniela.munoz@gmail.com"
   }
   ]

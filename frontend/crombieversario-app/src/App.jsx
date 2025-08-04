@@ -29,6 +29,9 @@ function App() {
   const { config, loading, error, localApiKey } = useConfig();
   const { upcomingEvents } = useUpcomingEvents();
 
+
+
+
   if (loading) {
     return <div>Cargando configuración...</div>;
   }
@@ -40,6 +43,9 @@ function App() {
   console.log("API Key disponible en App:", localApiKey); // Para verificar que la API Key llega aquí también
 
 
+
+
+  
   return (
     <div className="background">
     <div className="parent">
@@ -88,7 +94,7 @@ function App() {
       {isDashboard ? (
         <>
           <div className="div2">
-           <h2>Estadísticas</h2>
+            
            <Estadisticas />
           </div>
 
