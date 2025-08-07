@@ -1,72 +1,84 @@
 // server.js
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const express = require('express');
 const crypto = require("crypto");
-const { connectDB, getConfig, updateConfig, SentLog , FailedEmailLog , recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats , getLast7DaysTotals} = require('./db');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const updateEnvFile = require('./utils/saveEnv');
-const multer = require('multer'); // Importa multer
-const fs = require('fs'); // Para manejar archivos (eliminar)
-const path = require('path'); // Para manejar rutas de archivos
-const mongoUri = process.env.MONGO_URI;
-const mongoose = require('mongoose');
+const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, User, recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats, getLast7DaysTotals, findUserByEmail, createUser, updateUserRole } = require('./db'); 
+const multer = require('multer');
+const fs = require('fs');
 
-
-const cors = require('cors');
-const PORT = process.env.PORT || 3033; // Usa la variable de entorno para el puerto
-const aniversarioSchema = new mongoose.Schema({}, { strict: false, collection: 'aniversarios' });
-const Aniversario = mongoose.model('Aniversario', aniversarioSchema);
 const app = express();
-
-app.use(cors({
-  origin: '*' 
-}));
-
+const PORT = process.env.PORT || 3033;
 
 // --- Configuración de Multer para Subida de Archivos ---
 const UPLOADS_DIR = path.join(__dirname, '../public/uploads'); // Carpeta donde se guardarán las imágenes
-// Asegúrate de que la carpeta de uploads exista
 if (!fs.existsSync(UPLOADS_DIR)) {
     fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, UPLOADS_DIR); // Guarda los archivos en la carpeta UPLOADS_DIR
+        cb(null, UPLOADS_DIR);
     },
     filename: (req, file, cb) => {
-        // Genera un nombre de archivo único para evitar colisiones
-        cb(null, `${Date.now()}-${file.originalname}`);
+        const anniversaryNumber = req.params.anniversaryNumber; // Get from params
+        console.log('Multer Filename: anniversaryNumber recibido from req.params:', anniversaryNumber);
+
+        if (!anniversaryNumber || isNaN(parseInt(anniversaryNumber)) || parseInt(anniversaryNumber) <= 0) {
+            return cb(new Error(`Número de aniversario inválido o faltante. Recibido: '${anniversaryNumber}' (desde params)`), null);
+        }
+
+        const parsedAnniversaryNumber = parseInt(anniversaryNumber);
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (ext !== '.png') {
+            return cb(new Error('Solo se permiten imágenes PNG.'), null);
+        }
+
+        const fileName = `${parsedAnniversaryNumber}.png`;
+        const filePath = path.join(UPLOADS_DIR, fileName);
+
+        if (fs.existsSync(filePath)) {
+            // THIS IS THE ERROR YOU WANT TO CATCH AND SEND AS JSON
+            return cb(new Error(`Ya existe una imagen para el aniversario N° ${parsedAnniversaryNumber}. Por favor, elimínala primero.`), null);
+        }
+
+        console.log('Multer Filename: Nombre final del archivo:', fileName);
+        cb(null, fileName);
     }
 });
-const upload = multer({ storage: storage });
 
-// Middleware para parsear JSON en el cuerpo de las peticiones
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // Límite de 5MB
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'image/png') {
+            cb(null, true);
+        } else {
+            cb(new Error('Tipo de archivo no soportado. Solo se permiten PNGs.'), false);
+        }
+    }
+});
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // Para parsear cuerpos de petición URL-encoded (si fuera necesario)
+app.use(express.urlencoded({ extended: true }));
 
-// Middleware para habilitar CORS (Cross-Origin Resource Sharing)
-// Esto es CRÍTICO para que React pueda hacer peticiones a tu backend
+// Configuración CORS
 app.use((req, res, next) => {
-    // Permite peticiones desde cualquier origen (para desarrollo)
     res.header('Access-Control-Allow-Origin', '*');
-    // Permite los métodos HTTP que vas a usar
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    // Permite los headers que vas a usar (incluyendo x-api-key)
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
-    // Maneja peticiones OPTIONS (preflight requests)
+    res.header('Access-Control-Allow-Credentials', true); // Importante para cookies/sesiones si las usas
     if (req.method === 'OPTIONS') {
         return res.sendStatus(200);
     }
     next();
 });
 
-console.log('API_KEY cargada desde .env:', process.env.API_KEY); // Log para mostrar la API Key cargada
+console.log('API_KEY cargada desde .env:', process.env.API_KEY);
 
-// Middleware para servir archivos estáticos (¡CRÍTICO para las imágenes!)
-// Esto hará que los archivos en 'proyecto-practicas/public' sean accesibles vía URL
-app.use('/uploads', express.static(UPLOADS_DIR)); // Hace que /public/uploads sea accesible como /uploads en la URL
-
-// ... (tu lógica de generación de API Key) ...
 if (!process.env.API_KEY || process.env.API_KEY.trim() === '' || process.env.API_KEY.trim() === '(dir_name)') {
     const newApiKey = crypto.randomBytes(32).toString('hex');
     updateEnvFile('API_KEY', newApiKey);
@@ -76,7 +88,6 @@ if (!process.env.API_KEY || process.env.API_KEY.trim() === '' || process.env.API
     process.env.API_KEY = process.env.API_KEY.trim();
 }
 
-// Middleware solo para rutas protegidas
 function requireApiKey(req, res, next) {
     const apiKey = req.header('x-api-key');
     console.log('API Key recibida:', apiKey, '| API Key esperada:', process.env.API_KEY);
@@ -86,29 +97,264 @@ function requireApiKey(req, res, next) {
     next();
 }
 
+const JWT_SECRET = process.env.JWT_SECRET ;
+
+// Dominio permitido para los correos (¡AHORA DESCOMENTADO Y EN UNA POSICIÓN CORRECTA!)
+// const ALLOWED_EMAIL_DOMAIN = '@crombie.dev'; 
+
+// Definición de Roles
+const ROLES = {
+    SUPER_ADMIN: 'super_admin',
+    STAFF: 'staff'
+};
+
+// Middleware para verificar JWT (nuevo)
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Formato: Bearer TOKEN
+
+    if (token == null) {
+        return res.status(401).json({ message: 'Acceso denegado: Token no proporcionado.' });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            console.error('Error al verificar token:', err.message);
+            // Distingue entre token expirado y otros errores
+            if (err.name === 'TokenExpiredError') {
+                return res.status(403).json({ message: 'Acceso denegado: Token expirado.' });
+            }
+            return res.status(403).json({ message: 'Acceso denegado: Token inválido.' });
+        }
+        req.user = user; // Almacena la información del usuario en el objeto de solicitud
+        next();
+    });
+}
+
+// Middleware de autorización
+function authorize(requiredRoles) { // Ahora acepta un array de roles
+    // Asegurarse de que requiredRoles sea un array
+    if (!Array.isArray(requiredRoles)) {
+        requiredRoles = [requiredRoles];
+    }
+
+    return (req, res, next) => {
+        // req.user viene del middleware authenticateToken
+        if (!req.user || !req.user.role) {
+            return res.status(403).json({ message: 'Acceso denegado: Rol de usuario no definido.' });
+        }
+
+        // Verificar si el rol del usuario está en la lista de roles requeridos
+        if (!requiredRoles.includes(req.user.role)) {
+            return res.status(403).json({ message: 'Acceso denegado: No tienes los permisos necesarios para esta acción.' });
+        }
+        next();
+    };
+}
+
+
+// --- Rutas de Autenticación ---
+
+// Ruta para el Login
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    // 1. Validar dominio del correo
+    // if (!email || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
+    //     return res.status(400).json({ message: `Dominio de correo no permitido o email faltante. Debe ser ${ALLOWED_EMAIL_DOMAIN}` });
+    // }
+
+    try {
+        // 2. Buscar usuario en la base de datos (usando la nueva función)
+        const user = await findUserByEmail(email);
+
+        if (!user) {
+            // Mensaje genérico por seguridad
+            return res.status(400).json({ message: 'Credenciales inválidas.' });
+        }
+
+        // 3. Comparar contraseña
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
+
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Credenciales inválidas.' });
+        }
+
+        
+        let finalProfileImageUrlForClient = user.profileImageUrl;
+        // Ensure the stored URL, when sent to the client, is absolute
+        if (finalProfileImageUrlForClient) {
+            if (!finalProfileImageUrlForClient.startsWith('/')) {
+                finalProfileImageUrlForClient = `/${finalProfileImageUrlForClient}`;
+            }
+        } else {
+            // If profileImageUrl is null or undefined from the DB, use the default absolute path
+            finalProfileImageUrlForClient = '/LogoSolo.jpg';
+        }
+
+        // 4. Generar Token JWT
+        const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '1h' }); // Token válido por 1 hora
+
+        res.json({ message: 'Login exitoso', token, user: {
+                id: user._id,
+                email: user.email,
+                role: user.role,
+                profileImageUrl: finalProfileImageUrlForClient // Send the absolute URL
+            }
+        });
+
+    } catch (error) {
+        console.error('Error en el proceso de login:', error);
+        res.status(500).json({ message: 'Error interno del servidor durante el login.' });
+    }
+});
+
+// Ruta inicial para crear el primer/segundo super_admin (¡USAR CON CUIDADO Y LUEGO PROTEGER/ELIMINAR!)
+// Puedes dejarla como '/api/register-admin' o renombrarla a algo más específico como '/api/initial-admin-setup'
+app.post('/api/register-admin', requireApiKey, async (req, res) => {
+    const { email, password } = req.body;
+    // Aquí no necesitas el campo 'role' en req.body, siempre será 'super_admin'
+    // para las cuentas iniciales que configurarán el sistema.
+
+    // if (!email || !password || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
+    //     return res.status(400).json({ message: 'Email, contraseña o dominio inválido.' });
+    // }
+
+    try {
+        const existingUser = await findUserByEmail(email);
+        if (existingUser) {
+            return res.status(409).json({ message: 'Este email ya está registrado.' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(password, salt);
+
+        // Siempre crea como 'super_admin' con esta ruta inicial
+        const newUser = await createUser(email, passwordHash, ROLES.SUPER_ADMIN);
+        res.status(201).json({ message: `Usuario ${ROLES.SUPER_ADMIN} creado exitosamente.`, userId: newUser._id });
+
+    } catch (error) {
+        console.error('Error al registrar usuario admin:', error);
+        res.status(500).json({ message: 'Error interno del servidor al registrar usuario.' });
+    }
+});
+
+// RUTA PARA QUE UN SUPER_ADMIN CREE OTROS USUARIOS (staff o super_admin)
+app.post('/api/users/create', authenticateToken, authorize(ROLES.SUPER_ADMIN), async (req, res) => {
+    const { email, password, role, profileImageUrl } = req.body;
+
+    // Validaciones: email, password, dominio
+    // if (!email || !password || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
+    //     return res.status(400).json({ message: 'Email, contraseña o dominio inválido.' });
+    // }
+
+    // Validar el rol que se intenta asignar
+    if (!Object.values(ROLES).includes(role)) { // Asegura que el rol sea uno de los definidos
+        return res.status(400).json({ message: 'Rol de usuario inválido.' });
+    }
+
+     try {
+        const existingUser = await findUserByEmail(email);
+        if (existingUser) {
+            return res.status(409).json({ message: 'Este email ya está registrado.' });
+        }
+        let finalProfileImageUrl;
+        if (profileImageUrl) {
+            finalProfileImageUrl = profileImageUrl.startsWith('/') ? profileImageUrl : `/${profileImageUrl}`;
+        } else {
+            finalProfileImageUrl = '/LogoSolo.jpg';
+        }
+        
+        const newUser = await createUser(email, password, role, finalProfileImageUrl);
+        res.status(201).json({ message: `Usuario ${role} creado exitosamente.`, userId: newUser._id });
+
+    } catch (error) {
+        console.error('Error al crear usuario:', error);
+        res.status(500).json({ message: 'Error interno del servidor al crear usuario.' });
+    }
+});
+
+app.put('/api/users/update-role-password', authenticateToken, authorize([ROLES.SUPER_ADMIN]), async (req, res) => {
+    const { email, newRole, newPassword } = req.body; // 'email' del usuario a modificar
+
+    if (!email) {
+        return res.status(400).json({ message: 'El correo electrónico del usuario es requerido.' });
+    }
+    if (!newRole && !newPassword) {
+        return res.status(400).json({ message: 'Se requiere al menos un nuevo rol o una nueva contraseña.' });
+    }
+
+    try {
+        const userToUpdate = await findUserByEmail(email);
+        if (!userToUpdate) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+
+        let roleToSet = userToUpdate.role;
+        // Validar el nuevo rol si se proporciona
+        if (newRole) {
+            if (!Object.values(ROLES).includes(newRole)) {
+                 return res.status(400).json({ message: `Rol inválido: ${newRole}. Roles permitidos: ${Object.values(ROLES).join(', ')}.` });
+            }
+            roleToSet = newRole;
+        }
+
+        // Llamada a la función updateUserRole con email, nuevo rol y nueva contraseña (si existe)
+        const updatedUser = await updateUserRole(email, roleToSet, newPassword);
+        if (updatedUser) {
+            res.status(200).json({ message: 'Usuario actualizado con éxito.', user: { email: updatedUser.email, role: updatedUser.role } });
+        } else {
+            res.status(404).json({ message: 'Usuario no encontrado o no se pudo actualizar.' });
+        }
+    } catch (error) {
+        console.error('Error al actualizar rol/contraseña de usuario:', error);
+        res.status(500).json({ message: 'Error interno del servidor al actualizar usuario.' });
+    }
+});
+
+// Middleware para servir archivos estáticos (MANTENEMOS TU RUTA ORIGINAL)
+app.use('/uploads', express.static(UPLOADS_DIR)); // Sigue sirviendo /public/uploads como /uploads
+app.use(express.static(path.join(__dirname, '../frontend/crombieversario-app/dist'))); // Servir archivos de la build de React
+app.use(express.static(path.join(__dirname, '../public')));
+
 // ENDPOINT para obtener trabajadores desde el archivo JSON local
-app.get('/trabajadores', (req, res) => {
+app.get('/trabajadores', async (req, res) => {
     const trabajadoresPath = path.join(__dirname, '../data/trabajadores.json');
-    fs.readFile(trabajadoresPath, 'utf-8', (err, data) => {
+    fs.readFile(trabajadoresPath, 'utf-8', async (err, data) => {
         if (err) {
             console.error('Error al leer trabajadores.json:', err);
             return res.status(500).json({ error: 'No se pudo leer el archivo de trabajadores.' });
         }
         try {
             const trabajadores = JSON.parse(data);
-            res.json(trabajadores);
+
+            // Obtener todos los usuarios del sistema de autenticación
+            // Asegúrate de que User esté importado correctamente
+            const users = await User.find({}, 'email role').lean();
+            const userRolesMap = new Map(users.map(u => [u.email, u.role]));
+
+            // Combinar datos de empleados con roles de usuario y añadir un 'id'
+            const empleadosConRoles = trabajadores.map(empleado => {
+                const role = userRolesMap.get(empleado.mail) || 'none';
+                return {
+                    ...empleado,
+                    id: empleado.mail, // <--- AÑADIDO: Usa el mail como ID único para React keys
+                    role
+                };
+            });
+
+            res.json(empleadosConRoles);
         } catch (parseErr) {
-            console.error('Error al parsear trabajadores.json:', parseErr);
-            res.status(500).json({ error: 'Error de formato en trabajadores.json.' });
+            console.error('Error al parsear trabajadores.json o combinar datos:', parseErr);
+            res.status(500).json({ error: 'Error de formato en trabajadores.json o al procesar datos de usuario.' });
         }
     });
 });
 
 //Endpoint para obtener los mails enviados desde la base de datos
-app.get('/api/aniversarios-enviados', requireApiKey, async (req, res) => {
+app.get('/api/aniversarios-enviados', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
     try {
-        // Busca solo los que tengan enviado: true
-        const enviados = await SentLog.find({ enviado: true });
+        const enviados = await SentLog.find({});
         const enviadosOrdenados = enviados.sort((a, b) => new Date(b.sentDate) - new Date(a.sentDate));
 
         res.json(enviadosOrdenados);
@@ -117,9 +363,8 @@ app.get('/api/aniversarios-enviados', requireApiKey, async (req, res) => {
         res.status(500).json({ error: 'Error al obtener aniversarios enviados.' });
     }
 });
-/*app.get('/api/aniversarios-error', requireApiKey, async (req, res) => {
+/*app.get('/api/aniversarios-error', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
     try {
-        // MODIFICACIÓN: La consulta ahora busca registros nuevos y antiguos.
         const fallos = await FailedEmailLog.find({
             $or: [
                 { status: 'failed' },
@@ -131,13 +376,11 @@ app.get('/api/aniversarios-enviados', requireApiKey, async (req, res) => {
         // El resto del código para formatear la respuesta se mantiene igual.
         const formattedFallos = fallosOrdenados.map(fallo => ({
             _id: fallo._id, // Es buena práctica pasar el ID para el 'key' de React
-            nombre: 'N/A',
-            apellido: 'N/A',
+            nombre: fallo.nombre,
+            apellido: fallo.apellido,
             email: fallo.email,
             years: fallo.years,
-            enviado: false,
-            opened: false,
-            sentDate: fallo.attemptDate,
+            sentDate: fallo.attemptDate, // Ahora es attemptDate
             errorMessage: fallo.errorMessage
         }));
         res.json(formattedFallos);
@@ -148,7 +391,7 @@ app.get('/api/aniversarios-enviados', requireApiKey, async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los registros de error.' });
     }
 }); */
-app.get('/api/aniversarios-error', requireApiKey, async (req, res) => {
+app.get('/api/aniversarios-error', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
     try {
         // MODIFICACIÓN: La consulta ahora busca registros nuevos y antiguos.
         const fallos = await FailedEmailLog.find({
@@ -162,12 +405,10 @@ app.get('/api/aniversarios-error', requireApiKey, async (req, res) => {
         // El resto del código para formatear la respuesta se mantiene igual.
         const formattedFallos = fallosOrdenados.map(fallo => ({
             _id: fallo._id, // Es buena práctica pasar el ID para el 'key' de React
-            nombre: 'N/A',
-            apellido: 'N/A',
+            nombre: fallo.nombre,
+            apellido: fallo.apellido,
             email: fallo.email,
             years: fallo.years,
-            enviado: false,
-            opened: false,
             sentDate: fallo.attemptDate,
             errorMessage: fallo.errorMessage
         }));
@@ -179,9 +420,8 @@ app.get('/api/aniversarios-error', requireApiKey, async (req, res) => {
     }
 });
 
-
-// NUEVOS ENDPOINTS para la configuración
-app.get('/api/config', requireApiKey, async (req, res) => {
+// ENDPOINTS para la configuración
+app.get('/api/config', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
     try {
         const config = await getConfig();
         res.json(config);
@@ -191,8 +431,7 @@ app.get('/api/config', requireApiKey, async (req, res) => {
     }
 });
 
-// Deja solo esta versión protegida del PUT
-app.put('/api/config', requireApiKey, async (req, res) => {
+app.put('/api/config', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
     const { messageTemplate, imagePaths } = req.body;
     if (messageTemplate === undefined) {
         return res.status(400).json({ error: 'messageTemplate es requerido.' });
@@ -204,140 +443,6 @@ app.put('/api/config', requireApiKey, async (req, res) => {
         console.error('Error al actualizar la configuración:', error);
         res.status(500).json({ error: 'Error al actualizar la configuración.' });
     }
-});
-
-app.get('/api/get-api-key', (req, res) => {
-    // Cuidado: Exponer la API_KEY así no es seguro en producción.
-    // Solo para propósitos de desarrollo/prueba.
-    res.json({ apiKey: process.env.API_KEY });
-});
-
-// ENDPOINT para SUBIR UNA NUEVA IMAGEN
-app.post('/api/upload-image', upload.single('image'), async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: 'No se ha subido ningún archivo.' });
-    }
-});
-
-console.log('--- Attempting to register /api/email-stats/yearly route ---');
-
-
-app.get('/api/email-stats/yearly', requireApiKey, async (req, res) => {
-    console.log('Recibida petición GET /api/email-stats/yearly');
-    try {
-        const stats = await getYearlyEmailStats();
-        res.json(stats);
-    } catch (error) {
-        console.error('Error en el endpoint /api/email-stats/yearly:', error);
-        res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
-    }
-});
-console.log('--- Successfully registered /api/email-stats/yearly route ---');
-
-
-console.log('--- Attempting to register /api/email-stats/monthly route ---');
-app.get('/api/email-stats/monthly', requireApiKey, async (req,res) => {
-  console.log('Recibida petición GET /api/email-stats/monthly ');
-  try {
-    const stats = await getMonthlyEmailStats();
-    res.json(stats);
-  } catch (error) {
-    console.error('Error en el endpoint /api/email-stats/monthly:', error);
-    res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
-  }
-});
-console.log('--- Successfully registered /api/email-stats/monthly route ---');
-
-
-console.log('--- Attempting to register /api/email-stats/week route ---');
-app.get('/api/email-stats/week', requireApiKey, async (req,res) => {
-  console.log('Recibida petición GET /api/email-stats/week ');
-  try {
-    const stats = await getLast7DaysTotals();
-    res.json(stats);
-  } catch (error) {
-    console.error('Error en el endpoint /api/email-stats/week:', error);
-    res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
-  }
-});
-console.log('--- Successfully registered /api/email-stats/week route ---');
-
-
-
-
-
-// ENDPOINT para SUBIR UNA NUEVA IMAGEN (Con requireApiKey)
-app.post('/api/upload-image/:anniversaryNumber', requireApiKey, async (req, res) => {
-    // Wrap the Multer middleware in a Promise-based function or a try/catch block
-    // to handle errors gracefully before proceeding.
-
-    try {
-        // La ruta que guardaremos en la DB y que el frontend usará para mostrar
-        // Será relativa al directorio base que Express sirve estáticamente ('/uploads/nombre_del_archivo')
-        const imageUrl = `/uploads/${req.file.filename}`;
-
-        // Obtener la configuración actual
-        const config = await getConfig(); // Ojo, esta función puede crear una config si no existe
-        // Asegúrate de que config.imagePaths sea un array y añade la nueva ruta
-        const newImagePaths = [...(config.imagePaths || []), imageUrl];
-
-        // Actualiza la configuración con la nueva ruta de imagen
-        const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
-
-        res.status(200).json({
-            message: 'Imagen subida y ruta guardada exitosamente.',
-            imageUrl: imageUrl,
-            updatedConfig: updatedConfig
-        });
-    } catch (error) {
-        console.error('Error al subir imagen o actualizar configuración:', error);
-        // Si hay un error, intentar eliminar el archivo subido para limpiar
-        fs.unlink(req.file.path, (err) => {
-            if (err) console.error('Error al eliminar archivo subido tras un error:', err);
-        });
-        res.status(500).json({ error: 'Error interno del servidor al subir imagen.' });
-    }
-});
-
-// ENDPOINT para ELIMINAR UNA IMAGEN
-app.delete('/api/delete-image', async (req, res) => {
-    const { imageUrl } = req.body; // Esperamos la URL de la imagen a eliminar
-    if (!imageUrl) {
-        return res.status(400).json({ error: 'URL de imagen no proporcionada.' });
-    }
-
-    // Construye la ruta física completa del archivo en el servidor
-    const filename = path.basename(imageUrl); // Extrae 'nombre_del_archivo.jpg' de '/uploads/nombre_del_archivo.jpg'
-    const filePath = path.join(UPLOADS_DIR, filename);
-
-    try {
-        // 1. Eliminar el archivo del sistema de archivos
-        if (fs.existsSync(filePath)) {
-            await fs.promises.unlink(filePath); // Usa fs.promises para asincronía
-            console.log(`Archivo ${filePath} eliminado del servidor.`);
-        } else {
-            console.warn(`Intento de eliminar imagen no existente en el servidor: ${filePath}`);
-        }
-
-        // 2. Eliminar la ruta de la imagen de la base de datos
-        const config = await getConfig();
-        const newImagePaths = (config.imagePaths || []).filter(path => path !== imageUrl);
-
-        const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
-
-        res.status(200).json({
-            message: 'Imagen eliminada exitosamente del servidor y la configuración.',
-            updatedConfig: updatedConfig
-        });
-    } catch (error) {
-        console.error('Error al eliminar imagen:', error);
-        res.status(500).json({ error: 'Error interno del servidor al eliminar imagen.' });
-    }
-});
-
-app.use((req, res, next) => { // This catch-all should be at the very end
-    console.log(`❌ 404 Not Found: Request to ${req.method} ${req.originalUrl} did not match any routes.`);
-    res.status(404).json({ error: 'Endpoint no encontrado.' });
 });
 
 // Nuevo endpoint para el pixel de seguimiento (no necesita autenticación)
@@ -381,6 +486,141 @@ app.get('/track/:email/:anniversaryNumber', async (req, res) => {
     }
 });
 
+app.get('/api/email-stats/yearly', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
+    console.log('Recibida petición GET /api/email-stats/yearly');
+    try {
+        const stats = await getYearlyEmailStats();
+        // Agregamos este console.log para ver el resultado de la función.
+        console.log('Datos de estadísticas anuales obtenidos:', stats); 
+        res.json(stats);
+    } catch (error) {
+        console.error('Error en el endpoint /api/email-stats/yearly:', error);
+        res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
+    }
+});
+console.log('--- Ruta /api/email-stats/yearly registrada con éxito ---');
+
+app.get('/api/email-stats/monthly', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
+  console.log('Recibida petición GET /api/email-stats/monthly ');
+  const year = req.query.year || new Date().getFullYear();
+  try {
+    const stats = await getMonthlyEmailStats(year);
+    res.json(stats);
+  } catch (error) {
+    console.error('Error en el endpoint /api/email-stats/monthly:', error);
+    res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
+  }
+});
+console.log('--- Successfully registered /api/email-stats/monthly route ---');
+
+
+console.log('--- Attempting to register /api/email-stats/week route ---');
+app.get('/api/email-stats/week', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
+  console.log('Recibida petición GET /api/email-stats/week ');
+  try {
+    const stats = await getLast7DaysTotals();
+    res.json(stats);
+  } catch (error) {
+    console.error('Error en el endpoint /api/email-stats/week:', error);
+    res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
+  }
+});
+console.log('--- Successfully registered /api/email-stats/week route ---');
+
+
+app.post('/api/upload-image/:anniversaryNumber', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => { 
+    try {
+        await new Promise((resolve, reject) => {
+            upload.single('image')(req, res, (err) => {
+                if (err) {
+                    console.error('Error de Multer: ', err);
+                    return reject(err); 
+                }
+                resolve(); 
+            });
+        });
+
+        if (!req.file) { 
+            return res.status(400).json({ error: 'No se ha subido ningún archivo o el archivo no fue procesado por el servidor.' });
+        }
+
+        const anniversaryNumber = req.params.anniversaryNumber;
+        console.log('Controlador de ruta: anniversaryNumber de req.params:', anniversaryNumber);
+
+        const imageUrl = `/uploads/${req.file.filename}`;
+
+        const config = await getConfig();
+        const newImagePaths = [...(config.imagePaths || [])];
+
+        if (!newImagePaths.includes(imageUrl)) {
+            newImagePaths.push(imageUrl);
+        }
+
+        newImagePaths.sort((a, b) => {
+            const numA = parseInt(path.basename(a, '.png'));
+            const numB = parseInt(path.basename(b, '.png'));
+            return numA - numB;
+        });
+
+        const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
+
+        res.status(200).json({
+            message: 'Imagen subida y ruta guardada exitosamente.',
+            imageUrl: imageUrl,
+            updatedConfig: updatedConfig
+        });
+    } catch (error) {
+        console.error('Manejador de errores de carga final: ', error);
+
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlink(req.file.path, (err) => {
+                if (err) console.error('Error al eliminar archivo subido tras un error en config:', err);
+            });
+        }
+        
+        return res.status(400).json({ 
+            error: error.message || 'Error desconocido al subir imagen.'
+        });
+    }
+});
+
+app.delete('/api/delete-image', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
+    const { imageUrl } = req.body;
+    if (!imageUrl) {
+        return res.status(400).json({ error: 'URL de imagen no proporcionada.' });
+    }
+
+    const filename = path.basename(imageUrl);
+    const filePath = path.join(UPLOADS_DIR, filename); 
+
+    try {
+        if (fs.existsSync(filePath)) {
+            await fs.promises.unlink(filePath);
+            console.log(`Archivo ${filePath} eliminado del servidor.`);
+        } else {
+            console.warn(`Intento de eliminar imagen no existente en el servidor: ${filePath}`);
+        }
+
+        const config = await getConfig();
+        const newImagePaths = (config.imagePaths || []).filter(path => path !== imageUrl);
+
+        const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
+
+        res.status(200).json({
+            message: 'Imagen eliminada exitosamente del servidor y la configuración.',
+            updatedConfig: updatedConfig
+        });
+    } catch (error) {
+        console.error('Error al eliminar imagen:', error);
+        res.status(500).json({ error: 'Error interno del servidor al eliminar imagen.' });
+    }
+});
+
+app.use((req, res, next) => { // Este catch-all debería estar al final
+    console.log(`❌ 404 Not Found: Request to ${req.method} ${req.originalUrl} did not match any routes.`);
+    res.status(404).json({ error: 'Endpoint no encontrado.' });
+});
+
 (async () => {
     try {
         await connectDB();
@@ -392,3 +632,16 @@ app.get('/track/:email/:anniversaryNumber', async (req, res) => {
         process.exit(1);
     }
 })();
+
+
+// Envía el GIF transparente de 1x1 pixel directamente desde el servidor como parte de la respuesta HTTP a una solicitud. No lo saca de un archivo físico en el servidor. Asi funciona:
+
+// Generación en memoria: El GIF se define como una cadena Base64: 'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'.
+
+// Conversión a Buffer: Esta cadena Base64 se convierte en un Buffer en Node.js utilizando Buffer.from('...', 'base64'). Un Buffer es una representación binaria de datos, que es lo que se envía a través de la red.
+
+// Encabezados HTTP: Cuando se realiza la solicitud al endpoint /track/:email/:anniversaryNumber, el servidor establece los encabezados HTTP Content-Type como image/gif y Content-Length con la longitud del Buffer del pixel. Esto le dice al cliente (el programa de correo) que lo que está recibiendo es una imagen GIF y su tamaño.
+
+// Envío del Buffer: Finalmente, el método res.end(pixel) envía el contenido binario del Buffer directamente en el cuerpo de la respuesta HTTP.
+
+// En resumen, el GIF no se almacena como un archivo .gif en el disco. Se crea dinámicamente en la memoria del servidor y se transmite directamente al cliente de correo cuando se solicita la URL de seguimiento.

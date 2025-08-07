@@ -1,29 +1,28 @@
 .MailsEnviados{
-      max-width: 900px;
-  margin: 20px auto;
-  background: white;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-
 }
+
 .mails {
-  
-  display: inline-block;          /* Se encoge al tamaño de su contenido */
-  margin: 20px auto;              /* Centrado horizontal (necesita display inline-block) */
-  padding: 10px 20px;             /* Ajusta a tu gusto */
-  background: white;
-  border: 2px solid #e5e7eb;      /* Aquí defines el borde */
-  border-radius: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.20); /* Opcional, si quieres sombra detrás */
-  text-align: center;             /* Centra el texto dentro del propio h2 */
-  font-size: 1.5rem;              /* Ajusta tamaño si lo necesitas */
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 10px 20px;  
+  font-size: 1.5rem; 
+}
+
+.tabla{
+  max-height: calc(100vh - 200px);;
+  overflow-y: auto;
 }
 
 .tablaMails{
   font-size: 14px;
   border-collapse: collapse;
-  height: 70%;
+}
+
+.tablaMails thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .tablaMails th,

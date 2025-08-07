@@ -18,12 +18,22 @@
   --colorMailError: #FFF1E5;
   --colorLogOut: #D43C3C;
   --colorVerMas: var(--acentoSecundario);
+   --colorCrombieVioleta: #80319b;
+  --colorCrombieCeleste: #25b2e2;
+  --colorCrombieAmarillo: #ffb12a;
+  --colorCrombieRosa: #ee326c;
+  --colorCrombieVerde: #1bb55f;
 
   /* Diseño */
   --border-radius: 20px;
-  --padding-box: 20px;
+  --padding-box: 20px; /* Padding general para el body y espaciado */
   --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   --Fondo: url("./assets/FondoAzulCrombie.png");
+
+  /* Nuevas variables para la sidebar y gap */
+  --sidebar-width-desktop: 280px; /* Ancho de sidebar para desktop */
+  --sidebar-width-tablet: 240px; /* Ancho de sidebar para tablet */
+  --grid-gap: 20px; /* Espacio entre los elementos del grid */
 }
 
 * {
@@ -47,55 +57,65 @@ body {
   background-attachment: fixed;
   background-color: var(--colorFondo);
 
-  width: 100%; 
-  min-height: 100vh; 
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  width: 100%;
   min-height: 100vh;
-  padding: var(--padding-box);
+  display: flex; /* Para centrar el .parent */
+  justify-content: center; /* Centra horizontalmente el .parent */
+  align-items: flex-start; /* Alinea al inicio verticalmente (arriba) */
+  padding: var(--padding-box); /* Este padding creará el "margen" alrededor del layout completo */
+  overflow-y: auto; /* Permite scroll en el body si el contenido es muy largo */
 }
+
+/* Contenedor principal del dashboard (Grid Layout) */
 .parent {
-position: relative;
-  width: 90%;            /* Ocupa el 90% del ancho disponible */
-  max-width: 1600px;     /* No se estira demasiado en ultrawide */
-  min-width: 1024px;     /* Mantiene legibilidad en pantallas pequeñas */
-  margin: 0 auto;        /* Centra el grid */
+  position: relative; /* Contexto para elementos posicionados si es necesario */
+  width: 100%; /* Ocupa el 100% del espacio disponible dentro del padding del body */
+  max-width: 1600px; /* Limita el ancho máximo del dashboard */
+  min-height: calc(100vh - (2 * var(--padding-box))); /* Ajusta la altura mínima para el contenido */
+  gap: var(--grid-gap); /* Espacio entre los items del grid */
+
+  /* MOBILE FIRST: Default layout para pantallas pequeñas (columnas apiladas) */
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: 1fr;  /* 1 columna por defecto */
+  grid-template-columns: 1fr; /* Una sola columna para todo el contenido */
+  grid-template-rows: auto;
+  grid-template-areas:
+    "sidebar"
+    "stats"
+    "mails-sent"
+    "mail-imgs"
+    "events"
+    "mail-message";
 }
 
-
-/*caja side-bar*/
+/* Caja de la barra lateral (sidebar) */
 aside.div1 {
-  position: fixed;
-  top: 0;
-  left: 0; /* o right:0, según tu layout */
-  height: 100vh;
-  width: 250px; /* define un ancho */
   display: flex;
   flex-direction: column;
   padding: var(--padding-box);
   background-color: var(--colorCaja);
   border-radius: var(--border-radius);
-  z-index: 100;
+  z-index: 100; /* Asegura que esté por encima de otros elementos */
+  grid-area: sidebar; /* Asigna al área 'sidebar' */
+
+  width: 100%;
+  position: relative; /* Importante: Vuelve a ser un elemento de flujo normal */
+  height: auto; /* La altura se ajusta al contenido */
+  min-height: 100px; /* Un min-height para asegurar visibilidad inicial en móvil */
+  margin-bottom: var(--grid-gap);
 }
 
-
-.logo.crombie {
-  width: 100%; /* El logo ocupará el 100% del ancho de su contenedor (el aside) */
-  max-width: 300px; /* Limita el tamaño máximo del logo */
-  display: block; /* Asegurarse de que es un bloque */
-  margin-left: auto; /* Centrar horizontalmente */
-  margin-right: auto;
+.logo-crombie { /* Ajustado de .logo.crombie a .logo-crombie según Dashboard.jsx */
+  width: 100%;
+  max-width: 300px;
+  display: block;
+  margin: 0 auto 20px auto; /* Centrar y añadir margen inferior */
 }
 
 
 .side-bar {
   display: flex;
   flex-direction: column;
-  gap: 15px; 
+  gap: 15px;
   width: 100%;
 }
 
@@ -104,7 +124,7 @@ aside.div1 {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  color: var(--text-color-primary);
+  color: var(--textoPrincipal); /* Usar variable para consistencia */
   background: none;
   border: none;
   cursor: pointer;
@@ -118,7 +138,8 @@ aside.div1 {
 }
 
 .menu-item:hover {
-  background-color: var(--hover);
+  background-color: var(--acentoPrimario); /* Usar acentoPrimario para hover */
+  color: white; /* Texto blanco en hover si el fondo es azul */
 }
 .menu-item,.div2{
   color: var(--textoPrincipal);
@@ -126,32 +147,34 @@ aside.div1 {
 
 .menu-item.active-menu-item,
 .menu-item:focus {
-  background-color: var(--hover);
+  background-color: var(--acentoPrimario); /* Activo también con el color principal */
+  color: white; /* Texto blanco para el activo */
   outline: none;
 }
 
 .footer-aside {
   margin-top: auto;
-  padding: var(--padding-box);
+  padding-top: var(--padding-box); /* Usa padding-top en lugar de padding para el borde */
   border-top: 1px solid #eee;
   width: 100%;
   box-sizing: border-box;
-  display: flex; 
-  flex-direction: column; 
-  gap: 10px; 
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   align-items: flex-start;
 }
 
 .perfil-info {
   display: flex;
-  gap: 20px; 
-  align-items: center; 
+  gap: 10px; /* Reducido para mejor ajuste */
+  align-items: center;
   width: 100%;
+  flex-wrap: wrap; /* Permite que el texto se envuelva en líneas nuevas si es muy largo */
 }
 
 .perfil {
-  display: flex;
-  align-items: center;
+  font-size: 0.9em;
+  line-height: 1.2; /* Ajusta la altura de línea */
 }
 
 .persona {
@@ -159,13 +182,21 @@ aside.div1 {
   width: 40px;
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0; /* Evita que la imagen se encoja */
 }
 
 .logout {
-  margin-top: 15px; 
-  width: auto; 
-  padding: 8px 15px; 
+  margin-top: 15px;
+  width: auto;
+  padding: 8px 15px;
   cursor: pointer;
+  background: none; /* Eliminar fondo del botón */
+  border: 1px solid var(--colorLogOut); /* Borde para el botón de logout */
+  border-radius: 8px; /* Bordes redondeados */
+  transition: background-color 0.2s ease;
+}
+.logout:hover {
+    background-color: var(--colorLogOut);
 }
 
 .logout2 {
@@ -175,9 +206,12 @@ aside.div1 {
   gap: 5px;
   font-weight: 500;
 }
+.logout:hover .logout2 {
+    color: white; /* Texto blanco al hacer hover en el botón logout */
+}
 
-.div2, .div3, .div4, .div5,
-aside.div1 {
+
+.div2, .div3, .div4, .div5 { /* aside.div1 ya tiene sus estilos */
   background-color: var(--colorCaja);
   color: var(--textoPrincipal);
   box-shadow: var(--box-shadow);
@@ -188,28 +222,22 @@ aside.div1 {
   background-color: var(--colorCajaAlt);
 }
 
-/*caja estadísticas*/
-.div2 {
-  grid-area: stats;
-}
-
-/*caja mails enviados*/
-.div3 {
-  grid-area: mails-sent;
-}
+/* Asignación de áreas de grid para cada div */
+.div2 { grid-area: stats; }
+.div3 { grid-area: mails-sent; }
+.div4 { grid-area: events; }
+.div5 { grid-area: mail-message; }
 
 .div2 h2,.div3 h2,.div4 h2,.div5 h2 {
-  margin-bottom: 15px; /* Espacio debajo de los títulos de las secciones */
+  margin-bottom: 15px;
 }
 
 .perfil-info2 {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-top: 10px; /* Ajustado el margen superior */
-  margin-left: 0; /* Eliminar margin-left fijo */
-  padding: 10px 0; /* Padding para el área de info */
-  overflow-y: auto; 
+  margin-top: 10px;
+  padding: 10px 0;
 }
 
 .perfil-info2 > div {
@@ -222,7 +250,7 @@ aside.div1 {
   width: 40px;
   border-radius: 50%;
   object-fit: cover;
-  flex-shrink: 0; 
+  flex-shrink: 0;
 }
 
 .ciudadYLugar {
@@ -238,29 +266,20 @@ h2, .menu-item, .perfil-info {
   color: var(--textoSecundario);
 }
 
-
 .verMas {
   border: none;
   background: none;
   outline: none;
   cursor: pointer;
   color: var(--acentoPrimario);
-  margin-top: 10px; /* Espacio superior */
+  margin-top: 10px;
   align-self: flex-end;
 }
 
 .verMas:hover {
   color: var(--acentoPrimHover);
 }
-.menu-item:hover, .menu-item:focus {
-  background-color: #E8EEF2;
-}
 
-
-.parent {
-  position: relative;
-  z-index: 1; /* encima del fondo fijo */
-}
 
 /* El elemento fijo - fondo animado */
 .coloresCrombie {
@@ -272,7 +291,6 @@ h2, .menu-item, .perfil-info {
   pointer-events: none;
   animation: slideLogo 6s ease-in-out infinite;
   z-index: -1; /* detrás del .parent */
-
 }
 
 @keyframes slideLogo {
@@ -283,21 +301,10 @@ h2, .menu-item, .perfil-info {
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-
-.div4 {
-  grid-area: events;
-}
-
-.div5 {
-  grid-area: mail-message;
-}
-
 .mensajeEstilo{
-  background-color: #f8f8f8;
-  border: 1px solid #ddd;
+  border: 1px solid #ecebeb;
   padding: 15px;
   border-radius: 5px;
-  max-height: 300px;
   overflow-y: auto;  /*Añade scroll si el contenido es muy largo */
   white-space: pre-wrap; /* Mantiene saltos de línea y espacios */
   word-wrap: break-word; /* Evita desbordamiento de palabras largas */
@@ -306,8 +313,7 @@ h2, .menu-item, .perfil-info {
 }
 
 .main-content-pages {
-  grid-column: 2 / -1; 
-  grid-row: 1 / -1; 
+  grid-area: content-pages; /* Nueva área para cuando no es el dashboard principal */
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -317,28 +323,87 @@ h2, .menu-item, .perfil-info {
   padding: var(--padding-box);
 }
 
+/* MEDIA QUERIES PARA RESPONSIVIDAD */
+
+/* Pequeñas tablets y pantallas hasta 1023px (móvil ya definido por defecto) */
+@media (min-width: 768px) {
+  .parent {
+    grid-template-columns: 1fr; /* Mantenemos una columna principal, sidebar sigue arriba */
+    grid-template-areas:
+      "sidebar"
+      "stats"
+      "mails-sent"
+      "mail-imgs"
+      "events"
+      "mail-message"; /* Sigue apilado, pero con más espacio */
+  }
+
+  aside.div1 {
+    width: 100%;
+    position: relative;
+    height: auto;
+    min-height: 100px;
+  }
+}
+
+/* Desktop pequeño (1024px a 1439px) */
 @media (min-width: 1024px) {
   .parent {
-    grid-template-columns: 240px repeat(2, 1fr);
+    /* Sidebar en la primera columna, luego 3 columnas para el contenido principal */
+    grid-template-columns: var(--sidebar-width-desktop) repeat(4, 1fr); /* 280px sidebar + 4 columnas iguales */
     grid-template-areas:
-      "sidebar stats stats"
-      "sidebar mails-sent mail-imgs"
-      "sidebar events mail-message";
+      "sidebar stats stats stats stats"              /* stats ocupa 4 columnas */
+      "sidebar mails-sent mails-sent mail-imgs mail-imgs" /* mails-sent y mail-imgs ocupan 2 columnas cada uno */
+      "sidebar events events mail-message mail-message";
+  }
+
+  aside.div1 {
+    position: sticky;
+    top: var(--padding-box); /* Se pega al top con el padding del body */
+    height: calc(100vh - (2 * var(--padding-box))); /* Ocupa la altura disponible */
+    margin-bottom: 0; /* No hay margen inferior cuando está al lado */
+  }
+
+  .main-content-pages {
+    /* Para pantallas de 1024px, la página de contenido ocupa las 3 columnas restantes */
+    grid-column: 2 / -1; /* Ocupa desde la segunda columna hasta el final */
+    grid-row: 1 / -1; /* Ocupa todas las filas */
   }
 }
 
+/* Desktop mediano (1440px a 1700px) */
 @media (min-width: 1440px) {
   .parent {
-    grid-template-columns: 280px repeat(3, 1fr);
+    /* Sidebar más ancha, luego 4 columnas para el contenido principal */
+    grid-template-columns: var(--sidebar-width-desktop) repeat(4, 1fr); /* 280px sidebar + 4 columnas iguales */
     grid-template-areas:
-      "sidebar stats stats stats"
-      "sidebar mails-sent mails-sent mail-imgs"
-      "sidebar events mail-message mail-message";
+      "sidebar stats stats stats stats"              /* stats ocupa 4 columnas */
+      "sidebar mails-sent mails-sent mail-imgs mail-imgs" /* mails-sent y mail-imgs ocupan 2 columnas cada uno */
+      "sidebar events events mail-message mail-message"; /* events y mail-message ocupan 2 columnas cada uno */
+  }
+
+  aside.div1 {
+    width: var(--sidebar-width-desktop); /* Ancho específico para este breakpoint */
+  }
+
+  .main-content-pages {
+    /* Para pantallas de 1440px, la página de contenido ocupa las 4 columnas restantes */
+    grid-column: 2 / -1;
+    grid-row: 1 / -1;
   }
 }
 
-@media (min-width: 1920px) {
-  .parent {
-    grid-template-columns: 280px repeat(4, 1fr);
+/* Desktop grande (mayor a 1700px, hasta max-width) */
+@media (min-width: 1701px) { /* Ajustado para que el max-width del parent funcione */
+    .parent {
+        /* Mantiene el mismo layout de 1440px pero se estira hasta el max-width */
+        grid-template-columns: var(--sidebar-width-desktop) repeat(4, 1fr);
+        grid-template-areas:
+            "sidebar stats stats stats stats"
+            "sidebar mails-sent mails-sent mail-imgs mail-imgs"
+            "sidebar events events mail-message mail-message";
+    }
+    aside.div1 {
+    width: var(--sidebar-width-desktop); /* Mantiene el ancho */
   }
 }

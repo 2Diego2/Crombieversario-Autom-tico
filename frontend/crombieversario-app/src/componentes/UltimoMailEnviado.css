@@ -1,0 +1,53 @@
+:root {
+  --fonts: "Source Sans Pro", sans-serif;
+  --colorCaja: #FAFAFB;       /* gris muy claro */
+  --colorCajaAlt: #FFFFFF;    /* blanco puro para jerarquía */
+
+  --textoPrincipal: #262B34;  /* casi negro con matiz azulado */
+  --textoSecundario: #5A6374; /* gris azulado suave */
+
+  /* Acentos vivos inspirados en crombie.dev */
+  --acentoPrimario: #22C7E7;  /* azul verdoso claro y moderno */
+  --acentoPrimHover: #1BABCD; /* hover sutil sobre primario */
+  --acentoSecundario: #FF9500;/* amarillo-naranja vibrante y cálido */
+
+  /* Estados internos */
+  --colorAdmin: #FF9500;
+  --colorMailError: #FFF1E5;
+  --colorLogOut: #D43C3C;
+  --colorVerMas: var(--acentoSecundario);
+   --colorCrombieVioleta: #80319b;
+  --colorCrombieCeleste: #25b2e2;
+  --colorCrombieAmarillo: #ffb12a;
+  --colorCrombieRosa: #ee326c;
+  --colorCrombieVerde: #1bb55f;
+}
+
+.caja-ultimo-mail{
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f0f0;
+    border-radius: 12px;
+    margin: 10px;
+}
+
+
+.info-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px;
+}
+
+.columna-izquierda,
+.columna-derecha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.columna-izquierda p,
+.columna-derecha p {
+  margin: 0;
+}
+

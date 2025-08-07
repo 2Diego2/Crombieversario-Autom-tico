@@ -1,0 +1,116 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100vw;
+  background-image: url('../assets/default.svg'); /* <--- ¡CAMBIA ESTA RUTA! */
+  background-size: cover; /* Ajusta la imagen para que cubra todo el contenedor sin dejar espacios */
+  background-position: center; /* Centra la imagen en el contenedor */
+  background-repeat: no-repeat;
+  padding: 20px;
+}
+
+.login-box {
+  background-color: var(--colorCaja); /* Usar el color de caja del dashboard */
+  padding: 40px;
+  border-radius: var(--border-radius); /* Redondeado como las cajas del dashboard */
+  box-shadow: var(--box-shadow); /* Sombra como las cajas del dashboard */
+  text-align: center;
+  width: 100%;
+  max-width: 400px; /* Ancho máximo para el formulario */
+}
+
+.login-logo {
+  max-width: 180px; /* Tamaño del logo */
+  margin-bottom: 30px;
+}
+
+.login-box h2 {
+  font-size: 1.8em;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.login-form .form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.login-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.login-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px; /* Input redondeado */
+  font-size: 1em;
+  box-sizing: border-box; /* Incluir padding y borde en el ancho total */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-input:focus {
+  border-color: #a0a0a0; /* Color de borde al enfocar */
+  box-shadow: 0 0 0 3px rgba(115, 74, 0, 0.2); /* Sombra sutil al enfocar, usando colorVerMas */
+  outline: none;
+}
+
+.login-button {
+  background-color: var(--colorCrombieVioleta); /* Usar tu color de botón "Ver más" */
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px; /* Botón redondeado */
+  cursor: pointer;
+  font-size: 1.1em;
+  font-weight: 600;
+  width: 100%;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  margin-top: 15px;
+}
+
+.login-button:hover:not(:disabled) {
+  background-color: #6f2a86; /* Un tono más oscuro para el hover */
+  transform: translateY(-1px); /* Efecto ligero de "levantamiento" */
+}
+
+.login-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: var(--colorLogOut); /* Color de error, como tu logout */
+  margin-top: -10px; /* Ajustar margen */
+  margin-bottom: 15px;
+  font-size: 0.9em;
+  text-align: center;
+}
+
+/* Responsive para pantallas pequeñas de login */
+@media (max-width: 480px) {
+  .login-box {
+    padding: 30px 20px; /* Menos padding en pantallas pequeñas */
+  }
+
+  .login-logo {
+    max-width: 150px; /* Logo un poco más pequeño */
+    margin-bottom: 20px;
+  }
+
+  .login-box h2 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+  }
+
+  .login-input,
+  .login-button {
+    padding: 10px 12px;
+    font-size: 1em;
+  }
+}

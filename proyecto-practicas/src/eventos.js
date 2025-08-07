@@ -115,7 +115,7 @@ async function MensajeMail(nombre, nroAniversario, empleadoEmail) {
   //const trackingPixelUrl = `http://localhost:${process.env.PORT || 3033}/track/${encodedEmail}/${encodedAnniversaryNumber}`;
   //const trackingPixelUrl = `https://7c5beb79e7f1.ngrok-free.app/track/${encodedEmail}/${encodedAnniversaryNumber}`;
  
-   const baseUrl = process.env.SERVER_BASE_URL;
+  const baseUrl = process.env.SERVER_BASE_URL;
   if (!baseUrl) {
     console.error("ERROR: La variable SERVER_BASE_URL no está definida en el archivo .env");
     // Puedes decidir cómo manejar este error, quizás devolviendo el HTML sin el pixel.
@@ -139,7 +139,7 @@ async function MensajeMail(nombre, nroAniversario, empleadoEmail) {
   }
 
   htmlContent += `
-    <img src="${trackingPixelUrl}" width="1" height="1" alt="" border="0" style="border:0; margin:0; padding:0; line-height:0;" >
+  <img src="${trackingPixelUrl}" width="1" height="1" alt="" border="0" style="border:0; margin:0; padding:0; line-height:0;" >
             </div>
         </body>
         </html>

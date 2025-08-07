@@ -1,85 +1,117 @@
 // src/componentes/useConfig.js
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import useAuth from './useAuth';
 
+/**
+ * Custom hook para obtener y gestionar la configuración de la aplicación
+ * (plantilla de mensaje y rutas de imagen).
+ * Se basa en el JWT almacenado en localStorage para la autenticación.
+ */
 function useConfig() {
-  // API_BASE_URL está ahora hardcodeado aquí, ya que no usamos un archivo .env en el frontend.
-  const API_BASE_URL = "http://localhost:3033";
+  // Usamos la variable de entorno de Vite.
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const [config, setConfig] = useState({ messageTemplate: "", imagePaths: [] });
-  const [loading, setLoading] = useState(true); // Controla el estado de carga general
-  const [error, setError] = useState(null); // Controla los errores generales
-  const [localApiKey, setLocalApiKey] = useState(""); // Estado para almacenar la API key obtenida // --- Efecto 1: Obtener la API Key incondicionalmente al montar el componente --- // Este efecto solo depende de API_BASE_URL, que es una constante, por lo que se ejecuta una sola vez.
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchApiKey = async () => {
-      try {
-        setLoading(true); // Iniciar la carga al intentar obtener la API key
+  const { getAuthHeader, handleAuthError } = useAuth();
 
-        setError(null); // Limpiar errores anteriores
-        const apiKeyResponse = await axios.get(
-          `${API_BASE_URL}/api/get-api-key`
-        );
 
-        const fetchedApiKey = apiKeyResponse.data.apiKey;
-        setLocalApiKey(fetchedApiKey);
-
-        localStorage.setItem('api_key', fetchedApiKey);
-
-        console.log("API Key obtenida del backend y guardada en localStorage:", fetchedApiKey);
-      } catch (err) {
-        console.error("Error al obtener la API Key:", err);
-        setError(
-          "Error al obtener la API Key: " +
-            (err.response?.data?.error || err.message)
-        );
-        setLoading(false); // Si falla la obtención de la API key, finalizar la carga.
+  const fetchConfigData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/config`, {
+        headers: getAuthHeader(), // Usar getAuthHeader de useAuth
+      });
+      setConfig(response.data);
+    } catch (err) {
+      console.error("Error al cargar la configuración:", err);
+      // La función handleAuthError de useAuth ya maneja la redirección y el mensaje de error
+      handleAuthError(err);
+      // Si quieres mostrar un mensaje de error específico en este hook para otros errores, hazlo aquí
+      if (!axios.isAxiosError(err) || (err.response?.status !== 401 && err.response?.status !== 403)) {
+        setError("Error en la petición: " + (err.response?.data?.message || err.message));
       }
-    };
-
-    fetchApiKey();
-  }, [API_BASE_URL]); // Se ejecuta solo cuando API_BASE_URL cambia (es decir, una vez al inicio) // --- Efecto 2: Obtener los datos de configuración una vez que la API Key esté disponible --- // Este efecto solo depende de `localApiKey` y `API_BASE_URL`. // Cuando `localApiKey` se establece por primera vez (desde el Efecto 1), este efecto se dispara. // Es crucial que NO dependa de `loading` o `error` para evitar bucles.
-
-  useEffect(() => {
-    if (!localApiKey) {
-      // Si la API key aún no está disponible, no hacemos nada y esperamos.
-
-      return;
+    } finally {
+      setLoading(false);
     }
+  }, [API_BASE_URL, getAuthHeader, handleAuthError]);
 
-    const fetchConfigData = async () => {
-      setLoading(true); // Iniciar la carga para la obtención de la configuración
-
-      setError(null); // Limpiar errores anteriores
-      try {
-        const response = await axios.get(`${API_BASE_URL}/api/config`, {
-          headers: { "x-api-key": localApiKey },
-        });
-
-        setConfig(response.data);
-      } catch (err) {
-        console.error("Error al cargar la configuración:", err);
-
-        setError(
-          "Error al cargar la configuración: " +
-            (err.response?.data?.error || err.message)
-        );
-      } finally {
-        setLoading(false); // Siempre finalizar la carga después del intento
-      }
-    };
-
+  // Efecto para cargar la configuración al montar el componente
+  useEffect(() => {
+    // Ya no es necesario escuchar 'storage' aquí para currentAuthToken
+    // Si la sesión cambia (login/logout), useAuth ya lo manejará y redirigirá.
     fetchConfigData();
-  }, [localApiKey, API_BASE_URL]); // Se ejecuta solo cuando `localApiKey` cambia (se establece) o `API_BASE_URL` cambia.
+  }, [fetchConfigData]);
+
+  // Funciones para modificar la configuración
+  const updateConfigApi = useCallback(async (messageTemplate, imagePaths) => {
+    setError(null);
+    try {
+      const response = await axios.put(`${API_BASE_URL}/api/config`,
+        { messageTemplate, imagePaths },
+        { headers: getAuthHeader() } // Usar getAuthHeader de useAuth
+      );
+      setConfig(response.data); // Actualizar el estado con la nueva config
+      return response.data;
+    } catch (err) {
+      console.error("Error al actualizar la configuración:", err);
+      handleAuthError(err);
+      throw err;
+    }
+  }, [API_BASE_URL, getAuthHeader, handleAuthError]);
+
+  const uploadImageApi = useCallback(async (file, anniversaryNumber) => {
+    setError(null);
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/upload-image/${anniversaryNumber}`,
+        formData,
+        {
+          headers: {
+            ...getAuthHeader(), // Usar getAuthHeader de useAuth
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+      return response.data;
+    } catch (err) {
+      console.error("Error al subir la imagen:", err);
+      handleAuthError(err);
+      throw err;
+    }
+  }, [API_BASE_URL, getAuthHeader, handleAuthError]);
+
+  const deleteImageApi = useCallback(async (imageUrl) => {
+    setError(null);
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/api/delete-image`, {
+        headers: getAuthHeader(),
+        data: { imageUrl }
+      });
+      return response.data;
+    } catch (err) {
+      console.error("Error al eliminar la imagen:", err);
+      handleAuthError(err);
+      throw err;
+    }
+  }, [API_BASE_URL, getAuthHeader, handleAuthError]);
+
 
   return {
     config,
     loading,
     error,
     API_BASE_URL,
-    localApiKey,
-    setConfig,
-    setLoading,
-    setError,
+    updateConfigApi,
+    uploadImageApi,
+    deleteImageApi,
+    refetchConfig: fetchConfigData
   };
 }
 

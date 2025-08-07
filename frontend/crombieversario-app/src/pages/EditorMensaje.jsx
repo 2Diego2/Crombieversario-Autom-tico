@@ -1,225 +1,273 @@
 // src/pages/EditorMensaje.jsx
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import useConfig from '../componentes/useConfig'; // Asegúrate que la ruta sea correcta
+import React, { useState, useEffect } from "react";
+import useConfig from "../componentes/useConfig";
+import "./EditorMensaje.css";
 
 function EditorMensaje() {
-    // Usa el custom hook para obtener la configuración y los estados relacionados
-    const { 
-        config, 
-        loading, 
-        error, 
-        API_BASE_URL,
-        localApiKey,
-        setConfig, 
-        setLoading, 
-        setError    
-    } = useConfig();
+  const {
+    config,
+    loading,
+    error,
+    updateConfigApi,
+    uploadImageApi,
+    deleteImageApi,
+    // No necesitamos refetchConfig directamente aquí a menos que quieras un botón de recarga manual
+  } = useConfig();
 
-    // Estados internos para cambios locales antes de guardar, y para la selección de archivos
-    const [messageTemplate, setMessageTemplate] = useState('');
-    const [imagePaths, setImagePaths] = useState([]);
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [successMessage, setSuccessMessage] = useState('');
+  // Estados internos para cambios locales antes de guardar, y para la selección de archivos
+  const [messageTemplate, setMessageTemplate] = useState("");
+  const [imagePaths, setImagePaths] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [anniversaryNumber, setAnniversaryNumber] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [localError, setLocalError] = useState(null); // Usaremos un error local para mensajes específicos de la UI
 
-    // Inicializa los estados locales una vez que la configuración se carga desde el hook
-    useEffect(() => {
-        if (config) {
-            setMessageTemplate(config.messageTemplate || '');
-            setImagePaths(config.imagePaths || []);
-        }
-    }, [config]);
-
-    const handleSaveMessage = async () => {
-        setLoading(true);
-        setError(null);
-        setSuccessMessage('');
-        try {
-            await axios.put(`${API_BASE_URL}/api/config`, { messageTemplate, imagePaths }, {
-                headers: { 'x-api-key': localApiKey, 'Content-Type': 'application/json' }
-            });
-            // Si guardas correctamente, actualiza la configuración en el estado del hook
-            setConfig(prevConfig => ({ ...prevConfig, messageTemplate, imagePaths }));
-            setSuccessMessage('Mensaje y configuración de imágenes guardados exitosamente!');
-        } catch (err) {
-            setError('Error al guardar la configuración: ' + (err.response?.data?.error || err.message));
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleFileChange = (event) => {
-        setSelectedFile(event.target.files[0]);
-    };
-
-    const handleUploadImage = async () => {
-        if (!selectedFile) {
-            setError('Por favor, selecciona una imagen para subir.');
-            return;
-        }
-
-        setLoading(true);
-        setError(null);
-        setSuccessMessage('');
-
-        const formData = new FormData();
-        formData.append('image', selectedFile);
-
-        try {
-            const response = await axios.post(`${API_BASE_URL}/api/upload-image`, formData, {
-                headers: {
-                    'x-api-key': localApiKey,
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-            // Si subes correctamente, actualiza la configuración en el estado del hook
-            setConfig(response.data.updatedConfig);
-            setSelectedFile(null);
-            setSuccessMessage('Imagen subida y agregada!');
-        } catch (err) {
-            setError('Error al subir imagen: ' + (err.response?.data?.error || err.message));
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDeleteImage = async (imageUrlToDelete) => {
-        setLoading(true);
-        setError(null);
-        setSuccessMessage('');
-
-        try {
-            await axios.delete(`${API_BASE_URL}/api/delete-image`, {
-                headers: {
-                    'x-api-key': localApiKey,
-                    'Content-Type': 'application/json'
-                },
-                data: { imageUrl: imageUrlToDelete }
-            });
-            // Si eliminas correctamente, actualiza la configuración en el estado del hook
-            setConfig(prevConfig => ({
-                ...prevConfig,
-                imagePaths: prevConfig.imagePaths.filter(path => path !== imageUrlToDelete)
-            }));
-            setSuccessMessage('Imagen eliminada!');
-        } catch (err) {
-            setError('Error al eliminar imagen: ' + (err.response?.data?.error || err.message));
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Muestra un mensaje de carga o error si es necesario.
-    // Solo muestra "Cargando..." si realmente no hay datos de configuración aún.
-    if (loading && (!config.messageTemplate && imagePaths.length === 0 && !error)) {
-        return <p>Cargando configuración...</p>;
+  // Inicializa los estados locales una vez que la configuración se carga desde el hook
+  useEffect(() => {
+    if (config) {
+      setMessageTemplate(config.messageTemplate || "");
+      setImagePaths(config.imagePaths || []); // Actualiza imagePaths cuando config cambia
     }
+  }, [config]); // Depende de 'config'
+
+  // Sincroniza el error del hook con el error local
+  useEffect(() => {
     if (error) {
-        return <p style={{ color: 'red' }}>{error}</p>;
+      setLocalError(error);
+    } else {
+      setLocalError(null);
+    }
+  }, [error]);
+
+  const handleSaveMessage = async () => {
+    setLocalError(null); // Limpiar errores previos al guardar
+    setSuccessMessage("");
+    try {
+      await updateConfigApi(messageTemplate, imagePaths);
+      setSuccessMessage(
+        "Mensaje y configuración de imágenes guardados exitosamente!"
+      );
+    } catch (err) {
+      setLocalError(
+        "Error al guardar la configuración: " +
+          (err.response?.data?.message || err.message)
+      );
+      console.error("Error al guardar configuración:", err);
+    }
+  };
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleAnniversaryNumberChange = (event) => {
+    const value = event.target.value;
+    if (/^\d*$/.test(value)) {
+      setAnniversaryNumber(value);
+    }
+  };
+
+  const handleUploadImage = async () => {
+    setLocalError(null);
+    setSuccessMessage("");
+
+    if (!selectedFile) {
+      setLocalError("Por favor, selecciona una imagen para subir.");
+      return;
+    }
+    if (!anniversaryNumber || parseInt(anniversaryNumber) <= 0) {
+      setLocalError(
+        "Por favor, ingresa un número de aniversario válido (entero positivo)."
+      );
+      return;
     }
 
+    const fileExtension = selectedFile.name.split(".").pop().toLowerCase();
+    if (fileExtension !== "png") {
+      setLocalError(
+        "Solo se permiten imágenes PNG. Por favor, selecciona un archivo .png"
+      );
+      return;
+    }
+
+    try {
+      await uploadImageApi(selectedFile, parseInt(anniversaryNumber));
+      setSelectedFile(null);
+      setAnniversaryNumber("");
+      setSuccessMessage("Imagen subida y agregada exitosamente!");
+    } catch (err) {
+      setLocalError(
+        "Error al subir imagen: " + (err.response?.data?.message || err.message)
+      );
+      console.error("Error detallado al subir imagen:", err.response || err);
+    }
+  };
+
+  const handleDeleteImage = async (imageUrlToDelete) => {
+    setLocalError(null);
+    setSuccessMessage("");
+
+    try {
+      await deleteImageApi(imageUrlToDelete);
+      setSuccessMessage("Imagen eliminada exitosamente!");
+    } catch (err) {
+      setLocalError(
+        "Error al eliminar imagen: " +
+          (err.response?.data?.message || err.message)
+      );
+      console.error("Error al eliminar imagen:", err);
+    }
+  };
+
+  // --- Lógica de renderizado basada en estados de carga y error ---
+
+  // Si hay un error (del hook o local), lo mostramos primero
+  if (localError) {
     return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: 'auto' }}>
-            <h2>Página de Mensaje Editable</h2>
-            {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-
-            {/* Sección de Edición del Mensaje */}
-            <div style={{ marginBottom: '30px' }}>
-                <label htmlFor="messageTemplate" style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-                    Mensaje del Crombieversario:
-                </label>
-                <textarea
-                    id="messageTemplate"
-                    value={messageTemplate}
-                    onChange={(e) => setMessageTemplate(e.target.value)}
-                    rows="15"
-                    style={{ width: '100%', padding: '10px', fontSize: '16px', border: '1px solid #ccc', borderRadius: '4px' }}
-                />
-                <button
-                    onClick={handleSaveMessage}
-                    disabled={loading}
-                    style={{
-                        marginTop: '15px',
-                        padding: '10px 20px',
-                        fontSize: '16px',
-                        backgroundColor: '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    {loading ? 'Guardando Mensaje...' : 'Guardar Mensaje'}
-                </button>
-            </div>
-
-            {/* Sección de Gestión de Imágenes */}
-            <div style={{ marginTop: '20px' }}>
-                <h3>Imágenes del Mensaje:</h3>
-
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', border: '1px solid #eee', padding: '15px', borderRadius: '4px', minHeight: '120px', alignItems: 'center' }}>
-                    {imagePaths.length === 0 ? (
-                        <p style={{ color: '#666' }}>No hay imágenes configuradas.</p>
-                    ) : (
-                        imagePaths.map((path, index) => (
-                            <div key={index} style={{ position: 'relative', border: '1px solid #ddd', borderRadius: '4px', overflow: 'hidden' }}>
-                                <img
-                                    src={`${API_BASE_URL}${path}`} // URL completa de la imagen, usa API_BASE_URL del hook
-                                    alt={`Aniversario ${index + 1}`}
-                                    style={{ width: '100px', height: '100px', objectFit: 'cover', display: 'block' }}
-                                />
-                                <button
-                                    onClick={() => handleDeleteImage(path)}
-                                    style={{
-                                        position: 'absolute',
-                                        top: '5px',
-                                        right: '5px',
-                                        background: 'rgba(255,0,0,0.7)',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '50%',
-                                        width: '25px',
-                                        height: '25px',
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        cursor: 'pointer',
-                                        fontSize: '14px',
-                                        lineHeight: '1'
-                                    }}
-                                >
-                                    &times;
-                                </button>
-                            </div>
-                        ))
-                    )}
-                </div>
-
-                <div style={{ marginTop: '20px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
-                    <h4>Subir nueva imagen:</h4>
-                    <input type="file" onChange={handleFileChange} accept="image/*" />
-                    <button
-                        onClick={handleUploadImage}
-                        disabled={loading || !selectedFile}
-                        style={{
-                            marginTop: '10px',
-                            padding: '8px 15px',
-                            fontSize: '14px',
-                            backgroundColor: '#28a745',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '5px',
-                            cursor: 'pointer',
-                            marginLeft: '10px'
-                        }}
-                    >
-                        {loading ? 'Subiendo...' : 'Subir Imagen'}
-                    </button>
-                    {selectedFile && <p style={{ fontSize: '0.9em', color: '#555', marginTop: '5px' }}>Archivo seleccionado: {selectedFile.name}</p>}
-                </div>
-            </div>
-        </div>
+      <div className="Principal">
+        <h2>Error</h2>
+        <p style={{ color: "red" }}>{localError}</p>
+        <button onClick={() => setLocalError(null)} className="botonCerrar">
+          Cerrar
+        </button>
+        {/* Considera aquí también un botón para ir al login si el error es 401/403 */}
+        {error && error.includes("Sesión expirada") && (
+          <button
+            onClick={() => (window.location.href = "/login")}
+            className="botonLogin"
+          >
+            Ir a Login
+          </button>
+        )}
+      </div>
     );
+  }
+
+  // Si está cargando O el objeto config aún no está disponible (puede ser la primera carga)
+  if (
+    loading ||
+    !config ||
+    (Object.keys(config).length === 0 &&
+      !messageTemplate &&
+      imagePaths.length === 0)
+  ) {
+    return <p>Cargando configuración...</p>;
+  }
+
+  // --- Fin de la lógica de renderizado inicial ---
+
+  return (
+    <div className="Principal">
+      <h2>Página de Mensaje Editable</h2>
+
+      {/* Sección de Edición del Mensaje */}
+      <div style={{ marginBottom: "30px" }}>
+        <label htmlFor="messageTemplate" className="mensaje">
+          Mensaje del Crombieversario:
+        </label>
+        <textarea
+          id="messageTemplate"
+          value={messageTemplate}
+          onChange={(e) => setMessageTemplate(e.target.value)}
+          rows="15"
+          className="mensajeTemplate"
+        />
+        <button
+          onClick={handleSaveMessage}
+          disabled={loading}
+          className="botonGuardar"
+        >
+          {loading ? "Guardando Mensaje..." : "Guardar Mensaje"}
+        </button>
+        {successMessage && <p className="success">{successMessage}</p>}{" "}
+      </div>
+
+      {/* Sección de Gestión de Imágenes */}
+      <div style={{ marginTop: "20px" }}>
+        <h3>Imágenes del Mensaje:</h3>
+
+        <div className="divImg">
+          {imagePaths.length === 0 ? (
+            <p style={{ color: "#666" }}>No hay imágenes configuradas.</p>
+          ) : (
+            imagePaths.map((path, index) => {
+              const fileName = path.substring(path.lastIndexOf("/") + 1);
+              const anniversaryNum = fileName.split(".")[0];
+              return (
+                <div key={path} className="img">
+                  <img
+                    src={path}
+                    alt={`Aniversario ${anniversaryNum}`}
+                    className="imagenes"
+                  />
+                  <button
+                    onClick={() => handleDeleteImage(path)}
+                    className="botonDelete"
+                    title={`Eliminar imagen de ${anniversaryNum} años`}
+                  >
+                    &times;
+                  </button>
+                  <p className="etiqueta">{anniversaryNum} años</p>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <div className="divSubir">
+          <h4>Subir nueva imagen para aniversario:</h4>
+          <div>
+            <label htmlFor="anniversaryNumber">Número de aniversario:</label>
+            <input
+              type="number"
+              id="anniversaryNumber"
+              value={anniversaryNumber}
+              onChange={handleAnniversaryNumberChange}
+              min="1"
+              placeholder="Ej: 5"
+              className="numero"
+            />
+          </div>
+          <div className="elegir">
+            <input
+              type="file"
+              id="file-upload"
+              onChange={handleFileChange}
+              accept="image/png"
+              style={{ display: "none" }}
+            />
+            <label htmlFor="file-upload" className="botonSubir">
+              Elegir archivo
+            </label>
+            {selectedFile && (
+              <p className="select">
+                Archivo seleccionado: {selectedFile.name}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={handleUploadImage}
+            disabled={loading || !selectedFile || !anniversaryNumber}
+            className="botonSubir"
+          >
+            {loading ? "Subiendo..." : "Subir Imagen"}
+          </button>
+          {/* El mensaje de error local se muestra aquí */}
+          {localError && (
+            <div className="error">
+              {localError}
+              <button
+                onClick={() => setLocalError(null)}
+                className="botonCerrar"
+              >
+                &times;
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default EditorMensaje;

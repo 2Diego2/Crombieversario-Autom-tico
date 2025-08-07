@@ -1,90 +1,119 @@
-// MailsErrorPage.jsx
+// src/pages/MailsErrorPage.jsx
 
-import React, { useEffect, useState } from 'react';
-import useConfig from '../componentes/useConfig';
-import './MailsErrorPage.css';
-
+import React, { useEffect, useState, useCallback } from "react";
+import useConfig from "../componentes/useConfig"; // Correcto
+import useAuth from "../componentes/useAuth";
+import "./MailsEnviadosPage.css";
+import axios from "axios";
 
 const MailsErrorPage = () => {
-  const { API_BASE_URL, localApiKey } = useConfig();
-  const [mailsConError, setMailsConError] = useState([]); // Renombrado para mayor claridad
+  const { API_BASE_URL } = useConfig();
+  const { getAuthHeader, handleAuthError } = useAuth();
+  const [mailsConError, setMailsConError] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-  console.log('efecto MailsErrorPage', { API_BASE_URL, localApiKey });
-  if (!localApiKey) return;
+  const fetchMails = useCallback(async () => {
+    if (!API_BASE_URL) {
+      setError(
+        "URL base de la API no definida. Retrasando la carga de mails con error."
+      );
+      setLoading(false);
+      return;
+    }
 
-  const fetchMails = async () => {
-    console.log('➡️ lanzando fetch a', `${API_BASE_URL}/api/aniversarios-error`);
+    console.log(
+      "DEBUG fetchMails: API_BASE_URL antes de la petición:",
+      API_BASE_URL
+    );
+    console.log(
+      "➡️ lanzando fetch a",
+      `${API_BASE_URL}/api/aniversarios-error`
+    );
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `${API_BASE_URL}/api/aniversarios-error`,
-        { headers: { 'x-api-key': localApiKey } }
+        {
+          headers: getAuthHeader(), // <<< Usamos getAuthHeader de useAuth
+        }
       );
-      console.log('<< response.ok?', response.ok);
-      if (!response.ok) throw new Error('Error al obtener los mails que fallaron.');
-      const data = await response.json();
-      console.log('<< datos recibidos:', data);
-      setMailsConError(data);
+
+      console.log("<< datos recibidos:", response.data);
+      setMailsConError(response.data);
     } catch (err) {
-      console.error('❌ fallo fetchMails:', err);
-      setError(err.message);
+      console.error("❌ fallo fetchMails:", err);
+      handleAuthError(err);
+
+      // Si el error no es 401/403 (ya manejado por handleAuthError)
+      // y quieres mostrar un mensaje de error específico en esta página:
+      if (
+        !axios.isAxiosError(err) ||
+        (err.response?.status !== 401 && err.response?.status !== 403)
+      ) {
+        setError(
+          "Error en la petición: " +
+            (err.response?.data?.message || err.message || err.toString())
+        );
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE_URL, getAuthHeader, handleAuthError]);
 
-  fetchMails();
-}, [API_BASE_URL, localApiKey]);
-
-
+  useEffect(() => {
+    // Disparamos fetchMails solo si API_BASE_URL ya está definido.
+    if (API_BASE_URL) {
+      fetchMails();
+    }
+  }, [fetchMails, API_BASE_URL]);
 
   return (
     <div className="MailsErrorPage">
-      <h2 className="mails">No enviados.</h2>
+      <h2 className="mails">Mails No Enviados</h2>
 
       {loading ? (
         <p>Cargando...</p>
       ) : error ? (
-        <p style={{ color: 'red' }}>{error}</p>
-      ) : mailsConError.length === 0 ? ( // Usamos directamente el estado
+        <p style={{ color: "red" }}>{error}</p>
+      ) : mailsConError.length === 0 ? (
         <p>¡Excelente! No hay registros de correos que hayan fallado.</p>
       ) : (
-        <table className="tablaMails">
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Años</th>
-              <th>Fecha del Intento</th>
-              <th>Enviado</th>
-              <th>Error</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* Mapeamos directamente sobre el estado */}
-            {mailsConError.map((email) => (
-              <tr key={email._id}>
-                <td>{email.email}</td>
-                <td>{email.years}</td>
-                <td>
-                  {new Date(email.sentDate).toLocaleString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </td>
-                <td>{email.enviado ? 'Sí ✅' : 'No ❌'}</td>
-                {/* Puedes mostrar el mensaje de error si quieres */}
-                <td>{email.errorMessage || 'No especificado'}</td>
+        <div className="table">
+          <table className="tablaMails">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>Años</th>
+                <th>Fecha del Intento</th>
+                <th>Error</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {mailsConError.map((mail) => (
+                <tr key={mail._id}>
+                  <td>{mail.nombre}</td>
+                  <td>{mail.apellido}</td>
+                  <td>{mail.email}</td>
+                  <td>{mail.years}</td>
+                  <td>
+                    {new Date(mail.sentDate).toLocaleString("es-ES", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </td>
+                  <td>{mail.errorMessage || "No especificado"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
