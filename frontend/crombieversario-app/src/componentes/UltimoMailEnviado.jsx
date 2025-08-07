@@ -49,11 +49,11 @@ const UltimoMailEnviado = () => {
             {ultimoMail ? (
                 <div className="space-y-1 info-fila">
                     <div className="columna-izquierda">
-                        <p><strong>Nombre:</strong> {ultimoMail.nombre} {ultimoMail.apellido}</p>
-                        <p><strong>Email:</strong> {ultimoMail.email}</p>
+                        <p><strong>{ultimoMail.nombre} {ultimoMail.apellido}</strong></p>
+                        <p><em>{ultimoMail.email}</em></p>
                     </div>
                     <div className="columna-derecha">
-                        <p><strong>Fecha de envío:</strong> {new Date(ultimoMail.sentDate).toLocaleString('es-ES')}</p>
+                        <p><strong>Fecha:</strong> {new Date(ultimoMail.sentDate).toLocaleString('es-ES')}</p>
                         <p>
                             <strong>Leído:</strong>{' '}
                             {ultimoMail.opened ? (
