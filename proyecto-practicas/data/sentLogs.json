@@ -1,19 +1,19 @@
 [
   {
-    "nombre": "Carlos",
+    "nombre": "Carlos Saul Menem",
     "apellido": "Molina",
     "email": "carlos.molina2025@example.com",
     "years": 3,
-    "sentDate": "2025-01-05T08:00:00.000Z",
+    "sentDate": "2025-08-05T08:00:00.000Z",
     "opened": true,
-    "openedAt": "2025-01-05T08:05:00.000Z"
+    "openedAt": "2025-08-05T08:05:00.000Z"
   },
   {
     "nombre": "Elena",
     "apellido": "Torres",
     "email": "elena.torres2025@example.com",
     "years": 2,
-    "sentDate": "2025-01-15T09:30:00.000Z",
+    "sentDate": "2025-08-05T09:30:00.000Z",
     "opened": false,
     "openedAt": null
   },
@@ -22,16 +22,16 @@
     "apellido": "Sánchez",
     "email": "david.sanchez2025@example.com",
     "years": 4,
-    "sentDate": "2025-01-22T10:10:00.000Z",
+    "sentDate": "2025-08-05T10:10:00.000Z",
     "opened": true,
-    "openedAt": "2025-01-22T10:12:00.000Z"
+    "openedAt": "2025-08-05T10:12:00.000Z"
   },
   {
     "nombre": "Raquel",
     "apellido": "Lopez",
     "email": "raquel.lopez2025@example.com",
     "years": 5,
-    "sentDate": "2025-01-28T11:00:00.000Z",
+    "sentDate": "2025-08-05T11:00:00.000Z",
     "opened": false,
     "openedAt": null
   },
@@ -40,9 +40,9 @@
     "apellido": "Moreno",
     "email": "javier.moreno2025@example.com",
     "years": 6,
-    "sentDate": "2025-01-30T12:15:00.000Z",
+    "sentDate": "2025-08-05T12:15:00.000Z",
     "opened": true,
-    "openedAt": "2025-01-30T12:17:00.000Z"
+    "openedAt": "2025-08-05T12:17:00.000Z"
   },
   
   {
@@ -50,7 +50,7 @@
     "apellido": "Romero",
     "email": "nadia.romero2025@example.com",
     "years": 7,
-    "sentDate": "2025-02-05T08:45:00.000Z",
+    "sentDate": "2025-08-05T08:45:00.000Z",
     "opened": false,
     "openedAt": null
   },
@@ -59,173 +59,8 @@
     "apellido": "Garcia",
     "email": "samuel.garcia2025@example.com",
     "years": 8,
-    "sentDate": "2025-02-10T09:20:00.000Z",
+    "sentDate": "2025-08-05T09:20:00.000Z",
     "opened": true,
-    "openedAt": "2025-02-10T09:25:00.000Z"
-  },
-  {
-    "nombre": "Isabel",
-    "apellido": "Cordero",
-    "email": "isabel.cordero2025@example.com",
-    "years": 9,
-    "sentDate": "2025-02-15T10:30:00.000Z",
-    "opened": false,
-    "openedAt": null
-  },
-  {
-    "nombre": "Félix",
-    "apellido": "Vega",
-    "email": "felix.vega2025@example.com",
-    "years": 10,
-    "sentDate": "2025-02-18T11:40:00.000Z",
-    "opened": true,
-    "openedAt": "2025-02-18T11:42:00.000Z"
-  },
-  {
-    "nombre": "Alicia",
-    "apellido": "Pérez",
-    "email": "alicia.perez2025@example.com",
-    "years": 11,
-    "sentDate": "2025-02-22T14:05:00.000Z",
-    "opened": false,
-    "openedAt": null
-  },
-
-  {
-    "nombre": "Andrés",
-    "apellido": "Martínez",
-    "email": "andres.martinez2025@example.com",
-    "years": 12,
-    "sentDate": "2025-03-01T08:10:00.000Z",
-    "opened": true,
-    "openedAt": "2025-03-01T08:12:00.000Z"
-  },
-  {
-    "nombre": "Beatriz",
-    "apellido": "Fernández",
-    "email": "beatriz.fernandez2025@example.com",
-    "years": 13,
-    "sentDate": "2025-03-07T09:30:00.000Z",
-    "opened": false,
-    "openedAt": null
-  },
-  {
-    "nombre": "Guillermo",
-    "apellido": "López",
-    "email": "guillermo.lopez2025@example.com",
-    "years": 14,
-    "sentDate": "2025-03-14T10:45:00.000Z",
-    "opened": true,
-    "openedAt": "2025-03-14T10:50:00.000Z"
-  },
-  {
-    "nombre": "María",
-    "apellido": "Jiménez",
-    "email": "maria.jimenez2025@example.com",
-    "years": 15,
-    "sentDate": "2025-03-22T12:20:00.000Z",
-    "opened": true,
-    "openedAt": "2025-03-22T12:25:00.000Z"
-  },
-  {
-    "nombre": "Óscar",
-    "apellido": "Ramírez",
-    "email": "oscar.ramirez2025@example.com",
-    "years": 16,
-    "sentDate": "2025-03-30T13:30:00.000Z",
-    "opened": false,
-    "openedAt": null
-  },
-  
-  {
-    "nombre": "Teresa",
-    "apellido": "Serrano",
-    "email": "teresa.serrano2025@example.com",
-    "years": 17,
-    "sentDate": "2025-04-05T08:05:00.000Z",
-    "opened": true,
-    "openedAt": "2025-04-05T08:10:00.000Z"
-  },
-  {
-    "nombre": "Iván",
-    "apellido": "Núñez",
-    "email": "ivan.nunez2025@example.com",
-    "years": 18,
-    "sentDate": "2025-04-12T09:15:00.000Z",
-    "opened": false,
-    "openedAt": null
-  },
-  {
-    "nombre": "Laura",
-    "apellido": "Pinto",
-    "email": "laura.pinto2025@example.com",
-    "years": 19,
-    "sentDate": "2025-04-15T11:30:00.000Z",
-    "opened": true,
-    "openedAt": "2025-04-15T11:35:00.000Z"
-  },
-  {
-    "nombre": "Pedro",
-    "apellido": "Castaño",
-    "email": "pedro.castano2025@example.com",
-    "years": 20,
-    "sentDate": "2025-04-20T13:40:00.000Z",
-    "opened": false,
-    "openedAt": null
-  },
-  {
-    "nombre": "Raúl",
-    "apellido": "Guzmán",
-    "email": "raul.guzman2025@example.com",
-    "years": 21,
-    "sentDate": "2025-04-25T14:55:00.000Z",
-    "opened": true,
-    "openedAt": "2025-04-25T15:00:00.000Z"
-  },
-
-  {
-    "nombre": "Esteban",
-    "apellido": "Hernández",
-    "email": "esteban.hernandez2025@example.com",
-    "years": 22,
-    "sentDate": "2025-05-01T08:00:00.000Z",
-    "opened": true,
-    "openedAt": "2025-05-01T08:05:00.000Z"
-  },
-  {
-    "nombre": "Vanessa",
-    "apellido": "Giménez",
-    "email": "vanessa.gimenez2025@example.com",
-    "years": 23,
-    "sentDate": "2025-05-03T09:30:00.000Z",
-    "opened": false,
-    "openedAt": null
-  },
-  {
-    "nombre": "Antonio",
-    "apellido": "Rodríguez",
-    "email": "antonio.rodriguez2025@example.com",
-    "years": 24,
-    "sentDate": "2025-05-10T10:50:00.000Z",
-    "opened": true,
-    "openedAt": "2025-05-10T10:55:00.000Z"
-  },
-  {
-    "nombre": "Cristina",
-    "apellido": "Álvarez",
-    "email": "cristina.alvarez2025@example.com",
-    "years": 25,
-    "sentDate": "2025-05-15T11:15:00.000Z",
-    "opened": false,
-    "openedAt": null
-  },
-  {
-    "nombre": "Víctor",
-    "apellido": "Suárez",
-    "email": "victor.suarez2025@example.com",
-    "years": 26,
-    "sentDate": "2025-05-20T13:00:00.000Z",
-    "opened": true,
-    "openedAt": "2025-05-20T13:05:00.000Z"
+    "openedAt": "2025-08-05T09:25:00.000Z"
   }
 ]

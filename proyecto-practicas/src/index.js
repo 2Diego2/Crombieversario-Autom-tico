@@ -115,7 +115,7 @@ console.log(`[DEBUG PATH] Intentando leer imagen desde esta ruta: "${physicalIma
 });
 
 // --- Función Principal de Ejecución ---
-cron.schedule(  "18 11 * * 1-5", async () => {
+cron.schedule(  "13 09 * * 1-5", async () => {
     // Conectar a la base de datos
     await connectDB();
     console.log("Base de datos conectada para la ejecución principal.");

@@ -8,7 +8,7 @@ const useEstadisticasMailMes = () => {
   const [errorr,                setError]                = useState(null);
 
   const ahora = new Date();
-  const mesActual = ahora.getMonth() + 1; 
+  const mesActual = ahora.getMonth() + 1; //Por que getMonth() devuelve 0-11 
 
   useEffect(() => {
     const fetchEmailStats = async () => {
@@ -32,10 +32,13 @@ const useEstadisticasMailMes = () => {
 
         // 1) Línea
         const lineData = data.map(item => ({
+          //Se
           mes:      String(item.month).padStart(2, '0'),
           enviados: item.sent,
           abiertos: item.opened,
+         
         }))
+        //Ordenar por mes (en caso de que la API no lo haga)
         .sort((a,b) => a.mes.localeCompare(b.mes));
         
         setEstadisticasMensuales(lineData);

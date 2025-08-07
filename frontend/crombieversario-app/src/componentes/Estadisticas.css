@@ -11,6 +11,13 @@
   justify-content: space-between;
   gap: 20px;
 }
+.graficos-mes,.graficos-semana {
+
+ justify-content: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
 
 .chart-container {
   flex: 1 1 48%; /* Ocupa casi la mitad del contenedor */

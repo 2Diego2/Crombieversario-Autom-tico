@@ -147,9 +147,9 @@ const Estadisticas = () => {
               <button onClick={() => setVista('anio')}>Volver a {ANIO_ACTUAL}</button>
             </div>
           </div>
-          <div className="graficos">
+          <div className="graficos-mes">
             <GraficoLineas data={EstadisticasMensuales} dataKeyX="mes" />
-            <GraficoTorta data={DataTortaMesActual} />
+            {/*<GraficoTorta data={DataTortaMesActual} />*/}
           </div>
         </>
       )}
@@ -164,9 +164,9 @@ const Estadisticas = () => {
                 <button onClick={() => setVista('anio')}>Volver a {ANIO_ACTUAL}</button>
             </div>
           </div>
-          <div className="graficos">
+          <div className="graficos-semana">
             <GraficoLineas data={dataSemanal} dataKeyX="period" />
-            <GraficoTorta data={tortaSemanal} />
+            {/*<GraficoTorta data={tortaSemanal} />*/}
           </div>
         </>
       )}

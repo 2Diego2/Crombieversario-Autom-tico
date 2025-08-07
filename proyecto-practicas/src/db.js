@@ -271,9 +271,9 @@ async function getYearlyEmailStats() {
                     opened: 1 // Incluye el conteo de abiertos
                 }
             },
-            /*{
+            {
                 $sort: { year: 1 } // Ordena los resultados por año ascendente
-            }*/
+            }
         ]);
         console.log('Estadísticas anuales de email obtenidas:', stats);
         return stats;
@@ -283,7 +283,10 @@ async function getYearlyEmailStats() {
     }
 }
 
-async function getMonthlyEmailStats() {
+
+
+
+  async function getMonthlyEmailStats(year) {
   try {
     const stats = await SentLog.aggregate([
       // 1) Selecciona sólo documentos con sentDate válido
@@ -325,10 +328,11 @@ async function getMonthlyEmailStats() {
         }
       },
       // 4) Ordena por año y mes ascendente
-      /*{
+      /*  { 
         $sort: { year: 1, month: 1 }
-      }*/
-    ]);
+      } */
+
+  ]); 
 
     console.log('Estadísticas mensuales de email obtenidas:', stats);
     return stats;
@@ -336,7 +340,7 @@ async function getMonthlyEmailStats() {
     console.error('Error al obtener estadísticas mensuales de email:', error.message);
     throw error;
   }
-}
+} 
 
 async function getLast7DaysTotals() {
   try {
