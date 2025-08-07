@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding-bottom: 10px;
 }
 
 .graficos {
@@ -23,7 +22,6 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 30px;
 }
 
 .estadisticas-header button {

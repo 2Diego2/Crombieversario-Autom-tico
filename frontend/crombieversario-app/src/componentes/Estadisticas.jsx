@@ -1,17 +1,22 @@
 // src/componentes/Estadisticas.jsx
 import React from 'react';
+import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import './Estadisticas.css';
 import useEstadisticasMail from './useEstadisticasMail';
 import useEstadisticasMailMes from './useEstadisticasMailMes';
 import useEstadisticasMailSemana from './useEstadisticasMailSemana';
 
+import axios from 'axios';
+import useConfig from './useConfig';
+import useAuth from './useAuth';
+
 const COLORS = ['#30C07F', '#25B1DF'];
 
 const Estadisticas = () => {
   const { EstadisticasAnuales, DataTortaAnioActual, loading: loadingAnual, error: errorAnual, ANIO_ACTUAL } = useEstadisticasMail();
-  const { EstadisticasMensuales, DataTortaMesActual, loadingg: loadingMensual, errorr: errorMensual, mesActual } = useEstadisticasMailMes();
-  const { lineData: dataSemanal, pieData: tortaSemanal, loadinggg: loadingSemanal, errorrr: errorSemanal } = useEstadisticasMailSemana();
+  const { estadisticasMensuales: EstadisticasMensuales, dataTortaMesActual: DataTortaMesActual, loading: loadingMensual, error: errorMensual, mesActual } = useEstadisticasMailMes();
+  const { lineData: dataSemanal, pieData: tortaSemanal, loading: loadingSemanal, error: errorSemanal } = useEstadisticasMailSemana();
 
   const [vista, setVista] = useState('anio');
   const [selectedYear, setSelectedYear] = useState(null);
@@ -19,62 +24,66 @@ const Estadisticas = () => {
   const [loadingYearlyMonths, setLoadingYearlyMonths] = useState(false);
   const [errorYearlyMonths, setErrorYearlyMonths] = useState(null);
 
+  const { API_BASE_URL } = useConfig();
+  const { getAuthHeader, handleAuthError } = useAuth();
+
   const nombreMes = new Date(ANIO_ACTUAL, mesActual - 1).toLocaleString('es-ES', { month: 'long' });
-  const availableYears = EstadisticasAnuales.map(e => e.año).filter(year => year !== String(ANIO_ACTUAL));
+  const availableYears = EstadisticasAnuales.map(e => e.year).filter(year => year !== String(ANIO_ACTUAL));
 
-  useEffect(() => {
-    if (vista !== 'mesañoselec' || !selectedYear) return;
+useEffect(() => {
+        if (vista !== 'mesañoselec' || !selectedYear) return;
 
-    const fetchMonthlyDataForYear = async () => {
-      setLoadingYearlyMonths(true);
-      setErrorYearlyMonths(null);
-      try {
-        const apiKey = localStorage.getItem('api_key');
-        if (!apiKey) throw new Error('API Key no disponible');
+        const fetchMonthlyDataForYear = async () => {
+            setLoadingYearlyMonths(true);
+            setErrorYearlyMonths(null);
+            try {
+                const res = await axios.get(
+                    `${API_BASE_URL}/api/email-stats/monthly?year=${selectedYear}`, {
+                        headers: getAuthHeader()
+                    }
+                );
 
-        const res = await fetch(
-          `http://localhost:3033/api/email-stats/monthly?year=${selectedYear}`,
-          { headers: { 'x-api-key': apiKey } }
-        );
+                const data = res.data;
+                const dataMap = new Map(data.map(item => [item.month, item]));
+                
+                const lineData = Array.from({ length: 12 }, (_, i) => {
+                    const monthNumber = i + 1;
+                    const monthData = dataMap.get(monthNumber) || { sent: 0, opened: 0 };
+                    return {
+                        mes: new Date(selectedYear, i).toLocaleString('es-ES', { month: 'long' }),
+                        enviados: monthData.sent,
+                        abiertos: monthData.opened,
+                    };
+                });
+                
+                const totalSent = lineData.reduce((acc, item) => acc + item.enviados, 0);
+                const totalOpened = lineData.reduce((acc, item) => acc + item.abiertos, 0);
 
-        if (!res.ok) {
-          const errBody = await res.text();
-          throw new Error(`Error ${res.status}: ${errBody}`);
-        }
+                const pieData = [
+                    { nombre: 'Abiertos', valor: totalOpened },
+                    { nombre: 'No Abiertos', valor: totalSent - totalOpened },
+                ];
 
-        const data = await res.json();
+                setMonthlyStatsForYear({ lineData, pieData });
+
+            } catch (err) {
+                console.error(`Error al cargar stats mensuales para el año ${selectedYear}:`, err);
+                handleAuthError(err);
+                if (!axios.isAxiosError(err) || (err.response?.status !== 401 && err.response?.status !== 403)) {
+                    setErrorYearlyMonths(err.response?.data?.message || err.message);
+                }
+            } finally {
+                setLoadingYearlyMonths(false);
+            }
+        };
         
-        const lineData = data.map(item => ({
-          mes: new Date(selectedYear, item.month - 1).toLocaleString('es-ES', { month: 'long' }),
-          enviados: item.sent,
-          abiertos: item.opened,
-        }));
+        if (API_BASE_URL && selectedYear) {
+            fetchMonthlyDataForYear();
+        }
+    }, [vista, selectedYear, API_BASE_URL, getAuthHeader, handleAuthError]);
 
-        const totalSent = data.reduce((acc, item) => acc + item.sent, 0);
-        const totalOpened = data.reduce((acc, item) => acc + item.opened, 0);
-
-        const pieData = [
-          { nombre: 'No Abiertos', valor: totalSent - totalOpened },
-          { nombre: 'Abiertos', valor: totalOpened },
-          
-        ];
-
-        setMonthlyStatsForYear({ lineData, pieData });
-
-      } catch (err) {
-        console.error(`Error al cargar stats mensuales para el año ${selectedYear}:`, err);
-        setErrorYearlyMonths(err.message);
-      } finally {
-        setLoadingYearlyMonths(false);
-      }
-    };
-
-    fetchMonthlyDataForYear();
-  }, [vista, selectedYear]);
-
-
-  if (loadingAnual || loadingMensual || loadingSemanal) return <p>Cargando estadísticas...</p>;
-  if (errorAnual || errorMensual || errorSemanal) return <p style={{ color: 'red' }}>{errorAnual || errorMensual || errorSemanal}</p>;
+  if (loadingAnual || loadingMensual || loadingSemanal || loadingYearlyMonths) return <p>Cargando estadísticas...</p>;
+  if (errorAnual || errorMensual || errorSemanal || errorYearlyMonths) return <p style={{ color: 'red' }}>{errorAnual || errorMensual || errorSemanal || errorYearlyMonths}</p>;
 
   return (
     <div className="estadisticas">
@@ -89,7 +98,7 @@ const Estadisticas = () => {
             </div>
           </div>
           <div className="graficos">
-            <GraficoLineas data={EstadisticasAnuales} dataKeyX="año" />
+            <GraficoLineas data={EstadisticasAnuales} dataKeyX="year" />
             <GraficoTorta data={DataTortaAnioActual} />
           </div>
         </>
@@ -125,14 +134,12 @@ const Estadisticas = () => {
               <button onClick={() => setVista('anioSelec')}>Volver a la Selección de Años</button>
             </div>
           </div>
-          {loadingYearlyMonths && <p>Cargando estadísticas del año {selectedYear}...</p>}
-          {errorYearlyMonths && <p style={{ color: 'red' }}>{errorYearlyMonths}</p>}
-          {!loadingYearlyMonths && !errorYearlyMonths && monthlyStatsForYear.lineData.length > 0 ? (
+          {monthlyStatsForYear.lineData.length > 0 ? (
             <div className="graficos">
               <GraficoLineas data={monthlyStatsForYear.lineData} dataKeyX="mes" />
               <GraficoTorta data={monthlyStatsForYear.pieData} />
             </div>
-          ) : !loadingYearlyMonths && <p>No hay datos disponibles para el año {selectedYear}.</p>}
+          ) : <p>No hay datos disponibles para el año {selectedYear}.</p>}
         </>
       )}
 

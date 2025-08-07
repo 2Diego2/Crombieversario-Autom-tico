@@ -99,7 +99,7 @@ function DashboardContent({ onLogout, userEmail, userRole, userProfileImage }) {
             <h2>Último mail enviado</h2>
             <UltimoMailEnviado />
               <Link to="/dashboard/mails-enviados">
-                <button className="verMas" style={{ marginTop: '15px' }}>Ver más</button>
+                <button className="verMas">Ver más</button>
               </Link>
             </div>
 

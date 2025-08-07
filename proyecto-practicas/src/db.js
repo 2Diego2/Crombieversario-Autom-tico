@@ -74,7 +74,7 @@ const sentLogSchema = new mongoose.Schema({
     opened: { type: Boolean, default: false },
     openedAt: { type: Date }
 }, { timestamps: true }); // 'timestamps: true' añade 'createdAt' y 'updatedAt' automáticamente
-const SentLog = mongoose.model('SentLog', sentLogSchema);
+const SentLog = mongoose.model('SentLog', sentLogSchema, 'sentlogs');
 
 const failedEmailLogSchema = new mongoose.Schema({
     nombre: { type: String, required: true },
@@ -273,144 +273,143 @@ async function recordEmailOpen(email, years) {
     }
 }
 
-async function getYearlyEmailStats() {
+const getYearlyEmailStats = async () => {
     try {
+        console.log('Iniciando agregación de estadísticas anuales...');
         const stats = await SentLog.aggregate([
             {
-                // Paso 1: Asegurarse de que 'sentDate' existe y es de tipo 'date'
-                $match: {
-                    sentDate: { $exists: true, $type: "date" } 
-                }
-            },
-            {
                 $group: {
-                    _id: { $year: "$sentDate" }, // Agrupa por el año de la fecha de envío
-                    sent: { $sum: 1 }, // Cada documento en SentLog representa un email enviado
+                    _id: { $year: '$sentDate' },
+                    sent: { $sum: 1 },
                     opened: {
                         $sum: {
-                            $cond: [{ $eq: ["$opened", true] }, 1, 0] // Suma 1 si 'opened' es true
+                            $cond: [
+                                { $ne: ['$openedAt', null] },
+                                1,
+                                0
+                            ]
                         }
                     }
                 }
             },
             {
                 $project: {
-                    _id: 0, // Excluye el campo _id del resultado final
-                    year: "$_id", // Renombra _id (que es el año) a 'year'
-                    sent: 1, // Incluye el conteo de enviados
-                    opened: 1 // Incluye el conteo de abiertos
+                    _id: 0,
+                    year: '$_id',
+                    sent: '$sent',
+                    opened: '$opened'
                 }
             },
-            /*{
-                $sort: { year: 1 } // Ordena los resultados por año ascendente
-            }*/
+            {
+                $sort: { year: 1 }
+            }
         ]);
-        console.log('Estadísticas anuales de email obtenidas:', stats);
+        console.log('Resultado de la agregación de estadísticas anuales:', stats);
         return stats;
-    } catch (error) {
-        console.error('Error al obtener estadísticas anuales de email (MongoDB):', error.message);
-        throw error; // Propaga el error para que sea manejado en el endpoint
+    } catch (err) {
+        console.error('Error en la agregación de estadísticas anuales:', err);
+        throw err;
     }
-}
+};
 
-async function getMonthlyEmailStats() {
-  try {
-    const stats = await SentLog.aggregate([
-      // 1) Selecciona sólo documentos con sentDate válido
-      {
-        $match: {
-          sentDate: { $exists: true, $type: "date" }
-        }
-      },
-      // 2) Agrupa por año y mes del sentDate
-      {
-        $group: {
-          _id: {
-            year:  { $year:  "$sentDate" },
-            month: { $month: "$sentDate" }
-          },
-          sent:   { $sum: 1 },
-          opened: {
-            $sum: {
-              $cond: [{ $eq: ["$opened", true] }, 1, 0]
+const getMonthlyEmailStats = async (year) => {
+    try {
+        const startDate = new Date(year, 0, 1);
+        const endDate = new Date(year + 1, 0, 1);
+
+        return await SentLog.aggregate([
+            {
+                $match: {
+                    sentDate: {
+                        $gte: startDate,
+                        $lt: endDate
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: { $month: '$sentDate' },
+                    sent: { $sum: 1 },
+                    opened: {
+                        $sum: {
+                            $cond: [
+                                { $ne: ['$openedAt', null] },
+                                1,
+                                0
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    month: '$_id',
+                    sent: '$sent',
+                    opened: '$opened'
+                }
+            },
+            {
+                $sort: { month: 1 }
             }
-          },
-          unread: {
-            // Cuenta los no leídos: opened === false
-            $sum: {
-              $cond: [{ $eq: ["$opened", false] }, 1, 0]
-            }
-          }
-        }
-      },
-      // 3) Proyecta los campos que te interesan
-      {
-        $project: {
-          _id:    0,
-          year:   "$_id.year",
-          month:  "$_id.month",
-          sent:   1,
-          opened: 1,
-          unread: 1
-        }
-      },
-      // 4) Ordena por año y mes ascendente
-      /*{
-        $sort: { year: 1, month: 1 }
-      }*/
-    ]);
+        ]);
+    } catch (err) {
+        console.error('Error en la agregación de estadísticas mensuales', err);
+        throw err;
+    }
+};
 
-    console.log('Estadísticas mensuales de email obtenidas:', stats);
-    return stats;
-  } catch (error) {
-    console.error('Error al obtener estadísticas mensuales de email:', error.message);
-    throw error;
-  }
-}
+const getLast7DaysTotals = async () => {
+    try {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-async function getLast7DaysTotals() {
-  try {
-    const end   = new Date();                // ahora
-    const start = new Date(end);            
-    start.setDate(end.getDate() - 6);        // hace 6 días, para cubrir 7 jornadas (incluye hoy)
+        const stats = await SentLog.aggregate([
+            {
+                $match: {
+                    sentDate: {
+                        $gte: sevenDaysAgo,
+                    },
+                },
+            },
+            {
+                $group: {
+                    _id: {
+                        $dateToString: { format: '%Y-%m-%d', date: '$sentDate' },
+                    },
+                    sent: { $sum: 1 },
+                    opened: {
+                        $sum: {
+                            $cond: [{ $eq: ['$opened', true] }, 1, 0],
+                        },
+                    },
+                },
+            },
+            {
+                $sort: { _id: 1 },
+            },
+        ]);
+        
+        // Formatear los datos para garantizar que se devuelvan los 7 días
+        const dailyStatsMap = new Map(stats.map(item => [item._id, { sent: item.sent, opened: item.opened }]));
+        const formattedStats = Array.from({ length: 7 }, (_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - (6 - i)); // Calcular la fecha para cada día
+            const dateStr = date.toISOString().slice(0, 10);
+            const data = dailyStatsMap.get(dateStr) || { sent: 0, opened: 0 };
+            return {
+                day: date.toLocaleDateString('es-ES', { weekday: 'short' }),
+                sent: data.sent,
+                opened: data.opened,
+            };
+        });
 
-    const stats = await SentLog.aggregate([
-      {
-        $match: {
-          sentDate: { $gte: start, $lte: end }
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          sent: {
-            $sum: 1
-          },
-          opened: {
-            $sum: { $cond: [{ $eq: ["$opened", true] }, 1, 0] }
-          },
-          unread: {
-            $sum: { $cond: [{ $eq: ["$opened", false] }, 1, 0] }
-          }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          sent: 1,
-          opened: 1,
-          unread: 1
-        }
-      }
-    ]);
-    
-    console.log('Estadísticas de la semana obtenidas:', stats);
-    return stats[0] || { sent: 0, opened: 0, unread: 0 };
-  } catch (err) {
-    console.error("Error al obtener totales últimos 7 días:", err);
-    throw err;
-  }
-}
+        return formattedStats;
+    } catch (err) {
+        console.error('Error en la agregación de estadísticas de los últimos 7 días:', err);
+        throw err;
+    }
+};
 
 // *Operaciones Básicas para Colaboradores (si decides migrarlos a la DB)*
 

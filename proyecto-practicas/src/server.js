@@ -490,6 +490,8 @@ app.get('/api/email-stats/yearly', authenticateToken, authorize([ROLES.SUPER_ADM
     console.log('Recibida petición GET /api/email-stats/yearly');
     try {
         const stats = await getYearlyEmailStats();
+        // Agregamos este console.log para ver el resultado de la función.
+        console.log('Datos de estadísticas anuales obtenidos:', stats); 
         res.json(stats);
     } catch (error) {
         console.error('Error en el endpoint /api/email-stats/yearly:', error);
@@ -500,8 +502,9 @@ console.log('--- Ruta /api/email-stats/yearly registrada con éxito ---');
 
 app.get('/api/email-stats/monthly', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
   console.log('Recibida petición GET /api/email-stats/monthly ');
+  const year = req.query.year || new Date().getFullYear();
   try {
-    const stats = await getMonthlyEmailStats();
+    const stats = await getMonthlyEmailStats(year);
     res.json(stats);
   } catch (error) {
     console.error('Error en el endpoint /api/email-stats/monthly:', error);
