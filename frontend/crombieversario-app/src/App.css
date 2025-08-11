@@ -9,7 +9,7 @@
   --textoSecundario: #5A6374; /* gris azulado suave */
 
   /* Acentos vivos inspirados en crombie.dev */
-  --acentoPrimario: #22C7E7;  /* azul verdoso claro y moderno */
+  --acentoPrimario: #ffffff;  /* azul verdoso claro y moderno */
   --acentoPrimHover: #1BABCD; /* hover sutil sobre primario */
   --acentoSecundario: #FF9500;/* amarillo-naranja vibrante y cálido */
 
@@ -137,17 +137,16 @@ aside.div1 {
 }
 
 .menu-item:hover {
-  background-color: var(--acentoPrimario); /* Usar acentoPrimario para hover */
-  color: white; /* Texto blanco en hover si el fondo es azul */
+  background-color: var(--acentoPrimario);
+  color: rgb(0, 0, 0);
+  transition: all 0.3s ease;
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.menu-item.active-menu-item,
-.menu-item:focus {
-  background-color: var(--acentoPrimario); /* Activo también con el color principal */
-  color: white; /* Texto blanco para el activo */
-  outline: none;
+.menu-item:hover::after {
+  left: 130%;
 }
-
 .footer-aside {
   margin-top: auto;
   padding-top: var(--padding-box); /* Usa padding-top en lugar de padding para el borde */

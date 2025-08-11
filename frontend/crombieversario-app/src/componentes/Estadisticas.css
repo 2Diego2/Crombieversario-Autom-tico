@@ -12,39 +12,25 @@
 }
 
 .chart-container {
-  flex: 1 1 48%; /* Ocupa casi la mitad del contenedor */
+  flex: 1 1 48%;
   min-width: 300px;
   height: 300px;
 }
 
 .estadisticas-header {
-    display: flex;
+  display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 20px;
 }
 
-.estadisticas-header button {
-  padding: 8px 16px;
-  background-color: #6D7CFF;
-  color: #F4F4F4;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  font-size: 17px;
-  letter-spacing: 0.5px;
-}
-.estadisticas-header button:hover {
-  background-color: #5A6EE0;
-}
-
-.data{ 
+.data { 
   flex: 1 1 48%;
   min-width: 300px;
   max-width: 48%;
   height: 300px;
 }
+
 .years-selection {
   display: flex;
   flex-wrap: wrap;
@@ -53,35 +39,64 @@
   padding: 20px 0;
 }
 
+
+.estadisticas-header button,
 .years-selection button {
-  padding: 10px 20px;
-  background-color: #6D7CFF;
+  padding: 10px 22px;
+  background-color: #8A42FF; 
   color: #F4F4F4;
   border: none;
-  border-radius: 5px;
+  border-radius: 20px;
   cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
+  font-size: 17px;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+.estadisticas-header button:hover,
 .years-selection button:hover {
-  background-color: #5A6EE0;
+  background-color: #7B3AE0; /* Tono más oscuro para el hover */
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(138, 66, 255, 0.3);
 }
 
 .button-outline {
+  padding: 10px 22px;
   background-color: transparent;
-  border: 2px solid #6D7CFF;
-  color: #6D7CFF;
-}
-.button-outline:hover {
-  background-color: #6D7CFF;
-  color: #F4F4F4;
+  border: 2px solid #00F2A5; /* Verde de Crombie.dev */
+  color: #00F2A5;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 17px;
+  transition: all 0.3s ease;
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Variante alerta */
+.button-outline:hover {
+  background-color: #00F2A5;
+  color: #1a1a1a; /* Texto oscuro para buen contraste */
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(0, 242, 165, 0.4);
+}
+
 .button-alert {
+  padding: 10px 22px;
   background-color: #FF1974;
   color: #F4F4F4;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 17px;
+  transition: all 0.3s ease;
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
 .button-alert:hover {
   background-color: #E01667;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(255, 25, 116, 0.3);
 }
