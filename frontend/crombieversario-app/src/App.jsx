@@ -48,21 +48,6 @@ function App() {
     setUserProfileImage(null);
   };
 
-
-  if (loading) {
-    return <div>Cargando configuración...</div>;
-  }
-
-  if (error) {
-    return <div>Error al cargar la aplicación: {error}</div>;
-  }
-
-  console.log("API Key disponible en App:", localApiKey); // Para verificar que la API Key llega aquí también
-
-
-
-
-  
   return (
     <Routes>
       <Route path="/login" element={

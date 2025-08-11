@@ -1,4 +1,3 @@
-// src/pages/MailsErrorPage.jsx
 
 import React, { useEffect, useState, useCallback } from "react";
 import useConfig from "../componentes/useConfig"; // Correcto

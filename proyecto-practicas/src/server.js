@@ -226,11 +226,12 @@ app.post('/api/register-admin', requireApiKey, async (req, res) => {
             return res.status(409).json({ message: 'Este email ya está registrado.' });
         }
 
-        const salt = await bcrypt.genSalt(10);
+        /*const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
 
         // Siempre crea como 'super_admin' con esta ruta inicial
-        const newUser = await createUser(email, passwordHash, ROLES.SUPER_ADMIN);
+        const newUser = await createUser(email, passwordHash, ROLES.SUPER_ADMIN);*/
+        const newUser = await createUser(email, password, ROLES.SUPER_ADMIN);
         res.status(201).json({ message: `Usuario ${ROLES.SUPER_ADMIN} creado exitosamente.`, userId: newUser._id });
 
     } catch (error) {
@@ -265,6 +266,7 @@ app.post('/api/users/create', authenticateToken, authorize(ROLES.SUPER_ADMIN), a
             finalProfileImageUrl = '/LogoSolo.jpg';
         }
         
+        //const newUser = await createUser(email, password, role, finalProfileImageUrl);
         const newUser = await createUser(email, password, role, finalProfileImageUrl);
         res.status(201).json({ message: `Usuario ${role} creado exitosamente.`, userId: newUser._id });
 

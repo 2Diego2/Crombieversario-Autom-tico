@@ -20,7 +20,8 @@ const User = mongoose.model('User', userSchema);
  * @param {string} email El email del usuario.
  * @returns {Promise<Object|null>} El objeto de usuario si se encuentra, de lo contrario null.
  */
-async function findUserByEmail(email) {
+
+/*async function findUserByEmail(email) {
     try {
         const user = await User.findOne({ email });
         return user;
@@ -28,7 +29,19 @@ async function findUserByEmail(email) {
         console.error('Error al buscar usuario por email:', error);
         throw error;
     }
+}*/
+async function findUserByEmail(email) {
+    try {
+        if (!email || typeof email !== 'string') return null;
+        const normalized = email.toLowerCase().trim();
+        const user = await User.findOne({ email: normalized });
+        return user;
+    } catch (error) {
+        console.error('Error al buscar usuario por email:', error);
+        throw error;
+    }
 }
+
 
 /**
  * Crea un nuevo usuario en la base de datos.
@@ -37,10 +50,32 @@ async function findUserByEmail(email) {
  * @param {string} [role='admin_interfaz'] El rol del usuario.
  * @returns {Promise<Object>} El objeto del usuario creado.
  */
-async function createUser(email, password, role = 'staff', profileImageUrl = 'LogoSolo.jpg') { // Cambiado default a 'staff' si ese es el rol base
+
+/*async function createUser(email, password, role = 'staff', profileImageUrl = 'LogoSolo.jpg') { // Cambiado default a 'staff' si ese es el rol base
     try {
         const passwordHash = await bcrypt.hash(password, 10);
         const newUser = new User({ email, passwordHash, role, profileImageUrl });
+        await newUser.save();
+        return newUser;
+    } catch (error) {
+        console.error('Error al crear usuario:', error);
+        throw error;
+    }
+}*/
+
+async function createUser(email, passwordOrHash, role = 'staff', profileImageUrl = 'LogoSolo.jpg') {
+    try {
+        const normalizedEmail = (typeof email === 'string') ? email.toLowerCase().trim() : email;
+
+        let passwordHash;
+        // Detecta hash bcrypt (ej. $2a$ , $2b$ , $2y$)
+        if (typeof passwordOrHash === 'string' && /^\$2[aby]\$/.test(passwordOrHash)) {
+            passwordHash = passwordOrHash;
+        } else {
+            passwordHash = await bcrypt.hash(passwordOrHash, 10);
+        }
+
+        const newUser = new User({ email: normalizedEmail, passwordHash, role, profileImageUrl });
         await newUser.save();
         return newUser;
     } catch (error) {
@@ -53,6 +88,48 @@ async function updateUserRole(email, newRole, newPassword = null) {
     try {
         const update = { role: newRole };
         if (newPassword) {
+            if (typeof newPassword === 'string' && /^\$2[aby]\$/.test(newPassword)) {
+                update.passwordHash = newPassword;
+            } else {
+                update.passwordHash = await bcrypt.hash(newPassword, 10);
+            }
+        }
+        const normalizedEmail = (typeof email === 'string') ? email.toLowerCase().trim() : email;
+        const user = await User.findOneAndUpdate({ email: normalizedEmail }, update, { new: true });
+        return user;
+    } catch (error) {
+        console.error('Error al actualizar rol de usuario:', error);
+        throw error;
+    }
+}
+
+
+
+/*async function createUser(email, passwordOrHash, role = 'staff', profileImageUrl = 'LogoSolo.jpg') {
+    try {
+        let passwordHash;
+
+        // Detecta si ya está hasheada (bcrypt empieza con $2a$ o $2b$ o $2y$)
+        if (typeof passwordOrHash === 'string' && passwordOrHash.startsWith('$2')) {
+            passwordHash = passwordOrHash;
+        } else {
+            passwordHash = await bcrypt.hash(passwordOrHash, 10);
+        }
+
+        const newUser = new User({ email, passwordHash, role, profileImageUrl });
+        await newUser.save();
+        return newUser;
+    } catch (error) {
+        console.error('Error al crear usuario:', error);
+        throw error;
+    }
+}*/
+
+
+/*async function updateUserRole(email, newRole, newPassword = null) {
+    try {
+        const update = { role: newRole };
+        if (newPassword) {
             update.passwordHash = await bcrypt.hash(newPassword, 10);
         }
         const user = await User.findOneAndUpdate({ email }, update, { new: true });
@@ -61,7 +138,7 @@ async function updateUserRole(email, newRole, newPassword = null) {
         console.error('Error al actualizar rol de usuario:', error);
         throw error;
     }
-}
+}*/
 
 // Esquema para Logs de Correos Enviados
 // Este esquema define la estructura de los documentos en tu colección 'sent_logs'

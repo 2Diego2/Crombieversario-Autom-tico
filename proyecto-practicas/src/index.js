@@ -54,7 +54,7 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
   const mensajeHtml = await MensajeMail(
     empleado.nombre,
     empleado.nroAniversario,
-    empleado.mail
+    empleado.email
   ); // Adjust MensajeMail to take nroAniversario
 
   // 3. Preparar los adjuntos de las imágenes (de la base de datos)
@@ -104,7 +104,7 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
     console.log("Email enviado:", info.messageId);
 
     // 5. Registrar el envío en la base de datos
-    await recordSentEmail(empleado.nombre, empleado.apellido, empleado.mail, empleado.nroAniversario);
+    await recordSentEmail(empleado.nombre, empleado.apellido, empleado.email, empleado.nroAniversario);
   } catch (error) {
     console.error(
       `Error enviando email o registrando log para ${empleado.mail}:`,

@@ -1,4 +1,3 @@
-// src/pages/MailsEnviadosPage.js
 
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';

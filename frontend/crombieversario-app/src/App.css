@@ -111,7 +111,6 @@ aside.div1 {
   margin: 0 auto 20px auto; /* Centrar y añadir margen inferior */
 }
 
-
 .side-bar {
   display: flex;
   flex-direction: column;
@@ -140,9 +139,6 @@ aside.div1 {
 .menu-item:hover {
   background-color: var(--acentoPrimario); /* Usar acentoPrimario para hover */
   color: white; /* Texto blanco en hover si el fondo es azul */
-}
-.menu-item,.div2{
-  color: var(--textoPrincipal);
 }
 
 .menu-item.active-menu-item,

@@ -1,4 +1,3 @@
-// src/pages/EmpleadosPage.jsx
 
 import React, { useState, useEffect, useCallback } from "react";
 import "./EmpleadosPage.css";
