@@ -1,6 +1,14 @@
 {
+  "name": "crombieversario-backend",
+  "version": "1.0.0",
+  "description": "Backend para enviar correos de aniversario.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
   "dependencies": {
     "@nestjs/schedule": "^6.0.0",
+    "aws-sdk": "^2.1692.0",
     "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",
     "crypto": "^1.0.1",
@@ -8,7 +16,7 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.17.0",
+    "mongodb": "^6.18.0",
     "mongoose": "^8.16.1",
     "multer": "^2.0.1",
     "node-cron": "^4.2.0",

@@ -9,50 +9,45 @@ const updateEnvFile = require('./utils/saveEnv');
 const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, User, recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats, getLast7DaysTotals, findUserByEmail, createUser, updateUserRole } = require('./db'); 
 const multer = require('multer');
 const fs = require('fs');
+const AWS = require('aws-sdk');
 
 const app = express();
 const PORT = process.env.PORT || 3033;
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_S3_REGION
+});
+const s3Bucket = process.env.AWS_S3_BUCKET_NAME;
 
-// --- Configuración de Multer para Subida de Archivos ---
-const UPLOADS_DIR = path.join(__dirname, '../public/uploads'); // Carpeta donde se guardarán las imágenes
-if (!fs.existsSync(UPLOADS_DIR)) {
-    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-}
+app.get('/api/images/anniversary/:year.png', async (req, res) => {
+    const { year } = req.params;
+    const s3Key = `uploads/${year}.png`; // El nombre del archivo en tu bucket
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, UPLOADS_DIR);
-    },
-    filename: (req, file, cb) => {
-        const anniversaryNumber = req.params.anniversaryNumber; // Get from params
-        console.log('Multer Filename: anniversaryNumber recibido from req.params:', anniversaryNumber);
+    try {
+        const params = {
+            Bucket: s3Bucket,
+            Key: s3Key
+        };
 
-        if (!anniversaryNumber || isNaN(parseInt(anniversaryNumber)) || parseInt(anniversaryNumber) <= 0) {
-            return cb(new Error(`Número de aniversario inválido o faltante. Recibido: '${anniversaryNumber}' (desde params)`), null);
-        }
+        const s3Object = await s3.getObject(params).promise();
+        
+        // Configura los headers para que el navegador sepa que es una imagen
+        res.setHeader('Content-Type', s3Object.ContentType);
+        res.setHeader('Content-Length', s3Object.ContentLength);
+        
+        // Envía el contenido de la imagen
+        res.send(s3Object.Body);
 
-        const parsedAnniversaryNumber = parseInt(anniversaryNumber);
-        const ext = path.extname(file.originalname).toLowerCase();
-        if (ext !== '.png') {
-            return cb(new Error('Solo se permiten imágenes PNG.'), null);
-        }
-
-        const fileName = `${parsedAnniversaryNumber}.png`;
-        const filePath = path.join(UPLOADS_DIR, fileName);
-
-        if (fs.existsSync(filePath)) {
-            // THIS IS THE ERROR YOU WANT TO CATCH AND SEND AS JSON
-            return cb(new Error(`Ya existe una imagen para el aniversario N° ${parsedAnniversaryNumber}. Por favor, elimínala primero.`), null);
-        }
-
-        console.log('Multer Filename: Nombre final del archivo:', fileName);
-        cb(null, fileName);
+    } catch (error) {
+        console.error('Error al obtener la imagen de S3:', error);
+        res.status(404).send('Imagen no encontrada.');
     }
 });
 
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // Límite de 5MB
+const uploadToMemory = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         if (file.mimetype === 'image/png') {
             cb(null, true);
@@ -99,7 +94,6 @@ function requireApiKey(req, res, next) {
 
 const JWT_SECRET = process.env.JWT_SECRET ;
 
-// Dominio permitido para los correos (¡AHORA DESCOMENTADO Y EN UNA POSICIÓN CORRECTA!)
 // const ALLOWED_EMAIL_DOMAIN = '@crombie.dev'; 
 
 // Definición de Roles
@@ -313,7 +307,6 @@ app.put('/api/users/update-role-password', authenticateToken, authorize([ROLES.S
 });
 
 // Middleware para servir archivos estáticos (MANTENEMOS TU RUTA ORIGINAL)
-app.use('/uploads', express.static(UPLOADS_DIR)); // Sigue sirviendo /public/uploads como /uploads
 app.use(express.static(path.join(__dirname, '../frontend/crombieversario-app/dist'))); // Servir archivos de la build de React
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -363,34 +356,7 @@ app.get('/api/aniversarios-enviados', authenticateToken, authorize([ROLES.SUPER_
         res.status(500).json({ error: 'Error al obtener aniversarios enviados.' });
     }
 });
-/*app.get('/api/aniversarios-error', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-    try {
-        const fallos = await FailedEmailLog.find({
-            $or: [
-                { status: 'failed' },
-                { status: { $exists: false } }
-            ]
-        });
-        
-        const fallosOrdenados = fallos.sort((a, b) => new Date(b.attemptDate) - new Date(a.attemptDate));
-        // El resto del código para formatear la respuesta se mantiene igual.
-        const formattedFallos = fallosOrdenados.map(fallo => ({
-            _id: fallo._id, // Es buena práctica pasar el ID para el 'key' de React
-            nombre: fallo.nombre,
-            apellido: fallo.apellido,
-            email: fallo.email,
-            years: fallo.years,
-            sentDate: fallo.attemptDate, // Ahora es attemptDate
-            errorMessage: fallo.errorMessage
-        }));
-        res.json(formattedFallos);
-            // Ordenar desde el más reciente al más antiguo
 
-    } catch (error) {
-        console.error('Error al obtener aniversarios con error:', error);
-        res.status(500).json({ error: 'Error al obtener los registros de error.' });
-    }
-}); */
 app.get('/api/aniversarios-error', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
     try {
         // MODIFICACIÓN: La consulta ahora busca registros nuevos y antiguos.
@@ -498,7 +464,6 @@ app.get('/api/email-stats/yearly', authenticateToken, authorize([ROLES.SUPER_ADM
         res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
     }
 });
-console.log('--- Ruta /api/email-stats/yearly registrada con éxito ---');
 
 app.get('/api/email-stats/monthly', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
   console.log('Recibida petición GET /api/email-stats/monthly ');
@@ -511,8 +476,6 @@ app.get('/api/email-stats/monthly', authenticateToken, authorize([ROLES.SUPER_AD
     res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
   }
 });
-console.log('--- Successfully registered /api/email-stats/monthly route ---');
-
 
 console.log('--- Attempting to register /api/email-stats/week route ---');
 app.get('/api/email-stats/week', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
@@ -525,62 +488,47 @@ app.get('/api/email-stats/week', authenticateToken, authorize([ROLES.SUPER_ADMIN
     res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
   }
 });
-console.log('--- Successfully registered /api/email-stats/week route ---');
 
-
-app.post('/api/upload-image/:anniversaryNumber', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => { 
+app.post('/api/upload-image/:anniversaryNumber', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), uploadToMemory.single('image'), async (req, res) => {
     try {
-        await new Promise((resolve, reject) => {
-            upload.single('image')(req, res, (err) => {
-                if (err) {
-                    console.error('Error de Multer: ', err);
-                    return reject(err); 
-                }
-                resolve(); 
-            });
-        });
-
-        if (!req.file) { 
-            return res.status(400).json({ error: 'No se ha subido ningún archivo o el archivo no fue procesado por el servidor.' });
+        const anniversaryNumber = req.params.anniversaryNumber;
+        if (!req.file || isNaN(parseInt(anniversaryNumber)) || parseInt(anniversaryNumber) <= 0) {
+            return res.status(400).json({ error: 'Número de aniversario o archivo inválido.' });
         }
 
-        const anniversaryNumber = req.params.anniversaryNumber;
-        console.log('Controlador de ruta: anniversaryNumber de req.params:', anniversaryNumber);
+        const fileName = `${parseInt(anniversaryNumber)}.png`;
+        const s3Key = `uploads/${fileName}`;
 
-        const imageUrl = `/uploads/${req.file.filename}`;
+        // Subir el archivo a S3
+        const params = {
+            Bucket: s3Bucket,
+            Key: s3Key,
+            Body: req.file.buffer, // El contenido de la imagen desde Multer
+            ContentType: 'image/png'
+        };
 
+        await s3.upload(params).promise();
+
+        const s3ImageUrl = `https://${s3Bucket}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${s3Key}`;
+        
+        // Actualizar la configuración con la nueva ruta de S3
         const config = await getConfig();
         const newImagePaths = [...(config.imagePaths || [])];
-
-        if (!newImagePaths.includes(imageUrl)) {
-            newImagePaths.push(imageUrl);
+        if (!newImagePaths.includes(s3ImageUrl)) {
+            newImagePaths.push(s3ImageUrl);
         }
-
-        newImagePaths.sort((a, b) => {
-            const numA = parseInt(path.basename(a, '.png'));
-            const numB = parseInt(path.basename(b, '.png'));
-            return numA - numB;
-        });
+        newImagePaths.sort((a, b) => parseInt(a.match(/(\d+)\.png/)[1]) - parseInt(b.match(/(\d+)\.png/)[1]));
 
         const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
 
         res.status(200).json({
-            message: 'Imagen subida y ruta guardada exitosamente.',
-            imageUrl: imageUrl,
+            message: 'Imagen subida a S3 y ruta guardada exitosamente.',
+            imageUrl: s3ImageUrl,
             updatedConfig: updatedConfig
         });
     } catch (error) {
-        console.error('Manejador de errores de carga final: ', error);
-
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlink(req.file.path, (err) => {
-                if (err) console.error('Error al eliminar archivo subido tras un error en config:', err);
-            });
-        }
-        
-        return res.status(400).json({ 
-            error: error.message || 'Error desconocido al subir imagen.'
-        });
+        console.error('Error al subir la imagen a S3:', error);
+        res.status(500).json({ error: error.message || 'Error interno del servidor al subir imagen.' });
     }
 });
 
@@ -590,28 +538,28 @@ app.delete('/api/delete-image', authenticateToken, authorize([ROLES.SUPER_ADMIN,
         return res.status(400).json({ error: 'URL de imagen no proporcionada.' });
     }
 
-    const filename = path.basename(imageUrl);
-    const filePath = path.join(UPLOADS_DIR, filename); 
-
     try {
-        if (fs.existsSync(filePath)) {
-            await fs.promises.unlink(filePath);
-            console.log(`Archivo ${filePath} eliminado del servidor.`);
-        } else {
-            console.warn(`Intento de eliminar imagen no existente en el servidor: ${filePath}`);
-        }
+        const urlParts = imageUrl.split('/');
+        const s3Key = `uploads/${urlParts[urlParts.length - 1]}`;
 
+        // Eliminar el archivo de S3
+        const params = {
+            Bucket: s3Bucket,
+            Key: s3Key
+        };
+        await s3.deleteObject(params).promise();
+
+        // Actualizar la configuración para eliminar la URL
         const config = await getConfig();
         const newImagePaths = (config.imagePaths || []).filter(path => path !== imageUrl);
-
         const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
 
         res.status(200).json({
-            message: 'Imagen eliminada exitosamente del servidor y la configuración.',
+            message: 'Imagen eliminada de S3 y la configuración.',
             updatedConfig: updatedConfig
         });
     } catch (error) {
-        console.error('Error al eliminar imagen:', error);
+        console.error('Error al eliminar imagen de S3:', error);
         res.status(500).json({ error: 'Error interno del servidor al eliminar imagen.' });
     }
 });

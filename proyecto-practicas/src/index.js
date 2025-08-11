@@ -5,8 +5,17 @@ const fs = require("fs");
 const axios = require("axios"); // Para hacer peticiones HTTP a tu API local o a PeopleForce
 
 // Importa las funcionalidades de eventos y la base de datos
-const {  aniversarioEmitter,  buscarAniversarios,  MensajeMail } = require("./eventos");
-const { connectDB, recordSentEmail, recordFailedEmail, checkIfSentToday } = require("./db");
+const {
+  aniversarioEmitter,
+  buscarAniversarios,
+  MensajeMail,
+} = require("./eventos");
+const {
+  connectDB,
+  recordSentEmail,
+  recordFailedEmail,
+  checkIfSentToday,
+} = require("./db");
 const nodemailer = require("nodemailer");
 const cron = require("node-cron");
 
@@ -53,38 +62,21 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
     empleado.mail
   ); // Adjust MensajeMail to take nroAniversario
 
-  // 3. Preparar los adjuntos de las imágenes (de la base de datos)
+  // 3. Preparar los adjuntos de las imágenes (ahora apuntando a tu API de backend)
   let attachments = [];
   if (empleado.imagen && empleado.imagen.length > 0) {
-    const UPLOADS_PHYSICAL_DIR = path.resolve(
-      __dirname,
-      "..",
-      "public",
-      "uploads"
-    );
+    // La URL de la imagen ahora apunta a la nueva ruta en tu backend.
+    // Usamos el mismo patrón de nombre de archivo para que la ruta funcione.
+    const imageUrl = `${process.env.SERVER_BASE_URL}/api/images/anniversary/${empleado.years}.png`;
 
-    const imageRelativeUrl = empleado.imagen[0];
-    const imageFileName = path.basename(imageRelativeUrl);
-    const physicalImagePath = path.join(UPLOADS_PHYSICAL_DIR, imageFileName);
-
-    console.log(
-      `[DEBUG PATH] Intentando leer imagen desde esta ruta: "${physicalImagePath}"`
-    );
-
-    if (fs.existsSync(physicalImagePath)) {
-      attachments.push({
-        filename: imageFileName,
-        path: physicalImagePath,
-        cid: "aniversario_image",
-      });
-    } else {
-      console.warn(
-        `[ERROR] Imagen física no encontrada en: ${physicalImagePath}. No se adjuntará la imagen al correo.`
-      );
-    }
+    attachments.push({
+      filename: `${empleado.years}.png`,
+      path: imageUrl, // Nodemailer ahora tomará la imagen desde esta URL
+      cid: "aniversario_image",
+    });
   } else {
     console.log(
-      `No hay imagen configurada para el aniversario de ${empleado.nombre} (${empleado.nroAniversario} años).`
+      `No hay imagen configurada para el aniversario de ${empleado.nombre} (${empleado.years} años).`
     );
   }
 
@@ -100,7 +92,12 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
     console.log("Email enviado:", info.messageId);
 
     // 5. Registrar el envío en la base de datos
-    await recordSentEmail(empleado.nombre, empleado.apellido, empleado.mail, empleado.nroAniversario);
+    await recordSentEmail(
+      empleado.nombre,
+      empleado.apellido,
+      empleado.mail,
+      empleado.nroAniversario
+    );
   } catch (error) {
     console.error(
       `Error enviando email o registrando log para ${empleado.mail}:`,
@@ -108,7 +105,13 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
     );
 
     // 6. Registrar los envios fallidos
-    await recordFailedEmail(empleado.nombre, empleado.apellido, empleado.mail, empleado.nroAniversario, error.message);
+    await recordFailedEmail(
+      empleado.nombre,
+      empleado.apellido,
+      empleado.mail,
+      empleado.nroAniversario,
+      error.message
+    );
   }
 });
 
