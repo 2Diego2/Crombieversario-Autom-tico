@@ -83,8 +83,6 @@ const MailsErrorPage = () => {
           <table className="tablaMails">
             <thead>
               <tr>
-                <th>Nombre</th>
-                <th>Apellido</th>
                 <th>Email</th>
                 <th>Años</th>
                 <th>Fecha del Intento</th>
@@ -94,8 +92,6 @@ const MailsErrorPage = () => {
             <tbody>
               {mailsConError.map((mail) => (
                 <tr key={mail._id}>
-                  <td>{mail.nombre}</td>
-                  <td>{mail.apellido}</td>
                   <td>{mail.email}</td>
                   <td>{mail.years}</td>
                   <td>
