@@ -84,7 +84,8 @@ body {
     "mails-sent"
     "mail-imgs"
     "events"
-    "mail-message";
+    "mail-message"
+    "content-pages";
 }
 
 /* Caja de la barra lateral (sidebar) */
@@ -147,59 +148,73 @@ aside.div1 {
 .menu-item:hover::after {
   left: 130%;
 }
+
 .footer-aside {
   margin-top: auto;
-  padding-top: var(--padding-box); /* Usa padding-top en lugar de padding para el borde */
+  padding-top: var(--padding-box);
   border-top: 1px solid #eee;
   width: 100%;
   box-sizing: border-box;
+
+  /* Layout responsivo: fila en desktop, columna en móvil */
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: flex-start;
+  flex-wrap: wrap;          /* permite que el contenido baje a la siguiente línea */
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
+/* Contenedor que agrupa avatar + texto de perfil */
 .perfil-info {
   display: flex;
-  gap: 10px; /* Reducido para mejor ajuste */
   align-items: center;
-  width: 100%;
-  flex-wrap: wrap; /* Permite que el texto se envuelva en líneas nuevas si es muy largo */
+  gap: 10px;
+  flex: 1 1 auto;    /* ocupa espacio disponible */
+  min-width: 0;      /* IMPORTANT: permite que el texto haga ellipsis dentro de flex */
 }
 
-.perfil {
-  font-size: 0.9em;
-  line-height: 1.2; /* Ajusta la altura de línea */
-}
-
+/* Avatar responsivo (escalable) */
 .persona {
-  height: 40px;
-  width: 40px;
+  height: clamp(36px, 6vw, 56px); /* escala entre 36px y 56px según ancho */
+  width: clamp(36px, 6vw, 56px);
   border-radius: 50%;
   object-fit: cover;
-  flex-shrink: 0; /* Evita que la imagen se encoja */
+  flex-shrink: 0;    /* no se encoge a 0px */
 }
 
+/* Texto del perfil: truncar en una línea cuando es necesario */
+.perfil {
+  font-size: 0.95rem;
+  line-height: 1.3;
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 64px);
+}
+/* Botón de logout: ocupa su sitio a la derecha en pantallas grandes */
 .logout {
-  margin-top: 15px;
-  width: auto;
-  padding: 8px 15px;
+  padding: 8px 14px;
   cursor: pointer;
-  background: none; /* Eliminar fondo del botón */
-  border: 1px solid var(--colorLogOut); /* Borde para el botón de logout */
-  border-radius: 8px; /* Bordes redondeados */
-  transition: background-color 0.2s ease;
+  background: none;
+  border: 1px solid var(--colorLogOut);
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  flex: 0 0 auto;
+  /* Si queda en la misma línea que .perfil-info, se mantendrá a la derecha.
+     En caso de wrap, aparecerá debajo (por el flex-wrap). */
+}
+
+/* Alineación interna del texto + icono del logout */
+.logout2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--colorLogOut);
+  font-weight: 500;
 }
 .logout:hover {
     background-color: var(--colorLogOut);
-}
-
-.logout2 {
-  color: var(--colorLogOut);
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-weight: 500;
 }
 .logout:hover .logout2 {
     color: white; /* Texto blanco al hacer hover en el botón logout */

@@ -76,6 +76,10 @@ function LoginForm({ onLoginSuccess }) {
             />
           </div>
           {error && <p className="error-message">{error}</p>}
+          {/*Registrarse */}
+          <p className='register'>
+            ¿No tienes una cuenta? <a href="register" className='register-link'>Registrate aqui. </a>
+          </p>
           <button type="submit" className="login-button" disabled={loading}>
             {loading ? 'Cargando...' : 'Entrar'}
           </button>
