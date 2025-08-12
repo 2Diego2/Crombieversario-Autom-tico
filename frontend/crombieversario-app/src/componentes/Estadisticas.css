@@ -43,7 +43,7 @@
 .estadisticas-header button,
 .years-selection button {
   padding: 10px 22px;
-  background-color: #8A42FF; 
+   background-color: var(--colorCrombieVioleta);
   color: #F4F4F4;
   border: none;
   border-radius: 20px;
@@ -58,6 +58,7 @@
 .estadisticas-header button:hover,
 .years-selection button:hover {
   background-color: #7B3AE0; /* Tono más oscuro para el hover */
+  background-color: var(--colorCrombieVioleta);
   transform: translateY(-2px);
   box-shadow: 0 7px 14px rgba(138, 66, 255, 0.3);
 }

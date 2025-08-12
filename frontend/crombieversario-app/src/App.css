@@ -262,17 +262,22 @@ h2, .menu-item, .perfil-info {
 }
 
 .verMas {
-  border: none;
-  background: none;
+  border-radius: 12px;
+  background: var(--colorCrombieVioleta);
   outline: none;
   cursor: pointer;
-  color: var(--acentoPrimario);
+  color: var(--colorCaja);
   margin-top: 10px;
   align-self: flex-end;
+   transition: all 0.3s ease;
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .verMas:hover {
-  color: var(--acentoPrimHover);
+  color: var(--colorCaja);
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(138, 66, 255, 0.3);
 }
 
 
