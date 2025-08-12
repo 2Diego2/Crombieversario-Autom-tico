@@ -9,52 +9,51 @@ const updateEnvFile = require('./utils/saveEnv');
 const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, User, recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats, getLast7DaysTotals, findUserByEmail, createUser, updateUserRole } = require('./db'); 
 const multer = require('multer');
 const fs = require('fs');
-const AWS = require('aws-sdk');
+const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 
 const app = express();
 const PORT = process.env.PORT || 3033;
-const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_S3_REGION
+const s3 = new S3Client({
+    region: process.env.AWS_S3_REGION
 });
 const s3Bucket = process.env.AWS_S3_BUCKET_NAME;
 
 app.get('/api/images/anniversary/:year.png', async (req, res) => {
-    const { year } = req.params;
+    const { year } = req.params;
     const s3Key = `uploads/${year}.png`; // El nombre del archivo en tu bucket
 
-    try {
-        const params = {
-            Bucket: s3Bucket,
-            Key: s3Key
-        };
+    try {
+        const params = {
+            Bucket: s3Bucket,
+            Key: s3Key
+        };
 
-        const s3Object = await s3.getObject(params).promise();
-        
+        const command = new GetObjectCommand(params);
+        const s3Object = await s3.send(command);
+        
         // Configura los headers para que el navegador sepa que es una imagen
-        res.setHeader('Content-Type', s3Object.ContentType);
-        res.setHeader('Content-Length', s3Object.ContentLength);
+        res.setHeader('Content-Type', s3Object.ContentType);
+        res.setHeader('Content-Length', s3Object.ContentLength);
         
         // Envía el contenido de la imagen
-        res.send(s3Object.Body);
+        res.send(s3Object.Body);
 
-    } catch (error) {
-        console.error('Error al obtener la imagen de S3:', error);
-        res.status(404).send('Imagen no encontrada.');
-    }
+    } catch (error) {
+        console.error('Error al obtener la imagen de S3:', error);
+        res.status(404).send('Imagen no encontrada.');
+    }
 });
 
 const uploadToMemory = multer({
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 5 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype === 'image/png') {
-            cb(null, true);
-        } else {
-            cb(new Error('Tipo de archivo no soportado. Solo se permiten PNGs.'), false);
-        }
-    }
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'image/png') {
+            cb(null, true);
+        } else {
+            cb(new Error('Tipo de archivo no soportado. Solo se permiten PNGs.'), false);
+        }
+    }
 });
 
 app.use(express.json());
@@ -62,34 +61,34 @@ app.use(express.urlencoded({ extended: true }));
 
 // Configuración CORS
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
-    res.header('Access-Control-Allow-Credentials', true); // Importante para cookies/sesiones si las usas
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-    }
-    next();
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
+    res.header('Access-Control-Allow-Credentials', true);
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
 });
 
 console.log('API_KEY cargada desde .env:', process.env.API_KEY);
 
 if (!process.env.API_KEY || process.env.API_KEY.trim() === '' || process.env.API_KEY.trim() === '(dir_name)') {
-    const newApiKey = crypto.randomBytes(32).toString('hex');
-    updateEnvFile('API_KEY', newApiKey);
-    process.env.API_KEY = newApiKey;
-    console.log('API Key generada y guardada en .env.');
+    const newApiKey = crypto.randomBytes(32).toString('hex');
+    updateEnvFile('API_KEY', newApiKey);
+    process.env.API_KEY = newApiKey;
+    console.log('API Key generada y guardada en .env.');
 } else {
-    process.env.API_KEY = process.env.API_KEY.trim();
+    process.env.API_KEY = process.env.API_KEY.trim();
 }
 
 function requireApiKey(req, res, next) {
-    const apiKey = req.header('x-api-key');
-    console.log('API Key recibida:', apiKey, '| API Key esperada:', process.env.API_KEY);
-    if (apiKey !== process.env.API_KEY) {
-        return res.status(401).json({ error: 'API key inválida o faltante' });
-    }
-    next();
+    const apiKey = req.header('x-api-key');
+    console.log('API Key recibida:', apiKey, '| API Key esperada:', process.env.API_KEY);
+    if (apiKey !== process.env.API_KEY) {
+        return res.status(401).json({ error: 'API key inválida o faltante' });
+    }
+    next();
 }
 
 const JWT_SECRET = process.env.JWT_SECRET ;
@@ -98,52 +97,52 @@ const JWT_SECRET = process.env.JWT_SECRET ;
 
 // Definición de Roles
 const ROLES = {
-    SUPER_ADMIN: 'super_admin',
-    STAFF: 'staff'
+    SUPER_ADMIN: 'super_admin',
+    STAFF: 'staff'
 };
 
-// Middleware para verificar JWT (nuevo)
+// Middleware para verificar JWT
 function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
+    const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Formato: Bearer TOKEN
 
-    if (token == null) {
-        return res.status(401).json({ message: 'Acceso denegado: Token no proporcionado.' });
-    }
+    if (token == null) {
+        return res.status(401).json({ message: 'Acceso denegado: Token no proporcionado.' });
+    }
 
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) {
-            console.error('Error al verificar token:', err.message);
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            console.error('Error al verificar token:', err.message);
             // Distingue entre token expirado y otros errores
-            if (err.name === 'TokenExpiredError') {
-                return res.status(403).json({ message: 'Acceso denegado: Token expirado.' });
-            }
-            return res.status(403).json({ message: 'Acceso denegado: Token inválido.' });
-        }
+            if (err.name === 'TokenExpiredError') {
+                return res.status(403).json({ message: 'Acceso denegado: Token expirado.' });
+            }
+            return res.status(403).json({ message: 'Acceso denegado: Token inválido.' });
+        }
         req.user = user; // Almacena la información del usuario en el objeto de solicitud
-        next();
-    });
+        next();
+    });
 }
 
 // Middleware de autorización
 function authorize(requiredRoles) { // Ahora acepta un array de roles
     // Asegurarse de que requiredRoles sea un array
-    if (!Array.isArray(requiredRoles)) {
-        requiredRoles = [requiredRoles];
-    }
+    if (!Array.isArray(requiredRoles)) {
+        requiredRoles = [requiredRoles];
+    }
 
-    return (req, res, next) => {
+    return (req, res, next) => {
         // req.user viene del middleware authenticateToken
-        if (!req.user || !req.user.role) {
-            return res.status(403).json({ message: 'Acceso denegado: Rol de usuario no definido.' });
-        }
+        if (!req.user || !req.user.role) {
+            return res.status(403).json({ message: 'Acceso denegado: Rol de usuario no definido.' });
+        }
 
         // Verificar si el rol del usuario está en la lista de roles requeridos
-        if (!requiredRoles.includes(req.user.role)) {
-            return res.status(403).json({ message: 'Acceso denegado: No tienes los permisos necesarios para esta acción.' });
-        }
-        next();
-    };
+        if (!requiredRoles.includes(req.user.role)) {
+            return res.status(403).json({ message: 'Acceso denegado: No tienes los permisos necesarios para esta acción.' });
+        }
+        next();
+    };
 }
 
 
@@ -151,7 +150,7 @@ function authorize(requiredRoles) { // Ahora acepta un array de roles
 
 // Ruta para el Login
 app.post('/api/login', async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password } = req.body;
 
     // 1. Validar dominio del correo
     // if (!email || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
@@ -160,53 +159,53 @@ app.post('/api/login', async (req, res) => {
 
     try {
         // 2. Buscar usuario en la base de datos (usando la nueva función)
-        const user = await findUserByEmail(email);
+        const user = await findUserByEmail(email);
 
-        if (!user) {
+        if (!user) {
             // Mensaje genérico por seguridad
-            return res.status(400).json({ message: 'Credenciales inválidas.' });
-        }
+            return res.status(400).json({ message: 'Credenciales inválidas.' });
+        }
 
         // 3. Comparar contraseña
-        const isMatch = await bcrypt.compare(password, user.passwordHash);
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
 
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Credenciales inválidas.' });
-        }
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Credenciales inválidas.' });
+        }
 
-        
-        let finalProfileImageUrlForClient = user.profileImageUrl;
+
+        let finalProfileImageUrlForClient = user.profileImageUrl;
         // Ensure the stored URL, when sent to the client, is absolute
-        if (finalProfileImageUrlForClient) {
-            if (!finalProfileImageUrlForClient.startsWith('/')) {
-                finalProfileImageUrlForClient = `/${finalProfileImageUrlForClient}`;
-            }
-        } else {
+        if (finalProfileImageUrlForClient) {
+            if (!finalProfileImageUrlForClient.startsWith('/')) {
+                finalProfileImageUrlForClient = `/${finalProfileImageUrlForClient}`;
+            }
+        } else {
             // If profileImageUrl is null or undefined from the DB, use the default absolute path
-            finalProfileImageUrlForClient = '/LogoSolo.jpg';
-        }
+            finalProfileImageUrlForClient = '/LogoSolo.jpg';
+        }
 
         // 4. Generar Token JWT
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '1h' }); // Token válido por 1 hora
 
-        res.json({ message: 'Login exitoso', token, user: {
-                id: user._id,
-                email: user.email,
-                role: user.role,
+        res.json({ message: 'Login exitoso', token, user: {
+                id: user._id,
+                email: user.email,
+                role: user.role,
                 profileImageUrl: finalProfileImageUrlForClient // Send the absolute URL
-            }
-        });
+            }
+        });
 
-    } catch (error) {
-        console.error('Error en el proceso de login:', error);
-        res.status(500).json({ message: 'Error interno del servidor durante el login.' });
-    }
+    } catch (error) {
+        console.error('Error en el proceso de login:', error);
+        res.status(500).json({ message: 'Error interno del servidor durante el login.' });
+    }
 });
 
 // Ruta inicial para crear el primer/segundo super_admin (¡USAR CON CUIDADO Y LUEGO PROTEGER/ELIMINAR!)
 // Puedes dejarla como '/api/register-admin' o renombrarla a algo más específico como '/api/initial-admin-setup'
 app.post('/api/register-admin', requireApiKey, async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password } = req.body;
     // Aquí no necesitas el campo 'role' en req.body, siempre será 'super_admin'
     // para las cuentas iniciales que configurarán el sistema.
 
@@ -214,28 +213,28 @@ app.post('/api/register-admin', requireApiKey, async (req, res) => {
     //     return res.status(400).json({ message: 'Email, contraseña o dominio inválido.' });
     // }
 
-    try {
-        const existingUser = await findUserByEmail(email);
-        if (existingUser) {
-            return res.status(409).json({ message: 'Este email ya está registrado.' });
-        }
+    try {
+        const existingUser = await findUserByEmail(email);
+        if (existingUser) {
+            return res.status(409).json({ message: 'Este email ya está registrado.' });
+        }
 
-        const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(password, salt);
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(password, salt);
 
         // Siempre crea como 'super_admin' con esta ruta inicial
-        const newUser = await createUser(email, passwordHash, ROLES.SUPER_ADMIN);
-        res.status(201).json({ message: `Usuario ${ROLES.SUPER_ADMIN} creado exitosamente.`, userId: newUser._id });
+        const newUser = await createUser(email, passwordHash, ROLES.SUPER_ADMIN);
+        res.status(201).json({ message: `Usuario ${ROLES.SUPER_ADMIN} creado exitosamente.`, userId: newUser._id });
 
-    } catch (error) {
-        console.error('Error al registrar usuario admin:', error);
-        res.status(500).json({ message: 'Error interno del servidor al registrar usuario.' });
-    }
+    } catch (error) {
+        console.error('Error al registrar usuario admin:', error);
+        res.status(500).json({ message: 'Error interno del servidor al registrar usuario.' });
+    }
 });
 
 // RUTA PARA QUE UN SUPER_ADMIN CREE OTROS USUARIOS (staff o super_admin)
 app.post('/api/users/create', authenticateToken, authorize(ROLES.SUPER_ADMIN), async (req, res) => {
-    const { email, password, role, profileImageUrl } = req.body;
+    const { email, password, role, profileImageUrl } = req.body;
 
     // Validaciones: email, password, dominio
     // if (!email || !password || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
@@ -244,66 +243,66 @@ app.post('/api/users/create', authenticateToken, authorize(ROLES.SUPER_ADMIN), a
 
     // Validar el rol que se intenta asignar
     if (!Object.values(ROLES).includes(role)) { // Asegura que el rol sea uno de los definidos
-        return res.status(400).json({ message: 'Rol de usuario inválido.' });
-    }
+        return res.status(400).json({ message: 'Rol de usuario inválido.' });
+    }
 
-     try {
-        const existingUser = await findUserByEmail(email);
-        if (existingUser) {
-            return res.status(409).json({ message: 'Este email ya está registrado.' });
-        }
-        let finalProfileImageUrl;
-        if (profileImageUrl) {
-            finalProfileImageUrl = profileImageUrl.startsWith('/') ? profileImageUrl : `/${profileImageUrl}`;
-        } else {
-            finalProfileImageUrl = '/LogoSolo.jpg';
-        }
+     try {
+        const existingUser = await findUserByEmail(email);
+        if (existingUser) {
+            return res.status(409).json({ message: 'Este email ya está registrado.' });
+        }
+        let finalProfileImageUrl;
+        if (profileImageUrl) {
+            finalProfileImageUrl = profileImageUrl.startsWith('/') ? profileImageUrl : `/${profileImageUrl}`;
+        } else {
+            finalProfileImageUrl = '/LogoSolo.jpg';
+        }
         
-        const newUser = await createUser(email, password, role, finalProfileImageUrl);
-        res.status(201).json({ message: `Usuario ${role} creado exitosamente.`, userId: newUser._id });
+        const newUser = await createUser(email, password, role, finalProfileImageUrl);
+        res.status(201).json({ message: `Usuario ${role} creado exitosamente.`, userId: newUser._id });
 
-    } catch (error) {
-        console.error('Error al crear usuario:', error);
-        res.status(500).json({ message: 'Error interno del servidor al crear usuario.' });
-    }
+    } catch (error) {
+        console.error('Error al crear usuario:', error);
+        res.status(500).json({ message: 'Error interno del servidor al crear usuario.' });
+    }
 });
 
 app.put('/api/users/update-role-password', authenticateToken, authorize([ROLES.SUPER_ADMIN]), async (req, res) => {
     const { email, newRole, newPassword } = req.body; // 'email' del usuario a modificar
 
-    if (!email) {
-        return res.status(400).json({ message: 'El correo electrónico del usuario es requerido.' });
-    }
-    if (!newRole && !newPassword) {
-        return res.status(400).json({ message: 'Se requiere al menos un nuevo rol o una nueva contraseña.' });
-    }
+    if (!email) {
+        return res.status(400).json({ message: 'El correo electrónico del usuario es requerido.' });
+    }
+    if (!newRole && !newPassword) {
+        return res.status(400).json({ message: 'Se requiere al menos un nuevo rol o una nueva contraseña.' });
+    }
 
-    try {
-        const userToUpdate = await findUserByEmail(email);
-        if (!userToUpdate) {
-            return res.status(404).json({ message: 'Usuario no encontrado.' });
-        }
+    try {
+        const userToUpdate = await findUserByEmail(email);
+        if (!userToUpdate) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
 
-        let roleToSet = userToUpdate.role;
+        let roleToSet = userToUpdate.role;
         // Validar el nuevo rol si se proporciona
-        if (newRole) {
-            if (!Object.values(ROLES).includes(newRole)) {
-                 return res.status(400).json({ message: `Rol inválido: ${newRole}. Roles permitidos: ${Object.values(ROLES).join(', ')}.` });
-            }
-            roleToSet = newRole;
-        }
+        if (newRole) {
+            if (!Object.values(ROLES).includes(newRole)) {
+                 return res.status(400).json({ message: `Rol inválido: ${newRole}. Roles permitidos: ${Object.values(ROLES).join(', ')}.` });
+            }
+            roleToSet = newRole;
+        }
 
         // Llamada a la función updateUserRole con email, nuevo rol y nueva contraseña (si existe)
-        const updatedUser = await updateUserRole(email, roleToSet, newPassword);
-        if (updatedUser) {
-            res.status(200).json({ message: 'Usuario actualizado con éxito.', user: { email: updatedUser.email, role: updatedUser.role } });
-        } else {
-            res.status(404).json({ message: 'Usuario no encontrado o no se pudo actualizar.' });
-        }
-    } catch (error) {
-        console.error('Error al actualizar rol/contraseña de usuario:', error);
-        res.status(500).json({ message: 'Error interno del servidor al actualizar usuario.' });
-    }
+        const updatedUser = await updateUserRole(email, roleToSet, newPassword);
+        if (updatedUser) {
+            res.status(200).json({ message: 'Usuario actualizado con éxito.', user: { email: updatedUser.email, role: updatedUser.role } });
+        } else {
+            res.status(404).json({ message: 'Usuario no encontrado o no se pudo actualizar.' });
+        }
+    } catch (error) {
+        console.error('Error al actualizar rol/contraseña de usuario:', error);
+        res.status(500).json({ message: 'Error interno del servidor al actualizar usuario.' });
+    }
 });
 
 // Middleware para servir archivos estáticos (MANTENEMOS TU RUTA ORIGINAL)
@@ -312,273 +311,275 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // ENDPOINT para obtener trabajadores desde el archivo JSON local
 app.get('/trabajadores', async (req, res) => {
-    const trabajadoresPath = path.join(__dirname, '../data/trabajadores.json');
-    fs.readFile(trabajadoresPath, 'utf-8', async (err, data) => {
-        if (err) {
-            console.error('Error al leer trabajadores.json:', err);
-            return res.status(500).json({ error: 'No se pudo leer el archivo de trabajadores.' });
-        }
-        try {
-            const trabajadores = JSON.parse(data);
+    const trabajadoresPath = path.join(__dirname, '../data/trabajadores.json');
+    fs.readFile(trabajadoresPath, 'utf-8', async (err, data) => {
+        if (err) {
+            console.error('Error al leer trabajadores.json:', err);
+            return res.status(500).json({ error: 'No se pudo leer el archivo de trabajadores.' });
+        }
+        try {
+            const trabajadores = JSON.parse(data);
 
             // Obtener todos los usuarios del sistema de autenticación
             // Asegúrate de que User esté importado correctamente
-            const users = await User.find({}, 'email role').lean();
-            const userRolesMap = new Map(users.map(u => [u.email, u.role]));
+            const users = await User.find({}, 'email role').lean();
+            const userRolesMap = new Map(users.map(u => [u.email, u.role]));
 
             // Combinar datos de empleados con roles de usuario y añadir un 'id'
-            const empleadosConRoles = trabajadores.map(empleado => {
-                const role = userRolesMap.get(empleado.mail) || 'none';
-                return {
-                    ...empleado,
-                    id: empleado.mail, // <--- AÑADIDO: Usa el mail como ID único para React keys
-                    role
-                };
-            });
+            const empleadosConRoles = trabajadores.map(empleado => {
+                const role = userRolesMap.get(empleado.mail) || 'none';
+                return {
+                    ...empleado,
+                    id: empleado.mail, // Usa el mail como ID único para React keys
+                    role
+                };
+            });
 
-            res.json(empleadosConRoles);
-        } catch (parseErr) {
-            console.error('Error al parsear trabajadores.json o combinar datos:', parseErr);
-            res.status(500).json({ error: 'Error de formato en trabajadores.json o al procesar datos de usuario.' });
-        }
-    });
+            res.json(empleadosConRoles);
+        } catch (parseErr) {
+            console.error('Error al parsear trabajadores.json o combinar datos:', parseErr);
+            res.status(500).json({ error: 'Error de formato en trabajadores.json o al procesar datos de usuario.' });
+        }
+    });
 });
 
 //Endpoint para obtener los mails enviados desde la base de datos
 app.get('/api/aniversarios-enviados', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-    try {
-        const enviados = await SentLog.find({});
-        const enviadosOrdenados = enviados.sort((a, b) => new Date(b.sentDate) - new Date(a.sentDate));
+    try {
+        const enviados = await SentLog.find({});
+        const enviadosOrdenados = enviados.sort((a, b) => new Date(b.sentDate) - new Date(a.sentDate));
 
-        res.json(enviadosOrdenados);
-    } catch (error) {
-        console.error('Error al obtener aniversarios enviados:', error);
-        res.status(500).json({ error: 'Error al obtener aniversarios enviados.' });
-    }
+        res.json(enviadosOrdenados);
+    } catch (error) {
+        console.error('Error al obtener aniversarios enviados:', error);
+        res.status(500).json({ error: 'Error al obtener aniversarios enviados.' });
+    }
 });
 
 app.get('/api/aniversarios-error', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-    try {
-        // MODIFICACIÓN: La consulta ahora busca registros nuevos y antiguos.
-        const fallos = await FailedEmailLog.find({
-            $or: [
-                { status: 'failed' },
-                { status: { $exists: false } }
-            ]
-        });
-        
-        const fallosOrdenados = fallos.sort((a, b) => new Date(b.attemptDate) - new Date(a.attemptDate));
+    try {
+        // La consulta busca registros nuevos y antiguos.
+        const fallos = await FailedEmailLog.find({
+            $or: [
+                { status: 'failed' },
+                { status: { $exists: false } }
+            ]
+        });
+        
+        const fallosOrdenados = fallos.sort((a, b) => new Date(b.attemptDate) - new Date(a.attemptDate));
         // El resto del código para formatear la respuesta se mantiene igual.
-        const formattedFallos = fallosOrdenados.map(fallo => ({
+        const formattedFallos = fallosOrdenados.map(fallo => ({
             _id: fallo._id, // Es buena práctica pasar el ID para el 'key' de React
-            nombre: fallo.nombre,
-            apellido: fallo.apellido,
-            email: fallo.email,
-            years: fallo.years,
-            sentDate: fallo.attemptDate,
-            errorMessage: fallo.errorMessage
-        }));
-        res.json(formattedFallos);
+            nombre: fallo.nombre,
+            apellido: fallo.apellido,
+            email: fallo.email,
+            years: fallo.years,
+            sentDate: fallo.attemptDate,
+            errorMessage: fallo.errorMessage
+        }));
+        res.json(formattedFallos);
 
-    } catch (error) {
-        console.error('Error al obtener aniversarios con error:', error);
-        res.status(500).json({ error: 'Error al obtener los registros de error.' });
-    }
+    } catch (error) {
+        console.error('Error al obtener aniversarios con error:', error);
+        res.status(500).json({ error: 'Error al obtener los registros de error.' });
+    }
 });
 
 // ENDPOINTS para la configuración
 app.get('/api/config', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-    try {
-        const config = await getConfig();
-        res.json(config);
-    } catch (error) {
-        console.error('Error al obtener la configuración:', error);
-        res.status(500).json({ error: 'Error al obtener la configuración.' });
-    }
+    try {
+        const config = await getConfig();
+        res.json(config);
+    } catch (error) {
+        console.error('Error al obtener la configuración:', error);
+        res.status(500).json({ error: 'Error al obtener la configuración.' });
+    }
 });
 
 app.put('/api/config', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-    const { messageTemplate, imagePaths } = req.body;
-    if (messageTemplate === undefined) {
-        return res.status(400).json({ error: 'messageTemplate es requerido.' });
-    }
-    try {
-        const updatedConfig = await updateConfig(messageTemplate, imagePaths || []);
-        res.json(updatedConfig);
-    } catch (error) {
-        console.error('Error al actualizar la configuración:', error);
-        res.status(500).json({ error: 'Error al actualizar la configuración.' });
-    }
+    const { messageTemplate, imagePaths } = req.body;
+    if (messageTemplate === undefined) {
+        return res.status(400).json({ error: 'messageTemplate es requerido.' });
+    }
+    try {
+        const updatedConfig = await updateConfig(messageTemplate, imagePaths || []);
+        res.json(updatedConfig);
+    } catch (error) {
+        console.error('Error al actualizar la configuración:', error);
+        res.status(500).json({ error: 'Error al actualizar la configuración.' });
+    }
 });
 
-// Nuevo endpoint para el pixel de seguimiento (no necesita autenticación)
+// Endpoint para el pixel de seguimiento (no necesita autenticación)
 app.get('/track/:email/:anniversaryNumber', async (req, res) => {
-    const { email, anniversaryNumber } = req.params;
+    const { email, anniversaryNumber } = req.params;
 
     // Decodifica el email y el número de aniversario si están codificados en la URL
-    const decodedEmail = decodeURIComponent(email);
-    const decodedAnniversaryNumber = parseInt(anniversaryNumber);
+    const decodedEmail = decodeURIComponent(email);
+    const decodedAnniversaryNumber = parseInt(anniversaryNumber);
 
-    console.log(`Pixel de seguimiento activado para: ${decodedEmail}, Aniversario: ${decodedAnniversaryNumber}`);
+    console.log(`Pixel de seguimiento activado para: ${decodedEmail}, Aniversario: ${decodedAnniversaryNumber}`);
 
-    try {
+    try {
         // Registra la apertura en la base de datos (puedes crear una nueva colección o añadir un campo a SentLog)
         // Aquí, por simplicidad, vamos a actualizar el log de envío existente o crear uno si no lo hay.
         // Una forma más robusta sería una nueva colección 'EmailOpens'
-        await recordEmailOpen(decodedEmail, decodedAnniversaryNumber);
+        await recordEmailOpen(decodedEmail, decodedAnniversaryNumber);
 
         // Sirve un GIF transparente de 1x1 pixel
-        const pixel = Buffer.from(
-            'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-            'base64'
-        );
-        res.writeHead(200, {
-            'Content-Type': 'image/gif',
-            'Content-Length': pixel.length,
-        });
-        res.end(pixel);
-    } catch (error) {
-        console.error('Error al registrar apertura de email:', error);
+        const pixel = Buffer.from(
+            'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+            'base64'
+        );
+        res.writeHead(200, {
+            'Content-Type': 'image/gif',
+            'Content-Length': pixel.length,
+        });
+        res.end(pixel);
+    } catch (error) {
+        console.error('Error al registrar apertura de email:', error);
         // Si hay un error, aún así sirve el pixel para no romper la visualización del correo
-        const pixel = Buffer.from(
-            'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-            'base64'
-        );
-        res.writeHead(200, {
-            'Content-Type': 'image/gif',
-            'Content-Length': pixel.length,
-        });
-        res.end(pixel);
-    }
+        const pixel = Buffer.from(
+            'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+            'base64'
+        );
+        res.writeHead(200, {
+            'Content-Type': 'image/gif',
+            'Content-Length': pixel.length,
+        });
+        res.end(pixel);
+    }
 });
 
 app.get('/api/email-stats/yearly', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-    console.log('Recibida petición GET /api/email-stats/yearly');
-    try {
-        const stats = await getYearlyEmailStats();
+    console.log('Recibida petición GET /api/email-stats/yearly');
+    try {
+        const stats = await getYearlyEmailStats();
         // Agregamos este console.log para ver el resultado de la función.
-        console.log('Datos de estadísticas anuales obtenidos:', stats); 
-        res.json(stats);
-    } catch (error) {
-        console.error('Error en el endpoint /api/email-stats/yearly:', error);
-        res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
-    }
+        console.log('Datos de estadísticas anuales obtenidos:', stats); 
+        res.json(stats);
+    } catch (error) {
+        console.error('Error en el endpoint /api/email-stats/yearly:', error);
+        res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
+    }
 });
 
 app.get('/api/email-stats/monthly', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-  console.log('Recibida petición GET /api/email-stats/monthly ');
-  const year = req.query.year || new Date().getFullYear();
-  try {
-    const stats = await getMonthlyEmailStats(year);
-    res.json(stats);
-  } catch (error) {
-    console.error('Error en el endpoint /api/email-stats/monthly:', error);
-    res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
-  }
+  console.log('Recibida petición GET /api/email-stats/monthly ');
+  const year = req.query.year || new Date().getFullYear();
+  try {
+    const stats = await getMonthlyEmailStats(year);
+    res.json(stats);
+  } catch (error) {
+    console.error('Error en el endpoint /api/email-stats/monthly:', error);
+    res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
+  }
 });
 
 console.log('--- Attempting to register /api/email-stats/week route ---');
 app.get('/api/email-stats/week', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-  console.log('Recibida petición GET /api/email-stats/week ');
-  try {
-    const stats = await getLast7DaysTotals();
-    res.json(stats);
-  } catch (error) {
-    console.error('Error en el endpoint /api/email-stats/week:', error);
-    res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
-  }
+  console.log('Recibida petición GET /api/email-stats/week ');
+  try {
+    const stats = await getLast7DaysTotals();
+    res.json(stats);
+  } catch (error) {
+    console.error('Error en el endpoint /api/email-stats/week:', error);
+    res.status(500).json({ error: 'Error interno del servidor al obtener estadísticas de email.' });
+  }
 });
 
 app.post('/api/upload-image/:anniversaryNumber', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), uploadToMemory.single('image'), async (req, res) => {
-    try {
-        const anniversaryNumber = req.params.anniversaryNumber;
-        if (!req.file || isNaN(parseInt(anniversaryNumber)) || parseInt(anniversaryNumber) <= 0) {
-            return res.status(400).json({ error: 'Número de aniversario o archivo inválido.' });
-        }
+    try {
+        const anniversaryNumber = req.params.anniversaryNumber;
+        if (!req.file || isNaN(parseInt(anniversaryNumber)) || parseInt(anniversaryNumber) <= 0) {
+            return res.status(400).json({ error: 'Número de aniversario o archivo inválido.' });
+        }
 
-        const fileName = `${parseInt(anniversaryNumber)}.png`;
-        const s3Key = `uploads/${fileName}`;
+        const fileName = `${parseInt(anniversaryNumber)}.png`;
+        const s3Key = `uploads/${fileName}`;
 
         // Subir el archivo a S3
-        const params = {
-            Bucket: s3Bucket,
-            Key: s3Key,
+        const params = {
+            Bucket: s3Bucket,
+            Key: s3Key,
             Body: req.file.buffer, // El contenido de la imagen desde Multer
-            ContentType: 'image/png'
-        };
+            ContentType: 'image/png'
+        };
 
-        await s3.upload(params).promise();
-
-        const s3ImageUrl = `https://${s3Bucket}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${s3Key}`;
-        
+        const command = new PutObjectCommand(params);
+        await s3.send(command);
+        
+        const s3ImageUrl = `https://${s3Bucket}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${s3Key}`;
+        
         // Actualizar la configuración con la nueva ruta de S3
-        const config = await getConfig();
-        const newImagePaths = [...(config.imagePaths || [])];
-        if (!newImagePaths.includes(s3ImageUrl)) {
-            newImagePaths.push(s3ImageUrl);
-        }
-        newImagePaths.sort((a, b) => parseInt(a.match(/(\d+)\.png/)[1]) - parseInt(b.match(/(\d+)\.png/)[1]));
+        const config = await getConfig();
+        const newImagePaths = [...(config.imagePaths || [])];
+        if (!newImagePaths.includes(s3ImageUrl)) {
+            newImagePaths.push(s3ImageUrl);
+        }
+        newImagePaths.sort((a, b) => parseInt(a.match(/(\d+)\.png/)[1]) - parseInt(b.match(/(\d+)\.png/)[1]));
 
-        const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
+        const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
 
-        res.status(200).json({
-            message: 'Imagen subida a S3 y ruta guardada exitosamente.',
-            imageUrl: s3ImageUrl,
-            updatedConfig: updatedConfig
-        });
-    } catch (error) {
-        console.error('Error al subir la imagen a S3:', error);
-        res.status(500).json({ error: error.message || 'Error interno del servidor al subir imagen.' });
-    }
+        res.status(200).json({
+            message: 'Imagen subida a S3 y ruta guardada exitosamente.',
+            imageUrl: s3ImageUrl,
+            updatedConfig: updatedConfig
+        });
+    } catch (error) {
+        console.error('Error al subir la imagen a S3:', error);
+        res.status(500).json({ error: error.message || 'Error interno del servidor al subir imagen.' });
+    }
 });
 
 app.delete('/api/delete-image', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-    const { imageUrl } = req.body;
-    if (!imageUrl) {
-        return res.status(400).json({ error: 'URL de imagen no proporcionada.' });
-    }
+    const { imageUrl } = req.body;
+    if (!imageUrl) {
+        return res.status(400).json({ error: 'URL de imagen no proporcionada.' });
+    }
 
-    try {
-        const urlParts = imageUrl.split('/');
-        const s3Key = `uploads/${urlParts[urlParts.length - 1]}`;
+    try {
+        const urlParts = imageUrl.split('/');
+        const s3Key = `uploads/${urlParts[urlParts.length - 1]}`;
 
         // Eliminar el archivo de S3
-        const params = {
-            Bucket: s3Bucket,
-            Key: s3Key
-        };
-        await s3.deleteObject(params).promise();
+        const params = {
+            Bucket: s3Bucket,
+            Key: s3Key
+        };
+        
+        const command = new DeleteObjectCommand(params);
+        await s3.send(command);
 
-        // Actualizar la configuración para eliminar la URL
-        const config = await getConfig();
-        const newImagePaths = (config.imagePaths || []).filter(path => path !== imageUrl);
-        const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
+        const config = await getConfig();
+        const newImagePaths = (config.imagePaths || []).filter(path => path !== imageUrl);
+        const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
 
-        res.status(200).json({
-            message: 'Imagen eliminada de S3 y la configuración.',
-            updatedConfig: updatedConfig
-        });
-    } catch (error) {
-        console.error('Error al eliminar imagen de S3:', error);
-        res.status(500).json({ error: 'Error interno del servidor al eliminar imagen.' });
-    }
+        res.status(200).json({
+            message: 'Imagen eliminada de S3 y la configuración.',
+            updatedConfig: updatedConfig
+        });
+    } catch (error) {
+        console.error('Error al eliminar imagen de S3:', error);
+        res.status(500).json({ error: 'Error interno del servidor al eliminar imagen.' });
+    }
 });
 
 app.use((req, res, next) => { // Este catch-all debería estar al final
-    console.log(`❌ 404 Not Found: Request to ${req.method} ${req.originalUrl} did not match any routes.`);
-    res.status(404).json({ error: 'Endpoint no encontrado.' });
+    console.log(`❌ 404 Not Found: Request to ${req.method} ${req.originalUrl} did not match any routes.`);
+    res.status(404).json({ error: 'Endpoint no encontrado.' });
 });
 
 (async () => {
-    try {
-        await connectDB();
-        app.listen(PORT, () => {
-            console.log(`Servidor corriendo en http://localhost:${PORT}`);
-        });
-    } catch (error) {
-        console.error('Error al iniciar el servidor:', error.message);
-        process.exit(1);
-    }
+    try {
+        await connectDB();
+        app.listen(PORT, () => {
+            console.log(`Servidor corriendo en http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error('Error al iniciar el servidor:', error.message);
+        process.exit(1);
+    }
 })();
 
 
