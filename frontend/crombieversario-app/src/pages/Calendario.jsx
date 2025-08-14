@@ -28,10 +28,51 @@ const CalendarioPage = () => {
       <div className="calendario-page-container">
         <h1>Cargando Calendario de Eventos...</h1>
         <p>Por favor, espera mientras se cargan los datos.</p>
+<<<<<<< HEAD
+=======
       </div>
     );
   }
 
+  // 2. Mostrar estado de error
+  if (error) {
+    return (
+      <div className="calendario-page-container">
+        <h1>Error al Cargar Eventos</h1>
+        <p style={{ color: 'red' }}>{error}</p>
+        <p>Por favor, intenta recargar la página o contacta al soporte.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="calendario-page-container">
+      <h2>Calendario de Eventos</h2>
+
+      <div className="fullcalendar-wrapper">
+        <FullCalendar
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+          initialView="dayGridMonth"
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+          }}
+          locale="es"
+          editable={false}
+          selectable={false}
+          dayMaxEvents={true}
+          // weekends={true} // Por defecto es true
+          events={allEventsForCalendar} // Usar todos los eventos del hook
+          dateClick={handleDateClick}
+          eventClick={handleEventClick}
+        />
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
+      </div>
+    );
+  }
+
+<<<<<<< HEAD
   // 2. Mostrar estado de error
   if (error) {
     return (
@@ -111,6 +152,31 @@ const CalendarioPage = () => {
             </table>
           </div>
         </div>
+=======
+      <div className="events-list">
+        <h2>Próximos Eventos (7 Días)</h2>
+        {upcomingEvents.length > 0 ? (
+          upcomingEvents.map(event => (
+            <div className="perfil-info2" key={event.id}>
+              {/* Ajustar el src de la imagen para que sea relativo a la carpeta public */}
+              <img
+                src={event.empleadoImagen ? `/${event.empleadoImagen}` : (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
+                alt={event.empleado}
+                className="persona2"
+                style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+              />
+              <div>
+                <span className="empleado">{event.title}</span>
+                <span className="ciudadYLugar">
+                  Fecha: {new Date(event.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                </span>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p>No hay eventos próximos en los siguientes 7 días.</p>
+        )}
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
       </div>
     </div>
   )

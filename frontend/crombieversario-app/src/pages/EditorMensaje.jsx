@@ -1,7 +1,9 @@
+import './EditorMensaje.css';
 // src/pages/EditorMensaje.jsx
 import React, { useState, useEffect } from "react";
 import useConfig from "../componentes/useConfig";
 import "./EditorMensaje.css";
+
 
 function EditorMensaje() {
   const {

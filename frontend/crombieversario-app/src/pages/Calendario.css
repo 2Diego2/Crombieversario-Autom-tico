@@ -1,9 +1,30 @@
 /* src/pages/CalendarioPage.css */
+<<<<<<< HEAD
+=======
+:root {
+  --colorFondo: #f6f6f3;
+  --colorCaja: #ffffff;
+  --hover: #f0f0f0;
+  --colorAdmin: #ffcd71;
+  --colorMailError: #fff7e8;
+  --colorLogOut: #ba3030;
+  --colorVerMas: #734a00;
+  --colorCrombieVioleta: #80319b;
+  --colorCrombieCeleste: #25b2e2;
+  --colorCrombieAmarillo: #ffb12a;
+  --colorCrombieRosa: #ee326c;
+  --colorCrombieVerde: #1bb55f;
+}
+
+
+
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
 .calendario-page-container {
     padding: var(--padding-box);
     background-color: var(--colorCaja);
     box-sizing: border-box;
     width: 100%;
+    
     /* Puedes ajustar el display si quieres que el calendario y otros elementos se organicen de forma específica */
 }
 
@@ -24,6 +45,10 @@
 }
 
 .empleados-table-scroll-container2 {
+<<<<<<< HEAD
+=======
+  max-height: 300px; /* o el alto que prefieras */
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
   overflow-y: auto;
   margin-top: 10px;
 }

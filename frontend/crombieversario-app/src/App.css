@@ -362,6 +362,8 @@ h2, .menu-item, .perfil-info {
   background-color: var(--colorCaja);
   border-radius: var(--border-radius);
   padding: var(--padding-box);
+  width: 100%;
+  height: 100%;
 }
 
 /* MEDIA QUERIES PARA RESPONSIVIDAD */

@@ -45,6 +45,7 @@
   border-radius: 6px;
 }
 
+/* Nuevo estilo para la barra de herramientas si se usa */
 .empleados-toolbar {
   display: flex;
   justify-content: space-between;
@@ -105,26 +106,81 @@
   z-index: 2;
 }
 
+.empleados-table thead th {
+  background-color: #cca8d8 ; /* Color de fondo para el encabezado de los scrolls tanto de Calendario como Empleados*/
+  color: #555;
+  font-weight: bold;
+  padding: 12px 20px; /* Mantener un padding más generoso para el encabezado */
+  position: sticky; /* Hace que el encabezado sea "pegajoso" al hacer scroll */
+  top: 0;
+  z-index: 2; /* Asegura que el encabezado esté por encima del contenido al hacer scroll */
+}
+
+.empleados-table tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+.empleados-table tbody tr:last-child {
+  border-bottom: none; /* No hay borde en la última fila */
+}
+
+.empleados-table tbody tr:hover td {
+  background-color: #f0f0f0; /* Efecto hover para las filas */
+  color: #ffffff; /* Cambia el color del texto al blanco */
+}
+
+/* Estilos para el contenedor del nombre del empleado actualizados */
 .nombreEmpleado {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 12px; /* Espaciado entre la foto y la info del empleado */
 }
 
+/* Renombrado de .empleado-avatar a .fotoEmpleado */
 .fotoEmpleado {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
+  border: 1px solid #ddd; /* Pequeño borde para el avatar */
 }
 
+/* Estilos para el contenedor de información del empleado actualizados */
 .infoEmpleado {
   display: flex;
   flex-direction: column;
 }
 
 
+/* Estilos para nombreApellido */
 .nombreApellido {
+  font-weight: bold;
+  color: #333; /* Asegura que el color sea visible */
+}
+
+/* Estilos para fechaIngreso actualizados */
+.fechaIngreso {
+  font-size: 1em; /* Tamaño de fuente actualizado */
+  color: #777; /* Color actualizado */
+  white-space: nowrap; /* Evita que la fecha se divida en varias líneas */
+  margin-left: 18px;
+}
+
+/* Estilos para empleadoEmail actualizados */
+.empleadoEmail {
+  font-size: 0.9em; /* Tamaño de fuente actualizado */
+  color: #555; /* Color actualizado */
+}
+
+.loading-message, .error-message, .no-results {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.error-message {
+  color: #d9534f; /* Color rojo para mensajes de error */
   font-weight: bold;
 }
 

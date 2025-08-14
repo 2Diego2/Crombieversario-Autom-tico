@@ -78,8 +78,13 @@ const useEventosProximos = () => {
             id: `cumple-${trabajador.nombre}-${trabajador.apellido}-${birthDay}-${birthMonth}`,
             title: `🥳 Cumpleaños de ${trabajador.nombre} ${trabajador.apellido}`,
             date: birthdayDateStr,
+<<<<<<< HEAD
             color: '#80319b', 
             allDay: true,
+=======
+            color: '#80319b',
+            allDay: true, 
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
             type: 'cumpleanios',
             empleado: `${trabajador.nombre} ${trabajador.apellido}`,
             empleadoImagen: trabajador.imagen ? `/${trabajador.imagen}` : null
@@ -113,7 +118,11 @@ const useEventosProximos = () => {
             id: `aniversario-${trabajador.nombre}-${trabajador.apellido}-${entryDay}-${entryMonth}`,
             title: `🎉 Aniversario de ${trabajador.nombre} ${trabajador.apellido}`,
             date: anniversaryDateStr,
+<<<<<<< HEAD
             color: '#ee326c', 
+=======
+            color: '#ee326c',
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
             allDay: true,
             type: 'aniversario',
             empleado: `${trabajador.nombre} ${trabajador.apellido}`,

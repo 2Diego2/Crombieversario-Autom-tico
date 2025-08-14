@@ -6,17 +6,27 @@ const crypto = require("crypto");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const updateEnvFile = require('./utils/saveEnv');
+<<<<<<< HEAD
 const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats, getLast7DaysTotals, findUserByEmail, createUser, updateUserRole } = require('./db'); 
 const multer = require('multer');
 const fs = require('fs');
 
+=======
+const { connectDB, getConfig, updateConfig, recordEmailOpen, getYearlyEmailStats, findUserByEmail, createUser, updateUserRole } = require('./db');
+const multer = require('multer');
+const fs = require('fs'); 
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
 const app = express();
 const PORT = process.env.PORT || 3033;
 
 // --- Configuración de Multer para Subida de Archivos ---
+<<<<<<< HEAD
 // Mantenemos tu UPLOADS_DIR original
 const UPLOADS_DIR = path.join(__dirname, '../public/uploads'); // Carpeta donde se guardarán las imágenes
 // Asegúrate de que la carpeta de uploads exista
+=======
+const UPLOADS_DIR = path.join(__dirname, '../public/uploads');
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
 if (!fs.existsSync(UPLOADS_DIR)) {
     fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
@@ -26,6 +36,7 @@ const storage = multer.diskStorage({
         cb(null, UPLOADS_DIR);
     },
     filename: (req, file, cb) => {
+<<<<<<< HEAD
         const anniversaryNumber = req.params.anniversaryNumber; // Get from params
         console.log('Multer Filename: anniversaryNumber recibido from req.params:', anniversaryNumber);
 
@@ -61,12 +72,19 @@ const upload = multer({
         } else {
             cb(new Error('Tipo de archivo no soportado. Solo se permiten PNGs.'), false);
         }
+=======
+        cb(null, `${Date.now()}-${file.originalname}`);
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     }
 });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+<<<<<<< HEAD
+=======
+// Middleware para habilitar CORS
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -79,6 +97,12 @@ app.use((req, res, next) => {
 
 console.log('API_KEY cargada desde .env:', process.env.API_KEY);
 
+<<<<<<< HEAD
+=======
+app.use('/uploads', express.static(UPLOADS_DIR));
+
+// Generación de API Key si no existe
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
 if (!process.env.API_KEY || process.env.API_KEY.trim() === '' || process.env.API_KEY.trim() === '(dir_name)') {
     const newApiKey = crypto.randomBytes(32).toString('hex');
     updateEnvFile('API_KEY', newApiKey);
@@ -295,6 +319,7 @@ app.get('/trabajadores', (req, res) => {
     });
 });
 
+<<<<<<< HEAD
 //Endpoint para obtener los mails enviados desde la base de datos
 app.get('/api/aniversarios-enviados', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
     try {
@@ -333,6 +358,9 @@ app.get('/api/aniversarios-error', authenticateToken, authorize([ROLES.SUPER_ADM
 });
 
 // NUEVOS ENDPOINTS para la configuración
+=======
+// Rutas de interfaz protegidas por roles
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
 app.get('/api/config', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
     try {
         const config = await getConfig();
@@ -410,6 +438,7 @@ app.get('/api/email-stats/yearly', authenticateToken, authorize([ROLES.SUPER_ADM
 });
 console.log('--- Ruta /api/email-stats/yearly registrada con éxito ---');
 
+<<<<<<< HEAD
 app.get('/api/email-stats/monthly', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
   console.log('Recibida petición GET /api/email-stats/monthly ');
   try {
@@ -437,6 +466,8 @@ app.get('/api/email-stats/week', authenticateToken, authorize([ROLES.SUPER_ADMIN
 console.log('--- Successfully registered /api/email-stats/week route ---');
 
 
+=======
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
 app.post('/api/upload-image/:anniversaryNumber', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => { 
     try {
         await new Promise((resolve, reject) => {
@@ -457,6 +488,7 @@ app.post('/api/upload-image/:anniversaryNumber', authenticateToken, authorize([R
         console.log('Controlador de ruta: anniversaryNumber de req.params:', anniversaryNumber);
 
         const imageUrl = `/uploads/${req.file.filename}`;
+<<<<<<< HEAD
 
         const config = await getConfig();
         const newImagePaths = [...(config.imagePaths || [])];
@@ -471,6 +503,10 @@ app.post('/api/upload-image/:anniversaryNumber', authenticateToken, authorize([R
             return numA - numB;
         });
 
+=======
+        const config = await getConfig();
+        const newImagePaths = [...(config.imagePaths || []), imageUrl];
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
         const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
 
         res.status(200).json({
@@ -499,6 +535,7 @@ app.delete('/api/delete-image', authenticateToken, authorize([ROLES.SUPER_ADMIN,
         return res.status(400).json({ error: 'URL de imagen no proporcionada.' });
     }
 
+<<<<<<< HEAD
     const filename = path.basename(imageUrl);
     const filePath = path.join(UPLOADS_DIR, filename); 
 
@@ -507,12 +544,20 @@ app.delete('/api/delete-image', authenticateToken, authorize([ROLES.SUPER_ADMIN,
             await fs.promises.unlink(filePath);
             console.log(`Archivo ${filePath} eliminado del servidor.`);
         } else {
+=======
+    try {
+        const filename = path.basename(imageUrl);
+        const filePath = path.join(UPLOADS_DIR, filename);
+
+        // Verificar si el archivo existe antes de eliminar
+        if (fs.existsSync(filePath)) {
+            await fs.promises.unlink(filePath);         } else {
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
             console.warn(`Intento de eliminar imagen no existente en el servidor: ${filePath}`);
         }
 
         const config = await getConfig();
         const newImagePaths = (config.imagePaths || []).filter(path => path !== imageUrl);
-
         const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
 
         res.status(200).json({
@@ -523,13 +568,21 @@ app.delete('/api/delete-image', authenticateToken, authorize([ROLES.SUPER_ADMIN,
         console.error('Error al eliminar imagen:', error);
         res.status(500).json({ error: 'Error interno del servidor al eliminar imagen.' });
     }
-});
+}); 
 
 app.use((req, res, next) => { // Este catch-all debería estar al final
     console.log(`❌ 404 Not Found: Request to ${req.method} ${req.originalUrl} did not match any routes.`);
     res.status(404).json({ error: 'Endpoint no encontrado.' });
 });
 
+<<<<<<< HEAD
+app.use((req, res, next) => { // Este catch-all debería estar al final
+    console.log(`❌ 404 Not Found: Request to ${req.method} ${req.originalUrl} did not match any routes.`);
+    res.status(404).json({ error: 'Endpoint no encontrado.' });
+});
+
+=======
+>>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
 (async () => {
     try {
         await connectDB();

@@ -39,6 +39,7 @@ const EmpleadosPage = () => {
     fetchEmpleados();
   }, [fetchEmpleados]);
 
+  // Filtra los empleados basándose en la búsqueda
   const empleadosFiltrados = empleados.filter((empleado) =>
     `${empleado.nombre} ${empleado.apellido} ${empleado.mail}`.toLowerCase().includes(busqueda.toLowerCase())
   );
