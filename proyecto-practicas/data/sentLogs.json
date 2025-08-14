@@ -3,11 +3,6 @@
     "nombre": "juan",
     "apellido": "perez",
     "email": "juan.perez@example.com",
-<<<<<<< HEAD
-=======
-    "nombre": "juan",
-    "apellido": "perez",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 1,
     "sentDate": "2024-01-15T09:00:00.000Z",
     "opened": true,
@@ -17,11 +12,6 @@
     "nombre": "maria",
     "apellido": "lopez",
     "email": "maria.lopez@sample.com",
-<<<<<<< HEAD
-=======
-    "nombre": "maria",
-    "apellido": "lopez",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 2,
     "sentDate": "2024-01-15T10:30:00.000Z",
     "opened": false,
@@ -31,11 +21,6 @@
     "nombre": "carlos",
     "apellido": "garcia",
     "email": "carlos.garcia@mail.net",
-<<<<<<< HEAD
-=======
-    "nombre": "carlos",
-    "apellido": "garcia",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 3,
     "sentDate": "2024-02-01T14:00:00.000Z",
     "opened": true,
@@ -45,11 +30,6 @@
     "nombre": "ana",
     "apellido": "rodriguez",
     "email": "ana.rodriguez@domain.org",
-<<<<<<< HEAD
-=======
-    "nombre": "ana",
-    "apellido": "rodriguez",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 4,
     "sentDate": "2024-02-01T16:45:00.000Z",
     "opened": true,
@@ -59,11 +39,6 @@
     "nombre": "pedro",
     "apellido": "sanchez",
     "email": "pedro.sanchez@email.com",
-<<<<<<< HEAD
-=======
-    "nombre": "pedro",
-    "apellido": "sanchez",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 5,
     "sentDate": "2024-03-10T11:00:00.000Z",
     "opened": false,
@@ -73,11 +48,6 @@
     "nombre": "laura",
     "apellido": "fernandez",
     "email": "laura.fernandez@test.es",
-<<<<<<< HEAD
-=======
-    "nombre": "laura",
-    "apellido": "fernandez",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 6,
     "sentDate": "2024-03-10T11:30:00.000Z",
     "opened": true,
@@ -87,11 +57,6 @@
     "nombre": "diego",
     "apellido": "gomez",
     "email": "diego.gomez@company.co",
-<<<<<<< HEAD
-=======
-    "nombre": "diego",
-    "apellido": "gomez",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 7,
     "sentDate": "2023-11-20T08:00:00.000Z",
     "opened": true,
@@ -101,11 +66,6 @@
     "nombre": "sofia",
     "apellido": "diaz",
     "email": "sofia.diaz@info.mx",
-<<<<<<< HEAD
-=======
-    "nombre": "sofia",
-    "apellido": "diaz",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 8,
     "sentDate": "2023-11-20T09:00:00.000Z",
     "opened": false,
@@ -115,11 +75,6 @@
     "nombre": "jorge",
     "apellido": "ruiz",
     "email": "jorge.ruiz@solution.io",
-<<<<<<< HEAD
-=======
-    "nombre": "jorge",
-    "apellido": "ruiz",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 9,
     "sentDate": "2024-04-05T10:00:00.000Z",
     "opened": true,
@@ -129,11 +84,6 @@
     "nombre": "valeria",
     "apellido": "mora",
     "email": "valeria.mora@example.com",
-<<<<<<< HEAD
-=======
-    "nombre": "valeria",
-    "apellido": "mora",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 10,
     "sentDate": "2024-04-05T11:00:00.000Z",
     "opened": false,
@@ -143,11 +93,6 @@
     "nombre": "agustin",
     "apellido": "lopez",
     "email": "agustin.lopez@sample.com",
-<<<<<<< HEAD
-=======
-    "nombre": "agustin",
-    "apellido": "lopez",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 11,
     "sentDate": "2024-05-01T08:00:00.000Z",
     "opened": true,
@@ -157,11 +102,6 @@
     "nombre": "carolina",
     "apellido": "vazquez",
     "email": "carolina.vazquez@mail.net",
-<<<<<<< HEAD
-=======
-    "nombre": "carolina",
-    "apellido": "vazquez",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 12,
     "sentDate": "2024-05-01T08:05:00.000Z",
     "opened": false,
@@ -171,11 +111,6 @@
     "nombre": "martin",
     "apellido": "herrera",
     "email": "martin.herrera@domain.org",
-<<<<<<< HEAD
-=======
-    "nombre": "martin",
-    "apellido": "herrera",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 13,
     "sentDate": "2024-06-10T15:00:00.000Z",
     "opened": true,
@@ -185,11 +120,6 @@
     "nombre": "lucia",
     "apellido": "castro",
     "email": "lucia.castro@email.com",
-<<<<<<< HEAD
-=======
-    "nombre": "lucia",
-    "apellido": "castro",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 14,
     "sentDate": "2024-06-10T15:30:00.000Z",
     "opened": false,
@@ -199,11 +129,6 @@
     "nombre": "andres",
     "apellido": "jimenez",
     "email": "andres.jimenez@test.es",
-<<<<<<< HEAD
-=======
-    "nombre": "andres",
-    "apellido": "jimenez",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 15,
     "sentDate": "2024-07-17T10:00:00.000Z",
     "opened": true,
@@ -213,11 +138,6 @@
     "nombre": "paula",
     "apellido": "gonzalez",
     "email": "paula.gonzalez@company.co",
-<<<<<<< HEAD
-=======
-    "nombre": "paula",
-    "apellido": "gonzalez",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 16,
     "sentDate": "2024-07-17T10:15:00.000Z",
     "opened": false,
@@ -227,11 +147,6 @@
     "nombre": "ejemplo1",
     "apellido": "crombie",
     "email": "ejemplo1@crombie.com",
-<<<<<<< HEAD
-=======
-    "nombre": "ejemplo1",
-    "apellido": "generico",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 1,
     "sentDate": "2025-01-10T09:00:00.000Z",
     "opened": true,
@@ -241,11 +156,6 @@
     "nombre": "ejemplo2",
     "apellido": "crombie",
     "email": "ejemplo2@crombie.com",
-<<<<<<< HEAD
-=======
-    "nombre": "ejemplo2",
-    "apellido": "generico",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 2,
     "sentDate": "2025-02-20T10:30:00.000Z",
     "opened": false,
@@ -255,11 +165,6 @@
     "nombre": "ejemplo3",
     "apellido": "crombie",
     "email": "ejemplo3@crombie.com",
-<<<<<<< HEAD
-=======
-    "nombre": "ejemplo3",
-    "apellido": "generico",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 3,
     "sentDate": "2025-03-05T14:15:00.000Z",
     "opened": true,
@@ -269,11 +174,6 @@
     "nombre": "ejemplo4",
     "apellido": "crombie",
     "email": "ejemplo4@crombie.com",
-<<<<<<< HEAD
-=======
-    "nombre": "ejemplo4",
-    "apellido": "generico",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 4,
     "sentDate": "2025-04-12T11:00:00.000Z",
     "opened": false,
@@ -283,11 +183,6 @@
     "nombre": "ejemplo5",
     "apellido": "crombie",
     "email": "ejemplo5@crombie.com",
-<<<<<<< HEAD
-=======
-    "nombre": "ejemplo5",
-    "apellido": "generico",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 5,
     "sentDate": "2025-05-01T08:45:00.000Z",
     "opened": true,
@@ -297,11 +192,6 @@
     "nombre": "ejemplo6",
     "apellido": "crombie",
     "email": "ejemplo6@crombie.com",
-<<<<<<< HEAD
-=======
-    "nombre": "ejemplo6",
-    "apellido": "generico",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 6,
     "sentDate": "2025-06-25T17:00:00.000Z",
     "opened": true,
@@ -311,11 +201,6 @@
     "nombre": "ejemplo7",
     "apellido": "crombie",
     "email": "ejemplo7@crombie.com",
-<<<<<<< HEAD
-=======
-    "nombre": "ejemplo7",
-    "apellido": "generico",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 7,
     "sentDate": "2025-07-17T15:00:00.000Z",
     "opened": true,
@@ -325,18 +210,9 @@
     "nombre": "ejemplo8",
     "apellido": "crombie",
     "email": "ejemplo8@crombie.com",
-<<<<<<< HEAD
-=======
-    "nombre": "ejemplo8",
-    "apellido": "generico",
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     "years": 8,
     "sentDate": "2025-07-17T15:05:00.000Z",
     "opened": false,
     "openedAt": null
   }
-<<<<<<< HEAD
 ]
-=======
-]
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e

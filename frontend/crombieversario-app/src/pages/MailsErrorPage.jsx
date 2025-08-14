@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import useConfig from '../componentes/useConfig';
-import './MailsEnviadosPage.css';
+import './MailsErrorPage.css';
 import axios from 'axios';
 
 const MailsErrorPage = () => {
@@ -68,7 +68,7 @@ const MailsErrorPage = () => {
 
     return (
         <div className="MailsErrorPage">
-            <h2 className="mails">Mails No Enviados</h2>
+            <h2 className="mails">Mails no enviados</h2>
 
             {loading ? (
                 <p>Cargando...</p>

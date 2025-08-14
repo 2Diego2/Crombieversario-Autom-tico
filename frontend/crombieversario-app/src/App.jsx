@@ -29,7 +29,6 @@ function App() {
       }
     }
   }, [navigate]);
-<<<<<<< HEAD
 
   const handleLogout = () => {
     localStorage.removeItem('jwtToken');
@@ -46,24 +45,6 @@ function App() {
       <Route path="/login" element={
         isAuthenticated ? (
           <Navigate to="/dashboard" replace />
-=======
-
-  const handleLogout = () => {
-    localStorage.removeItem('jwtToken');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userRole');
-    setIsAuthenticated(false);
-    setUserEmail(null);
-    setUserRole(null);
-    navigate('/login', { replace: true });
-  };
-
-  return ( 
-    <Routes>
-      <Route path="/login" element={
-        isAuthenticated ? (
-          <Navigate to="/dashboard" replace /> 
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
         ) : (
           <LoginForm onLoginSuccess={() => {
             setIsAuthenticated(true);
@@ -73,13 +54,8 @@ function App() {
           }} />
         )
       } />
-<<<<<<< HEAD
 
       <Route
-=======
- 
-       <Route
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
         path="/dashboard/*"
         element={
           isAuthenticated ? (
@@ -91,11 +67,7 @@ function App() {
       />
       
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
-<<<<<<< HEAD
     </Routes>
-=======
-    </Routes> 
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
   );
 }
 

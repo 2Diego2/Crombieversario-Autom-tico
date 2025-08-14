@@ -73,6 +73,7 @@ body {
   max-width: 1600px; /* Limita el ancho máximo del dashboard */
   min-height: calc(100vh - (2 * var(--padding-box))); /* Ajusta la altura mínima para el contenido */
   gap: var(--grid-gap); /* Espacio entre los items del grid */
+  box-sizing: border-box;
 
   /* MOBILE FIRST: Default layout para pantallas pequeñas (columnas apiladas) */
   display: grid;
@@ -260,7 +261,7 @@ h2 {
   padding: var(--padding-box);
 }
 .div4, .div5 {
-  background-color: var(--colorCajaAlt);
+  background-color: var(--colorCaja);
 }
 
 /* Asignación de áreas de grid para cada div */
@@ -271,7 +272,9 @@ h2 {
 
 .div2 h2,.div3 h2,.div4 h2,.div5 h2 {
   margin-bottom: 15px;
+  padding: 15px;
 }
+
 
 .perfil-info2 {
   display: flex;
@@ -279,12 +282,13 @@ h2 {
   gap: 15px;
   margin-top: 10px;
   padding: 10px 0;
+  padding-left: 20px;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  box-shadow: none;
+  margin-bottom: 0;
 }
 
-.perfil-info2 > div {
-  display: flex;
-  flex-direction: column;
-}
 
 .persona2 {
   height: 40px;
@@ -391,6 +395,8 @@ h2, .menu-item, .perfil-info {
   }
 
   .div4 {
+    width: 100%;
+    max-width: 100%;
     max-height: 400px;
     display: flex;
     flex-direction: column;
@@ -404,6 +410,11 @@ h2, .menu-item, .perfil-info {
     gap: 0;
     padding-right: 6px;
     min-height: 32vh;
+    background-color: #f0f0f0;
+    border-radius: 12px;
+    margin: 10px;
+    margin-top: -15px;
+    margin-bottom: 8px;
   }
 
   .eventos-scroll::-webkit-scrollbar {
@@ -415,7 +426,9 @@ h2, .menu-item, .perfil-info {
     background-color: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
   }
+
 }
+
 /* Desktop pequeño (1024px a 1439px) */
 @media (min-width: 1024px) {
   .parent {
@@ -439,6 +452,7 @@ h2, .menu-item, .perfil-info {
     grid-column: 2 / -1; /* Ocupa desde la segunda columna hasta el final */
     grid-row: 1 / -1; /* Ocupa todas las filas */
   }
+
 }
 
 /* Desktop mediano (1440px a 1700px) */
@@ -476,4 +490,79 @@ h2, .menu-item, .perfil-info {
     aside.div1 {
     width: var(--sidebar-width-desktop); /* Mantiene el ancho */
   }
+}
+
+/* ============================
+   AJUSTES RESPONSIVE DASHBOARD
+   ============================ */
+
+@media (max-width: 768px) {
+
+  /* Sidebar ocupa todo el ancho */
+aside.div1 {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto; /* centra horizontalmente */
+}
+
+
+  /* Contenido principal y secciones del dashboard */
+  .main-content-pages,
+  .div2,
+  .div3,
+  .div4,
+  .div5,
+  .imagenCrombie,
+  .calendario-page-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 10px; /* espacio lateral para evitar que quede pegado */
+    box-sizing: border-box;
+  }
+
+  .div2 {
+    height: 730px; /* Ajusta según necesidad */
+  }
+
+.tablaMails {
+  width: 100%;
+  max-width: 600px; /* opcional: limitar en desktop */
+  margin: 0 auto;   /* centrar en pantallas grandes */
+}
+
+
+  /* Próximos eventos en Dashboard: scroll vertical limitado */
+  .div4 {
+    max-height: 300px;
+    overflow-y: auto;
+    
+  }
+
+  /* Calendario FullCalendar ajustado */
+  .fullcalendar-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow-x: auto; /* permite hacer scroll lateral si el calendario es muy ancho */
+  }
+
+  /* Lista de eventos debajo del calendario: scroll vertical */
+  .empleados-table-scroll-container2 {
+    max-height: 300px;
+    overflow-y: auto;
+    width: 100%;
+  }
+
+  .perfil-info2{
+    margin-top: -1px;
+    padding-left: 15px;
+  }
+
+  html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+}
+
 }

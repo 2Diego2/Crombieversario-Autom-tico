@@ -131,17 +131,10 @@ async function connectDB() {
  * @param {boolean} enviado - Si fue enviado o no.
  */
 async function recordSentEmail(nombre, apellido, email, years) {
-<<<<<<< HEAD
     try {
         const newLog = new SentLog({ nombre, apellido, email, years });
         await newLog.save();
         console.log(`Log de envío registrado en DB para ${nombre} ${apellido} (${email}, ${years} años).`);
-=======
-    try { 
-        const newLog = new SentLog({ nombre, apellido, email, years });
-        await newLog.save();
-        console.log(`Log de envío registrado en DB para ${nombre} ${apellido} (${email}, ${years} años).`); 
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
     } catch (error) {
         console.error(`Error al registrar log de envío para ${email}: ${error.message}`);
     }

@@ -1,40 +1,26 @@
 // src/componentes/DashboardContent.jsx
-import React, { useState, useEffect } from 'react'; // Importa useState y useEffect
+import React from 'react';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
-
-// Importa los hooks y componentes que dependen de la autenticación
 import useConfig from './useConfig';
 import useEventosProximos from './useEventosProximos';
 import Estadisticas from './Estadisticas';
-
-// Importa las imágenes y páginas específicas del dashboard
-// Considerar si gaelMailEnviado es una imagen estática o si debería ser dinámica
-import gaelMailEnviado from '../assets/gael.PNG';
 import coloresCrombie from '../assets/coloresCrombie.png';
-
-// Importa las páginas que van en las rutas del dashboard
 import EmpleadosPage from '../pages/EmpleadosPage';
 import MailsEnviadosPage from '../pages/MailsEnviadosPage';
 import MailsErrorPage from '../pages/MailsErrorPage';
 import CalendarioPage from '../pages/Calendario';
 import EditorMensaje from '../pages/EditorMensaje';
 import UltimoMailEnviado from '../componentes/UltimoMailEnviado';
-
-// Iconos
-import { IoPeopleSharp, IoCalendarNumberSharp, IoHomeSharp, IoChatboxEllipses, IoMailUnread, IoMail } from "react-icons/io5";
-import { LuMailWarning, LuMail, LuLogOut } from "react-icons/lu";
-
-// Logo
+import { IoPeopleSharp, IoCalendarNumberSharp, IoChatboxEllipses, IoMailUnread, IoMail } from "react-icons/io5";
+import { LuLogOut } from "react-icons/lu";
 import LogoCrombie from '../assets/Logo.png';
 
 
 function DashboardContent({ onLogout, userEmail, userRole }) {
   const location = useLocation();
-
-  const { config, loading: configLoading, error: configError, localApiKey } = useConfig();
+  const { config, loading: configLoading, error: configError } = useConfig();
   const { upcomingEvents, loading: eventsLoading, error: eventsError } = useEventosProximos();
 
-  // Redirección si la sesión expira/es inválida
   if (configError || eventsError) {
     if ((configError && (configError.includes('Sesión expirada') || configError.includes('no autorizado'))) ||
       (eventsError && (eventsError.includes('Sesión expirada') || eventsError.includes('no autorizado')))) {
@@ -45,13 +31,16 @@ function DashboardContent({ onLogout, userEmail, userRole }) {
     return <div className="error-screen">Error al cargar datos: {configError || eventsError}</div>;
   }
 
-  // Si aún está cargando, muestra la pantalla de carga
   if (configLoading || eventsLoading) {
     return <div className="loading-screen">Cargando datos del dashboard...</div>;
   }
 
-  // Determinar si estamos en la ruta raíz del dashboard
   const isDashboardRoot = location.pathname === '/dashboard';
+
+  // Función auxiliar para asegurar que los números de un solo dígito tengan un 0 inicial
+  const formatTwoDigits = (num) => {
+    return num.toString().padStart(2, '0');
+  };
 
   return (
     <div className="background">
@@ -114,30 +103,35 @@ function DashboardContent({ onLogout, userEmail, userRole }) {
             </div>
 
             <div className="div4">
-              <h2>Próximos eventos (7 Días)</h2>
+              <h2>Próximos eventos (7 días)</h2>
               <div className='eventos-scroll'>
-              {upcomingEvents.length > 0 ? (
-                upcomingEvents.map(event => (
-                  <div className="perfil-info2" key={event.id}>
-                    <img
-                      src={event.empleadoImagen || (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
-                      alt={event.empleado}
-                      className="persona2"
-                      style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
-                    />
-                    <div>
-                      <span className="empleado">{event.title}</span>
-                      <span className="ciudadYLugar">
-                        Fecha: {new Date(event.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                      </span>
-                    </div>
-                  </div>
-                ))
-                
-              ) : (
-                <p>No hay eventos próximos en los siguientes 7 días.</p>
-              )}
-            </div>
+                {upcomingEvents.length > 0 ? (
+                  upcomingEvents.map(event => {
+                    const [year, month, day] = event.date.split('-').map(Number);
+                    const eventDate = new Date(year, month - 1, day);
+                    const formattedDate = `${formatTwoDigits(eventDate.getDate())}/${formatTwoDigits(eventDate.getMonth() + 1)}`;
+
+                    return (
+                      <div className="perfil-info2" key={event.id}>
+                        <img
+                          src={event.empleadoImagen || (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
+                          alt={event.empleado}
+                          className="persona2"
+                          style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                        <div>
+                          <span className="empleado">{event.title}</span>
+                          <span className="ciudadYLugar">
+                            Fecha: {formattedDate}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <p>No hay eventos próximos en los siguientes 7 días.</p>
+                )}
+              </div>
             </div>
 
             <div className="div5">
@@ -159,14 +153,10 @@ function DashboardContent({ onLogout, userEmail, userRole }) {
             </div>
           </>
         ) : (
-          // Cuando no estamos en la ruta raíz del dashboard, renderizamos las Routes
-          // dentro de un div con la clase .main-content-pages
           <div className="main-content-pages">
             <Routes>
-              {/* Las rutas aquí son relativas a "/dashboard/" */}
               <Route path="empleados" element={<EmpleadosPage />} />
-              {/* Pasa la prop onLastMailFetched a MailsEnviadosPage */}
-              <Route path="mails-enviados" element={<MailsEnviadosPage/>} />
+              <Route path="mails-enviados" element={<MailsEnviadosPage />} />
               <Route path="mail-error" element={<MailsErrorPage />} />
               <Route path="calendario" element={<CalendarioPage />} />
               <Route path="mensaje" element={<EditorMensaje />} />

@@ -1,4 +1,5 @@
-import React from 'react';
+// src/pages/Calendario.jsx
+import React, { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -6,14 +7,25 @@ import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 
 import './Calendario.css';
-// Corrección de la ruta de importación: usa 'useEventosProximos' en lugar de 'useEventosProximos'
-import useEventosProximos from '../componentes/useEventosProximos'; 
+import useEventosProximos from '../componentes/useEventosProximos';
 
 const CalendarioPage = () => {
-  // Usar el custom hook para obtener los eventos y también sus estados de carga y error
   const { upcomingEvents, allEventsForCalendar, loading, error } = useEventosProximos();
 
-  // Las funciones handleDateClick y handleEventClick se pueden mantener si las necesitas
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   const handleDateClick = (arg) => {
     alert('Fecha clicada: ' + arg.dateStr);
   };
@@ -22,58 +34,20 @@ const CalendarioPage = () => {
     alert('Evento: ' + clickInfo.event.title + '\nID: ' + clickInfo.event.id);
   };
 
-  // 1. Mostrar estado de carga
+  // Función auxiliar para asegurar el formato DD/MM
+  const formatTwoDigits = (num) => {
+    return num.toString().padStart(2, '0');
+  };
+
   if (loading) {
     return (
       <div className="calendario-page-container">
         <h1>Cargando Calendario de Eventos...</h1>
         <p>Por favor, espera mientras se cargan los datos.</p>
-<<<<<<< HEAD
-=======
       </div>
     );
   }
 
-  // 2. Mostrar estado de error
-  if (error) {
-    return (
-      <div className="calendario-page-container">
-        <h1>Error al Cargar Eventos</h1>
-        <p style={{ color: 'red' }}>{error}</p>
-        <p>Por favor, intenta recargar la página o contacta al soporte.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="calendario-page-container">
-      <h2>Calendario de Eventos</h2>
-
-      <div className="fullcalendar-wrapper">
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-          initialView="dayGridMonth"
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-          }}
-          locale="es"
-          editable={false}
-          selectable={false}
-          dayMaxEvents={true}
-          // weekends={true} // Por defecto es true
-          events={allEventsForCalendar} // Usar todos los eventos del hook
-          dateClick={handleDateClick}
-          eventClick={handleEventClick}
-        />
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
-      </div>
-    );
-  }
-
-<<<<<<< HEAD
-  // 2. Mostrar estado de error
   if (error) {
     return (
       <div className="calendario-page-container">
@@ -93,6 +67,8 @@ const CalendarioPage = () => {
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
             initialView="dayGridMonth"
+            height="auto"
+            dayMaxEventRows={isMobile ? 0 : false}
             headerToolbar={{
               left: 'prev,next today',
               center: 'title',
@@ -101,9 +77,8 @@ const CalendarioPage = () => {
             locale="es"
             editable={false}
             selectable={false}
-            dayMaxEvents={true}
             weekends={true}
-            events={allEventsForCalendar} // Usar todos los eventos del hook
+            events={allEventsForCalendar}
             dateClick={handleDateClick}
             eventClick={handleEventClick}
           />
@@ -117,32 +92,35 @@ const CalendarioPage = () => {
               <thead>
                 <tr>
                   <th>Evento</th>
-                  <th>Fecha</th>
+                  <th className="fecha-header-desktop">Fecha</th>
                 </tr>
               </thead>
               <tbody>
                 {upcomingEvents.length > 0 ? (
-                  upcomingEvents.map(event => (
-                    <tr key={event.id}>
-                      <td>
-                        <div className="nombreEmpleado">
-                          <img
-                            src={event.empleadoImagen || (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
-                            alt={event.empleado}
-                            className="fotoEmpleado"
-                          />
-                          <div className="infoEmpleado">
-                            <span className="nombreApellido">{event.title}</span>
+                  upcomingEvents.map(event => {
+                    const [year, month, day] = event.date.split('-').map(Number);
+                    const eventDate = new Date(year, month - 1, day);
+                    // Corregido: Eliminar el año del formato
+                    const formattedDate = `${formatTwoDigits(eventDate.getDate())}/${formatTwoDigits(eventDate.getMonth() + 1)}`;
+                    return (
+                      <tr key={event.id}>
+                        <td data-label="Evento">
+                          <div className="nombreEmpleado">
+                            <img
+                              src={event.empleadoImagen || (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
+                              alt={event.empleado}
+                              className="fotoEmpleado"
+                            />
+                            <div className="infoEmpleado" data-fecha={formattedDate}>
+                              <span className="nombreApellido">{event.title}</span>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="fechaIngreso">
-                          {new Date(event.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+                        <td data-label="Fecha" className="fecha-cell-desktop">
+                          {formattedDate}
+                        </td>
+                      </tr>
+                    );})
                 ) : (
                   <tr>
                     <td colSpan="2" className="no-results">No hay eventos próximos en los siguientes 7 días.</td>
@@ -152,34 +130,9 @@ const CalendarioPage = () => {
             </table>
           </div>
         </div>
-=======
-      <div className="events-list">
-        <h2>Próximos Eventos (7 Días)</h2>
-        {upcomingEvents.length > 0 ? (
-          upcomingEvents.map(event => (
-            <div className="perfil-info2" key={event.id}>
-              {/* Ajustar el src de la imagen para que sea relativo a la carpeta public */}
-              <img
-                src={event.empleadoImagen ? `/${event.empleadoImagen}` : (event.type === 'cumpleanios' ? '/images/cumple_icon.png' : '/images/aniversario_icon.png')}
-                alt={event.empleado}
-                className="persona2"
-                style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
-              />
-              <div>
-                <span className="empleado">{event.title}</span>
-                <span className="ciudadYLugar">
-                  Fecha: {new Date(event.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                </span>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p>No hay eventos próximos en los siguientes 7 días.</p>
-        )}
->>>>>>> d1211eaf2c95a41610469f3fac68ed960aee443e
       </div>
     </div>
-  )
+  );
 };
 
-        export default CalendarioPage;
+export default CalendarioPage;

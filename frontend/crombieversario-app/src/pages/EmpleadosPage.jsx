@@ -44,6 +44,17 @@ const EmpleadosPage = () => {
     `${empleado.nombre} ${empleado.apellido} ${empleado.mail}`.toLowerCase().includes(busqueda.toLowerCase())
   );
 
+  // Determina el encabezado de la columna de fecha dinámicamente
+  const getFechaHeader = (empleado) => {
+    return empleado && empleado.tipoEvento === "cumpleaños" ? "Fecha de nacimiento" : "Fecha de ingreso";
+  };
+
+  // Encontrar el primer empleado en la lista filtrada para determinar el encabezado
+  // Si no hay empleados, se usará el valor por defecto "Fecha de ingreso"
+  const primerEmpleado = empleadosFiltrados[0];
+  const fechaHeader = getFechaHeader(primerEmpleado);
+
+
   return (
     <div className="empleados-page">
       <h1>Gestión de empleados</h1>
@@ -69,7 +80,7 @@ const EmpleadosPage = () => {
             <thead>
               <tr>
                 <th>Empleados</th>
-                <th>Fecha de ingreso</th>
+                <th>{fechaHeader}</th>
               </tr>
             </thead>
             <tbody>
@@ -83,13 +94,23 @@ const EmpleadosPage = () => {
                           alt={empleado.nombre}
                           className="fotoEmpleado"
                         />
-                        <div className="infoEmpleado" data-fecha={empleado.fechaEntrada}>
+                        <div className="infoEmpleado" data-fecha={
+                          empleado.tipoEvento === "cumpleaños"
+                            ? empleado.fechaNacimiento
+                            : empleado.fechaEntrada
+                        }>
                           <span className="nombreApellido">{empleado.nombre} {empleado.apellido}</span>
                           <span className="empleadoEmail">{empleado.mail}</span>
                         </div>
                       </div>
                     </td>
-                    <td><span className="fechaIngreso">{empleado.fechaEntrada}</span></td>
+                    <td>
+                      <span className="fechaIngreso">
+                        {empleado.tipoEvento === "cumpleaños"
+                          ? empleado.fechaNacimiento
+                          : empleado.fechaEntrada}
+                      </span>
+                    </td>
                   </tr>
                 ))
               ) : (

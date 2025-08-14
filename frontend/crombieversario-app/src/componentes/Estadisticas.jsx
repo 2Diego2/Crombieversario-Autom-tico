@@ -10,7 +10,7 @@ const COLORS = ['#30C07F', '#25B1DF']; // Colores para Abiertos y No Abiertos
 const Estadisticas = () => {
   const { EstadisticasAnuales, DataTortaAnioActual, loading, error, ANIO_ACTUAL } = useEstadisticasMail();
   if (loading) {
-    return (<p>Cargando estadisticas.</p>);
+    return (<p>Cargando estadísticas...</p>);
   }
   if (error) {
     return (<p style={{ color: 'red' }}>{error}</p>);
@@ -18,7 +18,7 @@ const Estadisticas = () => {
   return (
     <div className="estadisticas">
       <div className="data">
-        <h3>Mails Enviados y Abiertos por Año</h3>
+        <h3>Mails enviados y abiertos por año</h3>
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={EstadisticasAnuales}>
             <XAxis dataKey="año" padding={{ left: 10, right: 10 }} />
@@ -53,7 +53,7 @@ const Estadisticas = () => {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <div style={{ width: 12, height: 12, backgroundColor: '#D93375' }}></div>
-                    <span style={{ color: '#D93375' }}>No Abiertos</span>
+                    <span style={{ color: '#D93375' }}>No abiertos</span>
                   </div>
                 </div>
               )}
@@ -65,7 +65,7 @@ const Estadisticas = () => {
       </div>
 
       <div className="data">
-        <h3 className='titulo-torta'>Cantidad de Mails Abiertos ({ANIO_ACTUAL})</h3> {/* Ajusté el título para reflejar mejor los datos de la torta */}
+        <h3 className='titulo-torta'>Cantidad de mails abiertos ({ANIO_ACTUAL})</h3> {/* Ajusté el título para reflejar mejor los datos de la torta */}
         <ResponsiveContainer width="100%" height={280}>
           <PieChart>
             <Pie
@@ -96,7 +96,7 @@ const Estadisticas = () => {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <div style={{ width: 12, height: 12, backgroundColor: '#25B1DF' }}></div>
-                    <span style={{ color: '#25B1DF' }}>No Abiertos</span>
+                    <span style={{ color: '#25B1DF' }}>No abiertos</span>
                   </div>
                 </div>
               )}
