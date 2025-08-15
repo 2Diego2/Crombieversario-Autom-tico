@@ -22,7 +22,7 @@ function useAuth() {
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userRole');
-    localStorage.removeItem('userProfileImage'); // Asegúrate de limpiar también la URL de la imagen de perfil
+    localStorage.removeItem('userProfileImage'); // <-- AQUÍ SE ELIMINA LA IMAGEN
     navigate('/login', { replace: true });
     toast.info('Has cerrado sesión correctamente.'); // Mensaje opcional al cerrar sesión
   }, [navigate]);
@@ -38,7 +38,7 @@ function useAuth() {
     }
   }, [logout]);
 
-  return { getAuthHeader, handleAuthError, logout };
+  return { getAuthHeader, logout, handleAuthError };
 }
 
 export default useAuth;

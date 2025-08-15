@@ -78,7 +78,7 @@ function LoginForm({ onLoginSuccess }) {
           {error && <p className="error-message">{error}</p>}
           {/*Registrarse */}
           <p className='register'>
-            ¿No tienes una cuenta? <a href="register" className='register-link'>Registrate aqui. </a>
+            ¿No tienes una cuenta? <a href="http://localhost:3033/auth/google" className='register-link'>Registrate aqui. </a>
           </p>
           <button type="submit" className="login-button" disabled={loading}>
             {loading ? 'Cargando...' : 'Entrar'}

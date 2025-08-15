@@ -10,8 +10,25 @@ const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, User, recor
 const multer = require('multer');
 const fs = require('fs');
 
+
+const GoogleStrategy = require( 'passport-google-oauth20' ).Strategy;
+const findOrCreate = require('mongoose-findorcreate');
+const passportLocalMongoose = require('mongoose-findorcreate');
+const passport = require('passport');
+const session = require('express-session');
+
 const app = express();
 const PORT = process.env.PORT || 3033;
+const PORTREACT = process.env.PORTREACT || 5173;
+
+//usuarios
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // --- Configuración de Multer para Subida de Archivos ---
 const UPLOADS_DIR = path.join(__dirname, '../public/uploads'); // Carpeta donde se guardarán las imágenes
@@ -208,6 +225,84 @@ app.post('/api/login', async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor durante el login.' });
     }
 });
+
+//usuarios
+
+// Passport Local Strategy (email + password)
+passport.use(User.createStrategy());
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err, null);
+  }
+});
+
+// Estrategia Google OAuth
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: `http://localhost:${PORT}/auth/google/dashboard`,
+}, async (accessToken, refreshToken, profile, done) => { // Añade `async`
+    try {
+        console.log('Verificando callback de Google:', profile);
+        
+        // Busca al usuario por su Google ID
+        let user = await User.findOne({ googleId: profile.id });
+
+        if (!user) {
+            // Si el usuario no existe, lo crea
+            user = await User.create({
+                googleId: profile.id,
+                username: profile.displayName,
+                email: profile.emails && profile.emails[0] && profile.emails[0].value,
+                profileImageUrl: profile.photos && profile.photos[0] && profile.photos[0].value,
+            });
+        } else {
+            // Si el usuario ya existe, actualiza su imagen de perfil
+            // Esto asegura que siempre tengas la última imagen de perfil de Google
+            if (profile.photos && profile.photos[0] && profile.photos[0].value) {
+                user.profileImageUrl = profile.photos[0].value;
+                await user.save();
+            }
+        }
+        
+        done(null, user); // Pasa el usuario a la siguiente etapa de Passport
+
+    } catch (err) {
+        done(err, null);
+    }
+}));
+
+
+// Rutas de autenticación
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+app.get('/auth/google/dashboard',
+  passport.authenticate('google', { failureRedirect: '/login', session: false }),
+  (req, res) => {
+    // Si la autenticación es exitosa, se llega a esta función.
+    const token = jwt.sign({
+      id: req.user._id,
+      email: req.user.email,
+      username: req.user.username,
+      role: req.user.role,
+    }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    // Extrae la URL de la imagen de perfil del objeto de usuario de la DB
+    const profileImageUrl = req.user.profileImageUrl || '';
+
+    // Redirige al frontend, incluyendo el token y la URL de la imagen
+    res.redirect(`http://localhost:${PORTREACT}/dashboard?token=${token}&profileImage=${encodeURIComponent(profileImageUrl)}`);
+  }
+);
+
 
 // Ruta inicial para crear el primer/segundo super_admin (¡USAR CON CUIDADO Y LUEGO PROTEGER/ELIMINAR!)
 // Puedes dejarla como '/api/register-admin' o renombrarla a algo más específico como '/api/initial-admin-setup'
@@ -618,10 +713,8 @@ app.delete('/api/delete-image', authenticateToken, authorize([ROLES.SUPER_ADMIN,
     }
 });
 
-app.use((req, res, next) => { // Este catch-all debería estar al final
-    console.log(`❌ 404 Not Found: Request to ${req.method} ${req.originalUrl} did not match any routes.`);
-    res.status(404).json({ error: 'Endpoint no encontrado.' });
-});
+
+
 
 (async () => {
     try {

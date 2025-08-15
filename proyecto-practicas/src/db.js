@@ -1,17 +1,24 @@
 // db.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const passportLocalMongoose = require('passport-local-mongoose');
+const findOrCreate = require('mongoose-findorcreate');
+
 
 // *Definición de Esquemas y Modelos*
 
 // Esquema para Colaboradores
 // Este esquema define la estructura de los documentos en tu colección 'user'
 const userSchema = new mongoose.Schema({
+    googleId: {type: String, unique: true, sparse: true}, // Permite que algunos usuarios no tengan Google ID
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    passwordHash: { type: String, required: true },
-    role: { type: String, enum: ['super_admin', 'staff'], default: 'staff' }, // Asegúrate de que los roles coincidan
+    passwordHash: { type: String, required: false },
+    role: { type: String, enum: ['super_admin', 'staff'], default: 'staff' }, // Cambiado a 'staff' como rol base
     profileImageUrl: { type: String, default: 'LogoSolo.jpg' },
+    username: { type: String}, //para guardar el usuario de google
 }, { timestamps: true });
+userSchema.plugin(passportLocalMongoose, { usernameField: 'email' });
+userSchema.plugin(findOrCreate);
 
 const User = mongoose.model('User', userSchema);
 
@@ -558,12 +565,13 @@ module.exports = {
     FailedEmailLog,
     User,
     recordFailedEmail,
-    getFailedEmailsToRetry,
-    updateFailedEmailStatus,
     recordEmailOpen,
+    getFailedEmailsToRetry,
     getYearlyEmailStats,
     getMonthlyEmailStats,
-    getLast7DaysTotals
+    getLast7DaysTotals,
+    updateFailedEmailStatus,
+    userSchema
     // Puedes exportar estas si decides migrar los colaboradores a MongoDB
     //saveOrUpdateCollaborator,
     //getAllCollaborators,
