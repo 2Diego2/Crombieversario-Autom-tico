@@ -313,7 +313,7 @@ const uploadToMemory = multer({
     }
 });
 
-app.post("/api/upload-image/:anniversaryNumber", uploadToMemory.single("file"), authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
+app.post("/api/upload-image/:anniversaryNumber", uploadToMemory.single("file"), authenticateToken, authorize([ROLES.SUPER_ADMIN/*, ROLES.STAFF*/]), async (req, res) => {
     try {
         const anniversaryNumber = parseInt(req.params.anniversaryNumber, 10);
         const fileName = `${anniversaryNumber}.png`;
@@ -343,7 +343,7 @@ app.post("/api/upload-image/:anniversaryNumber", uploadToMemory.single("file"), 
 });
 
 
-app.delete(/^\/api\/delete-image\/(.+)/, authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
+app.delete(/^\/api\/delete-image\/(.+)/, authenticateToken, authorize([ROLES.SUPER_ADMIN/*, ROLES.STAFF*/]), async (req, res) => {
         const s3Key = req.params[0];
 
         if (!s3Key || !s3Key.startsWith("uploads/")) {
@@ -462,7 +462,7 @@ app.get('/api/config', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.ST
     }
 });
 
-app.put('/api/config', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
+app.put('/api/config', authenticateToken, authorize([ROLES.SUPER_ADMIN/*, ROLES.STAFF*/]), async (req, res) => {
     const { messageTemplate, imagePaths } = req.body;
     if (messageTemplate === undefined) {
         return res.status(400).json({ error: 'messageTemplate es requerido.' });

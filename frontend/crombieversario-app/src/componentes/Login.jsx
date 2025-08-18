@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import useConfig from '../componentes/useConfig'; 
 import './Login.css';
+import GoogleLogo from '../assets/GoogleLogo.png';
+
 
 function LoginForm({ onLoginSuccess }) {
   const { API_BASE_URL } = useConfig();
@@ -53,13 +55,29 @@ function LoginForm({ onLoginSuccess }) {
     }
   };
 
-  return (
+ return (
     <div className="login-container">
       <div className="login-box">
         <h2>Iniciar Sesión</h2>
+        
+        {/*login con google*/}
+        <a href="http://localhost:3033/auth/google" className="btn btn-google">
+          <img src={GoogleLogo} alt="Logo de Google"/>
+          <span>Continuar con Google</span>
+        </a>
+
+        {/*divisor*/}
+        <div className="divider">
+          <hr />
+          <span>O</span>
+          <hr />
+        </div>
+
+        {/*formulario*/}
         <form onSubmit={handleLogin} className="login-form">
+          {error && <p className="error-message">{error}</p>}
           <div className="form-group">
-            <label htmlFor="email">Email:</label>
+            <label htmlFor="email">Gmail</label>
             <input
               type="email"
               id="email"
@@ -67,10 +85,11 @@ function LoginForm({ onLoginSuccess }) {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="login-input"
+              placeholder="tu@crombiedev.com"
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Contraseña:</label>
+            <label htmlFor="password">Contraseña</label>
             <input
               type="password"
               id="password"
@@ -78,13 +97,19 @@ function LoginForm({ onLoginSuccess }) {
               onChange={(e) => setPassword(e.target.value)}
               required
               className="login-input"
+              placeholder="••••••••••"
             />
           </div>
-          {error && <p className="error-message">{error}</p>}
-          <button type="submit" className="login-button" disabled={loading}>
-            {loading ? 'Cargando...' : 'Entrar'}
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? 'Cargando...' : 'Entrar con Gmail'}
           </button>
         </form>
+        
+        {/* ========= ENLACE A REGISTRO ========= */}
+        <p className='register-prompt'>
+        
+          ¿No tienes una cuenta? <a href="http://localhost:3033/auth/google">Regístrate con Google</a> 
+        </p>
       </div>
     </div>
   );

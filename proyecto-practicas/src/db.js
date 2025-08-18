@@ -8,8 +8,8 @@ const bcrypt = require('bcryptjs');
 // Este esquema define la estructura de los documentos en tu colección 'user'
 const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    passwordHash: { type: String, required: true },
-    role: { type: String, enum: ['super_admin', 'staff'], default: 'staff' }, // Asegúrate de que los roles coincidan
+    passwordHash: { type: String, required: false },
+    role: { type: String, enum: ['super_admin', 'staff'], default: 'super_admin' }, // Cambiado a 'staff' como rol base
     profileImageUrl: { type: String, default: 'LogoSolo.jpg' },
 }, { timestamps: true });
 
