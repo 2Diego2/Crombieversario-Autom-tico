@@ -334,6 +334,34 @@ app.post('/api/register-admin', requireApiKey, async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor al registrar usuario.' });
     }
 });
+app.post('/api/register-staff', requireApiKey, async (req, res) => {
+    const { email, password } = req.body;
+    // Aquí no necesitas el campo 'role' en req.body, siempre será 'super_admin'
+    // para las cuentas iniciales que configurarán el sistema.
+
+    // if (!email || !password || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
+    //     return res.status(400).json({ message: 'Email, contraseña o dominio inválido.' });
+    // }
+
+    try {
+        const existingUser = await findUserByEmail(email);
+        if (existingUser) {
+            return res.status(409).json({ message: 'Este email ya está registrado.' });
+        }
+
+        /*const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(password, salt);
+
+        // Siempre crea como 'super_admin' con esta ruta inicial
+        const newUser = await createUser(email, passwordHash, ROLES.SUPER_ADMIN);*/
+        const newUser = await createUser(email, password, ROLES.STAFF);
+        res.status(201).json({ message: `Usuario ${ROLES.STAFF} creado exitosamente.`, userId: newUser._id });
+
+    } catch (error) {
+        console.error('Error al registrar usuario admin:', error);
+        res.status(500).json({ message: 'Error interno del servidor al registrar usuario.' });
+    }
+});
 
 // RUTA PARA QUE UN SUPER_ADMIN CREE OTROS USUARIOS (staff o super_admin)
 app.post('/api/users/create', authenticateToken, authorize(ROLES.SUPER_ADMIN), async (req, res) => {
