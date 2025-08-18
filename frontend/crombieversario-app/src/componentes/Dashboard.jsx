@@ -68,9 +68,11 @@ function DashboardContent({ onLogout, userEmail, userRole, userProfileImage }) {
           <Link to="/dashboard/calendario" className="menu-item">
             <IoCalendarNumberSharp size={18} /> Calendario
           </Link>
+             {userRole === 'super_admin' && (
           <Link to="/dashboard/mensaje" className="menu-item">
-            <IoChatboxEllipses  size={18} /> Mensaje editable
-          </Link>
+          <IoChatboxEllipses  size={18} /> Mensaje editable
+           </Link>
+  )}
         </div>
         <div className="footer-aside">
           <div className="perfil-info">
