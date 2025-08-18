@@ -64,19 +64,16 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
 
   // 3. Preparar los adjuntos de las imágenes (ahora apuntando a tu API de backend)
   let attachments = [];
-  if (empleado.imagen && empleado.imagen.length > 0) {
-    // La URL de la imagen ahora apunta a la nueva ruta en tu backend.
-    // Usamos el mismo patrón de nombre de archivo para que la ruta funcione.
-    const imageUrl = `${process.env.SERVER_BASE_URL}/api/images/anniversary/${empleado.years}.png`;
-
+  // `empleado.imagen` ya contiene la URL firmada de S3 que se generó en eventos.js
+  if (empleado.imagen) { // La validación de la longitud de la cadena no es necesaria aquí
     attachments.push({
-      filename: `${empleado.years}.png`,
-      path: imageUrl, // Nodemailer ahora tomará la imagen desde esta URL
+      filename: `${empleado.nroAniversario}.png`,
+      path: empleado.imagen, // Usa la URL firmada directamente
       cid: "aniversario_image",
     });
   } else {
     console.log(
-      `No hay imagen configurada para el aniversario de ${empleado.nombre} (${empleado.years} años).`
+      `No hay imagen configurada para el aniversario de ${empleado.nombre} (${empleado.nroAniversario} años).`
     );
   }
 
@@ -117,7 +114,7 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
 
 // --- Función Principal de Ejecución ---
 cron.schedule(
-  "22 12 * * 1-5",
+  "50 12 * * 1-5",
   async () => {
     // Conectar a la base de datos
     await connectDB();

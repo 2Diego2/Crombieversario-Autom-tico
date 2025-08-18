@@ -2,12 +2,14 @@
   "name": "crombieversario-backend",
   "version": "1.0.0",
   "description": "Backend para enviar correos de aniversario.",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",
+    "@aws-sdk/s3-request-presigner": "^3.864.0",
     "@nestjs/schedule": "^6.0.0",
     "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",

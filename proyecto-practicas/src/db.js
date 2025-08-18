@@ -37,16 +37,16 @@ async function findUserByEmail(email) {
  * @param {string} [role='admin_interfaz'] El rol del usuario.
  * @returns {Promise<Object>} El objeto del usuario creado.
  */
-async function createUser(email, password, role = 'staff', profileImageUrl = 'LogoSolo.jpg') { // Cambiado default a 'staff' si ese es el rol base
-    try {
-        const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = new User({ email, passwordHash, role, profileImageUrl });
-        await newUser.save();
-        return newUser;
-    } catch (error) {
-        console.error('Error al crear usuario:', error);
-        throw error;
-    }
+async function createUser(email, password, role = 'staff', profileImageUrl = 'LogoSolo.jpg') {
+    try {
+        const passwordHash = await bcrypt.hash(password, 10);
+        const newUser = new User({ email, passwordHash: passwordHash, role, profileImageUrl });
+        await newUser.save();
+        return newUser;
+    } catch (error) {
+        console.error('Error al crear usuario:', error);
+        throw error;
+    }
 }
 
 async function updateUserRole(email, newRole, newPassword = null) {

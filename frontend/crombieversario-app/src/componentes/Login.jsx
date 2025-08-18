@@ -1,9 +1,11 @@
 // src/componentes/LoginForm.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
+import useConfig from '../componentes/useConfig'; 
 import './Login.css';
 
 function LoginForm({ onLoginSuccess }) {
+  const { API_BASE_URL } = useConfig();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -14,9 +16,12 @@ function LoginForm({ onLoginSuccess }) {
     setError('');
     setLoading(true);
 
+  console.log("Frontend enviando:", { email, password }); // <-- ¡Añade esta línea!
+
+
     try {
       // Ajusta la URL de la API según sea necesario
-      const response = await axios.post('http://localhost:3033/api/login', {
+      const response = await axios.post(`${API_BASE_URL}/api/login`, {
         email,
         password,
       });

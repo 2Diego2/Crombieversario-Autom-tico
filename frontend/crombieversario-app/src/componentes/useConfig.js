@@ -42,10 +42,17 @@ function useConfig() {
 
   // Efecto para cargar la configuración al montar el componente
   useEffect(() => {
-    // Ya no es necesario escuchar 'storage' aquí para currentAuthToken
-    // Si la sesión cambia (login/logout), useAuth ya lo manejará y redirigirá.
-    fetchConfigData();
-  }, [fetchConfigData]);
+    // Obtener el token dentro del useEffect para que se vuelva a ejecutar si cambia.
+    const token = localStorage.getItem('jwtToken');
+    
+    if (token) {
+        fetchConfigData();
+    } else {
+        // En caso de que no haya token, establece loading en falso para evitar
+        // que el componente se quede en estado de carga.
+        setLoading(false);
+    }
+}, [fetchConfigData]);
 
   // Funciones para modificar la configuración
   const updateConfigApi = useCallback(async (messageTemplate, imagePaths) => {
