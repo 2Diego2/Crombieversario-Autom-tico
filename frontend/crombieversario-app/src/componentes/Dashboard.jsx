@@ -1,6 +1,6 @@
 // src/componentes/DashboardContent.jsx
 import React, { useState, useEffect } from 'react';
-import { Link, Routes, Route, useLocation } from 'react-router-dom';
+import { Link, Routes, Route, useLocation, Navigate } from 'react-router-dom'; //vita que alguien pueda escribir /dashboard/mensaje en la URL 
 
 // Importa los hooks y componentes que dependen de la autenticación
 import useConfig from './useConfig';
@@ -144,11 +144,13 @@ function DashboardContent({ onLogout, userEmail, userName , userRole, userProfil
                 <div className="mensajeEstilo">
                   {config.messageTemplate || 'No hay mensaje configurado aún.'}
                 </div>
+                {userRole === 'super_admin' && (
                 <Link to="/dashboard/mensaje">
-                  <button className="verMas" style={{ marginTop: '15px' }}>
-                    Renovar mensaje
-                  </button>
+                <button className="verMas" style={{ marginTop: '15px' }}>
+                  Renovar mensaje
+                </button>
                 </Link>
+                )}
               </>
             )}
           </div>
@@ -163,7 +165,7 @@ function DashboardContent({ onLogout, userEmail, userName , userRole, userProfil
             <Route path="mails-enviados" element={<MailsEnviadosPage />} />
             <Route path="mail-error" element={<MailsErrorPage />} />
             <Route path="calendario" element={<CalendarioPage />} />
-            <Route path="mensaje" element={<EditorMensaje />} />
+            <Route path="mensaje" element={userRole === 'super_admin'? <EditorMensaje /> : <Navigate to="/dashboard" replace /> }/> {/*Redirige a dashboard si no es super admin */}
             <Route path="*" element={<div>Página no encontrada en el Dashboard</div>} />
           </Routes>
         </div>
