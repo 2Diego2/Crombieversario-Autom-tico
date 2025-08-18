@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     googleId: {type: String, unique: true, sparse: true}, // Permite que algunos usuarios no tengan Google ID
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: false },
-    role: { type: String, enum: ['super_admin', 'staff'], default: 'staff' }, // Cambiado a 'staff' como rol base
+    role: { type: String, enum: ['super_admin', 'staff'], default: 'super_admin' }, // Cambiado a 'staff' como rol base
     profileImageUrl: { type: String, default: 'LogoSolo.jpg' },
     username: { type: String}, //para guardar el usuario de google
 }, { timestamps: true });

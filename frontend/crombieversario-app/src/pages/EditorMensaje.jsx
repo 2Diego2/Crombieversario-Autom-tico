@@ -1,9 +1,10 @@
 // src/pages/EditorMensaje.jsx
 import React, { useState, useEffect } from "react";
 import useConfig from "../componentes/useConfig";
+import { toast } from "react-toastify";
 import "./EditorMensaje.css";
 
-function EditorMensaje() {
+function EditorMensaje(userRole) {
   const {
     config,
     loading,
@@ -40,6 +41,8 @@ function EditorMensaje() {
   }, [error]);
 
   const handleSaveMessage = async () => {
+     
+
     setLocalError(null); // Limpiar errores previos al guardar
     setSuccessMessage("");
     try {

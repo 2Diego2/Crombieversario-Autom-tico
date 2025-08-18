@@ -1,123 +1,184 @@
+/* Estilos generales del contenedor (se mantienen) */
 .login-container {
-  /* Forzamos el contenedor a ocupar toda la ventana, ignorando a los padres */
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-/*-------------*/
   display: flex;
   justify-content: center;
   align-items: center;
   background-image: url('../assets/default.svg');
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
   padding: 20px;
 }
+
+/* Caja principal del login */
 .login-box {
-  background-color: var(--colorCaja); /* Usar el color de caja del dashboard */
-  padding: 40px;
-  border-radius: var(--border-radius); /* Redondeado como las cajas del dashboard */
-  box-shadow: var(--box-shadow); /* Sombra como las cajas del dashboard */
+  background-color: var(--colorCaja, #ffffff);
+  padding: 32px 40px;
+  border-radius: var(--border-radius, 12px);
+  box-shadow: var(--box-shadow, 0 8px 24px rgba(0, 0, 0, 0.1));
   text-align: center;
   width: 100%;
-  max-width: 400px; /* Ancho máximo para el formulario */
-}
-
-.login-logo {
-  max-width: 180px; /* Tamaño del logo */
-  margin-bottom: 30px;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Espacio uniforme entre elementos hijos */
 }
 
 .login-box h2 {
   font-size: 1.8em;
-  margin-bottom: 25px;
+  margin-bottom: 8px; /* Reducido para controlar espacio con gap */
   color: #333;
 }
 
-.login-form .form-group {
-  margin-bottom: 20px;
+/* === Estilos de Formulario === */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Espacio entre los campos del formulario */
+}
+
+.form-group {
   text-align: left;
 }
 
-.login-form label {
+.form-group label {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: 5;
+  color: #555;
 }
 
 .login-input {
   width: 100%;
   padding: 12px 15px;
   border: 1px solid #ddd;
-  border-radius: 8px; /* Input redondeado */
+  border-radius: 8px;
   font-size: 1em;
-  box-sizing: border-box; /* Incluir padding y borde en el ancho total */
+  box-sizing: border-box;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  background-color: #b6b6b6;
+  background-color: #f4f4f4; /* Un fondo más claro que gris */
+}
+
+.login-input::placeholder {
+  color: #999;
 }
 
 .login-input:focus {
-  border-color: #a0a0a0; /* Color de borde al enfocar */
-  box-shadow: 0 0 0 3px rgba(115, 74, 0, 0.2); /* Sombra sutil al enfocar, usando colorVerMas */
+  border-color: var(--colorCrombieVioleta, #8e44ad);
+  box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.2);
   outline: none;
 }
 
-.login-button {
-  background-color: var(--colorCrombieVioleta); /* Usar tu color de botón "Ver más" */
-  color: white;
+/* === Estilos de Botones (Refactorizado) === */
+
+/* Clase base para TODOS los botones y enlaces-botón */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 12px 20px;
   border: none;
-  border-radius: 8px; /* Botón redondeado */
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 1.1em;
+  font-size: 1.05em;
   font-weight: 600;
   width: 100%;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-  margin-top: 15px;
+  transition: all 0.3s ease;
+  text-decoration: none; /* Para los <a> */
+  gap: 10px; /* Espacio entre icono y texto */
 }
 
-.login-button:hover:not(:disabled) {
-  background-color: #6f2a86; /* Un tono más oscuro para el hover */
-  transform: translateY(-5px); /* Efecto ligero de "levantamiento" */
-  transition: all 0.6s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 1);
+.btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.login-button:disabled {
+.btn:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
 }
 
-.error-message {
-  color: var(--colorLogOut); /* Color de error, como tu logout */
-  margin-top: -10px; /* Ajustar margen */
-  margin-bottom: 15px;
-  font-size: 0.9em;
-  text-align: center;
+/* Modificador para el botón principal */
+.btn-primary {
+  background-color: var(--colorCrombieVioleta, #8e44ad);
+  color: white;
 }
 
-/* Responsive para pantallas pequeñas de login */
+.btn-primary:hover:not(:disabled) {
+  background-color: #6f2a86;
+}
+
+/* Modificador para el botón de Google */
+.btn-google {
+  background-color: #fff;
+  color: #444;
+  border: 1px solid #ddd;
+}
+
+.btn-google:hover {
+  border-color: #ccc;
+  background-color: #f7f7f7;
+}
+
+.btn-google img {
+  width: 22px;
+  height: 22px;
+}
+
+/* === Divisor "O" === */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #aaa;
+  margin: 8px 0;
+}
+
+.divider hr {
+  flex: 1;
+  border: none;
+  border-top: 1px solid #eee;
+}
+
+.divider span {
+  padding: 0 16px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+/* === Mensajes y enlaces inferiores === */
+.error-message {
+  color: var(--colorLogOut, #e74c3c);
+  font-size: 0.9em;
+  text-align: center;
+  background-color: rgba(231, 76, 60, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.register-prompt {
+  margin-top: 16px;
+  font-size: 0.95em;
+  color: #666;
+}
+
+.register-link {
+  color: var(--colorCrombieVioleta, #8e44ad);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.register-link:hover {
+  text-decoration: underline;
+}
+
+/* === Responsive (se mantiene) === */
 @media (max-width: 480px) {
   .login-box {
-    padding: 30px 20px; /* Menos padding en pantallas pequeñas */
-  }
-
-  .login-logo {
-    max-width: 150px; /* Logo un poco más pequeño */
-    margin-bottom: 20px;
-  }
-
-  .login-box h2 {
-    font-size: 1.5em;
-    margin-bottom: 20px;
-  }
-
-  .login-input,
-  .login-button {
-    padding: 10px 12px;
-    font-size: 1em;
+    padding: 30px 20px;
   }
 }
