@@ -4,7 +4,7 @@ import useConfig from "../componentes/useConfig";
 import { toast } from "react-toastify";
 import "./EditorMensaje.css";
 
-function EditorMensaje() {
+function EditorMensaje(userRole) {
   const {
     config,
     loading,
