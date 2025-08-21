@@ -114,7 +114,7 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
 
 // --- Función Principal de Ejecución ---
 cron.schedule(
-  "50 12 * * 1-5",
+  "00 08 * * 1-5",
   async () => {
     // Conectar a la base de datos
     await connectDB();
