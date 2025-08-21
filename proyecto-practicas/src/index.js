@@ -124,9 +124,7 @@ cron.schedule(
     try {
       // Obtener trabajadores de la API local (que simula PeopleForce)
       // Asegúrate de que process.env.PORT y process.env.API_KEY estén definidos en tu .env
-      const apiUrl = `http://localhost:${
-        process.env.PORT || 3033
-      }/trabajadores`;
+      const apiUrl = `${process.env.API_BASE_URL}/trabajadores`;
       const apiKey = process.env.API_KEY;
 
       if (!apiKey) {

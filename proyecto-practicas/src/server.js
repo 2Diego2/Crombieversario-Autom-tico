@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Configuración CORS mejorada para permitir credenciales
 app.use((req, res, next) => {
-    const allowedOrigins = ['http://localhost:5173', 'https://tu-dominio-frontend.com']; // <-- ACTUALIZA TUS DOMINIOS
+    const allowedOrigins = ['http://localhost:5173', 'Crombieversario.us-east-2.elasticbeanstalk.com']; // <-- ACTUALIZA TUS DOMINIOS
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
       res.setHeader('Access-Control-Allow-Origin', origin);

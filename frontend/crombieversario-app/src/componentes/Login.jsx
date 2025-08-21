@@ -61,7 +61,8 @@ function LoginForm({ onLoginSuccess }) {
         <h2>Iniciar Sesión</h2>
         
         {/*login con google*/}
-        <a href="http://localhost:3033/auth/google" className="btn btn-google">
+        {/* CORRECCIÓN AQUÍ: Usa API_BASE_URL */}
+        <a href={`${API_BASE_URL}/auth/google`} className="btn btn-google">
           <img src={GoogleLogo} alt="Logo de Google"/>
           <span>Continuar con Google</span>
         </a>
@@ -108,7 +109,8 @@ function LoginForm({ onLoginSuccess }) {
         {/* ========= ENLACE A REGISTRO ========= */}
         <p className='register-prompt'>
         
-          ¿No tienes una cuenta? <a href="http://localhost:3033/auth/google">Regístrate con Google</a> 
+          ¿No tienes una cuenta? {/* CORRECCIÓN AQUÍ: Usa API_BASE_URL */}
+          <a href={`${API_BASE_URL}/auth/google`}>Regístrate con Google</a> 
         </p>
       </div>
     </div>
