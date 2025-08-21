@@ -85,7 +85,7 @@ function LoginForm({ onLoginSuccess }) {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="login-input"
-              placeholder="tu@crombiedev.com"
+              placeholder="tu@crombie.dev"
             />
           </div>
           <div className="form-group">

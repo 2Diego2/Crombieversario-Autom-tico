@@ -72,12 +72,12 @@ function MailsEnviadosPage() {
           <tbody>
             {mails.map((mail, idx) => (
               <tr key={mail._id || idx}>
-                <td>{mail.nombre}</td>
-                <td>{mail.apellido}</td>
-                <td>{mail.email}</td>
-                <td>{mail.opened ? '✅' : '❌'}</td>
-                <td>{mail.years}</td>
-                <td>{new Date(mail.sentDate).toLocaleString('es-ES')}</td>
+                <td data-label="Nombre">{mail.nombre}</td>
+                <td data-label="Apellido">{mail.apellido}</td>
+                <td data-label="Email">{mail.email}</td>
+                <td data-label="Leído">{mail.opened ? '✅' : '❌'}</td>
+                <td data-label="Aniversario">{mail.years}</td>
+                <td data-label="Fecha de envío">{new Date(mail.sentDate).toLocaleString('es-ES')}</td>
               </tr>
             ))}
           </tbody>

@@ -40,7 +40,6 @@ const MailsErrorPage = () => {
         }
       );
 
-      console.log("<< datos recibidos:", response.data);
       setMailsConError(response.data);
     } catch (err) {
       console.error("❌ fallo fetchMails:", err);

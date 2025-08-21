@@ -1,7 +1,9 @@
 // src/pages/EditorMensaje.jsx
 import React, { useState, useEffect } from "react";
 import useConfig from "../componentes/useConfig";
+import useAuth from "../componentes/useAuth";
 import { toast } from "react-toastify";
+import axios from "axios";
 import "./EditorMensaje.css";
 
 function EditorMensaje(userRole) {
