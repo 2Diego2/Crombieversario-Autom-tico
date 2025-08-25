@@ -8,7 +8,9 @@ const jwt = require('jsonwebtoken');
 const updateEnvFile = require('./utils/saveEnv');
 const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, User, recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats, getLast7DaysTotals, findUserByEmail, createUser, updateUserRole } = require('./db'); 
 const multer = require('multer');
+
 const fs = require('fs');
+const { uploadFile, deleteFile } = require('./utils/s3'); // AÑADIDO: Importa las funciones de tu archivo s3.js
 
 
 const GoogleStrategy = require( 'passport-google-oauth20' ).Strategy;
@@ -20,6 +22,13 @@ const session = require('express-session');
 const app = express();
 const PORT = process.env.PORT || 3033;
 const PORTREACT = process.env.PORTREACT || 5173;
+const JWT_SECRET = process.env.JWT_SECRET ;
+
+// Definición de Roles
+const ROLES = {
+    SUPER_ADMIN: 'super_admin',
+    STAFF: 'staff'
+};
 
 //usuarios
 app.use(session({
@@ -30,45 +39,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// --- Configuración de Multer para Subida de Archivos ---
-const UPLOADS_DIR = path.join(__dirname, '../public/uploads'); // Carpeta donde se guardarán las imágenes
-if (!fs.existsSync(UPLOADS_DIR)) {
-    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, UPLOADS_DIR);
-    },
-    filename: (req, file, cb) => {
-        const anniversaryNumber = req.params.anniversaryNumber; // Get from params
-        console.log('Multer Filename: anniversaryNumber recibido from req.params:', anniversaryNumber);
-
-        if (!anniversaryNumber || isNaN(parseInt(anniversaryNumber)) || parseInt(anniversaryNumber) <= 0) {
-            return cb(new Error(`Número de aniversario inválido o faltante. Recibido: '${anniversaryNumber}' (desde params)`), null);
-        }
-
-        const parsedAnniversaryNumber = parseInt(anniversaryNumber);
-        const ext = path.extname(file.originalname).toLowerCase();
-        if (ext !== '.png') {
-            return cb(new Error('Solo se permiten imágenes PNG.'), null);
-        }
-
-        const fileName = `${parsedAnniversaryNumber}.png`;
-        const filePath = path.join(UPLOADS_DIR, fileName);
-
-        if (fs.existsSync(filePath)) {
-            // THIS IS THE ERROR YOU WANT TO CATCH AND SEND AS JSON
-            return cb(new Error(`Ya existe una imagen para el aniversario N° ${parsedAnniversaryNumber}. Por favor, elimínala primero.`), null);
-        }
-
-        console.log('Multer Filename: Nombre final del archivo:', fileName);
-        cb(null, fileName);
-    }
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
-    storage: storage,
+    storage: storage, 
     limits: { fileSize: 5 * 1024 * 1024 }, // Límite de 5MB
     fileFilter: (req, file, cb) => {
         if (file.mimetype === 'image/png') {
@@ -114,16 +88,12 @@ function requireApiKey(req, res, next) {
     next();
 }
 
-const JWT_SECRET = process.env.JWT_SECRET ;
+
 
 // Dominio permitido para los correos (¡AHORA DESCOMENTADO Y EN UNA POSICIÓN CORRECTA!)
 // const ALLOWED_EMAIL_DOMAIN = '@crombie.dev'; 
 
-// Definición de Roles
-const ROLES = {
-    SUPER_ADMIN: 'super_admin',
-    STAFF: 'staff'
-};
+
 
 // Middleware para verificar JWT (nuevo)
 function authenticateToken(req, res, next) {
@@ -438,7 +408,6 @@ app.put('/api/users/update-role-password', authenticateToken, authorize([ROLES.S
 });
 
 // Middleware para servir archivos estáticos (MANTENEMOS TU RUTA ORIGINAL)
-app.use('/uploads', express.static(UPLOADS_DIR)); // Sigue sirviendo /public/uploads como /uploads
 app.use(express.static(path.join(__dirname, '../frontend/crombieversario-app/dist'))); // Servir archivos de la build de React
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -653,12 +622,11 @@ app.get('/api/email-stats/week', authenticateToken, authorize([ROLES.SUPER_ADMIN
 console.log('--- Successfully registered /api/email-stats/week route ---');
 
 
-app.post('/api/upload-image/:anniversaryNumber', authenticateToken, authorize([ROLES.SUPER_ADMIN/*, ROLES.STAFF*/]), async (req, res) => { 
+app.post('/api/upload-image/:anniversaryNumber', authenticateToken, authorize([ROLES.SUPER_ADMIN]), async (req, res) => { 
     try {
         await new Promise((resolve, reject) => {
             upload.single('image')(req, res, (err) => {
                 if (err) {
-                    console.error('Error de Multer: ', err);
                     return reject(err); 
                 }
                 resolve(); 
@@ -666,65 +634,74 @@ app.post('/api/upload-image/:anniversaryNumber', authenticateToken, authorize([R
         });
 
         if (!req.file) { 
-            return res.status(400).json({ error: 'No se ha subido ningún archivo o el archivo no fue procesado por el servidor.' });
+            return res.status(400).json({ error: 'No se ha subido ningún archivo.' });
         }
 
         const anniversaryNumber = req.params.anniversaryNumber;
-        console.log('Controlador de ruta: anniversaryNumber de req.params:', anniversaryNumber);
 
-        const imageUrl = `/uploads/${req.file.filename}`;
-
-        const config = await getConfig();
-        const newImagePaths = [...(config.imagePaths || [])];
-
-        if (!newImagePaths.includes(imageUrl)) {
-            newImagePaths.push(imageUrl);
+        // --- TUS VALIDACIONES ORIGINALES, AHORA EN LA RUTA ---
+        // 1. Validar el número de aniversario
+        if (!anniversaryNumber || isNaN(parseInt(anniversaryNumber)) || parseInt(anniversaryNumber) <= 0) {
+            return res.status(400).json({ error: `Número de aniversario inválido o faltante. Recibido: '${anniversaryNumber}'` });
         }
 
+        const parsedAnniversaryNumber = parseInt(anniversaryNumber);
+        
+        // 2. Definir el nombre del archivo para S3
+        const filename = `${parsedAnniversaryNumber}.png`;
+        const s3ImageUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_BUCKET_REGION}.amazonaws.com/${filename}`;
+
+        // 3. Verificar si la imagen ya existe
+        // Aquí verificamos en la base de datos si ya existe una URL para este aniversario.
+        const config = await getConfig();
+        const existingImagePaths = config.imagePaths || [];
+        if (existingImagePaths.includes(s3ImageUrl)) {
+            return res.status(409).json({ error: `Ya existe una imagen para el aniversario N° ${parsedAnniversaryNumber}. Por favor, elimínala primero.` });
+        }
+
+        // --- LÓGICA DE SUBIDA A S3 ---
+        // 4. Subir el archivo a S3 usando tu función
+        await uploadFile(req.file.buffer, filename, req.file.mimetype);
+
+        // 5. Guardar la URL en la base de datos
+        const newImagePaths = [...existingImagePaths];
+        newImagePaths.push(s3ImageUrl);
+
+        // Ordenar las rutas de las imágenes por número de aniversario
         newImagePaths.sort((a, b) => {
-            const numA = parseInt(path.basename(a, '.png'));
-            const numB = parseInt(path.basename(b, '.png'));
+            const numA = parseInt(a.match(/(\d+)\.png$/)[1]);
+            const numB = parseInt(b.match(/(\d+)\.png$/)[1]);
             return numA - numB;
         });
 
         const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
 
         res.status(200).json({
-            message: 'Imagen subida y ruta guardada exitosamente.',
-            imageUrl: imageUrl,
+            message: 'Imagen subida a S3 y ruta guardada exitosamente.',
+            imageUrl: s3ImageUrl,
             updatedConfig: updatedConfig
         });
     } catch (error) {
-        console.error('Manejador de errores de carga final: ', error);
-
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlink(req.file.path, (err) => {
-                if (err) console.error('Error al eliminar archivo subido tras un error en config:', err);
-            });
-        }
-        
-        return res.status(400).json({ 
-            error: error.message || 'Error desconocido al subir imagen.'
+        console.error('Error al subir imagen a S3: ', error);
+        return res.status(500).json({
+            error: error.message || 'Error desconocido al subir imagen a S3.'
         });
     }
 });
 
-app.delete('/api/delete-image', authenticateToken, authorize([ROLES.SUPER_ADMIN/*, ROLES.STAFF*/]), async (req, res) => {
+app.delete('/api/delete-image', authenticateToken, authorize([ROLES.SUPER_ADMIN]), async (req, res) => {
     const { imageUrl } = req.body;
     if (!imageUrl) {
         return res.status(400).json({ error: 'URL de imagen no proporcionada.' });
     }
 
-    const filename = path.basename(imageUrl);
-    const filePath = path.join(UPLOADS_DIR, filename); 
+    // Extrae el nombre del archivo de la URL de S3
+    const filename = imageUrl.split('/').pop();
 
     try {
-        if (fs.existsSync(filePath)) {
-            await fs.promises.unlink(filePath);
-            console.log(`Archivo ${filePath} eliminado del servidor.`);
-        } else {
-            console.warn(`Intento de eliminar imagen no existente en el servidor: ${filePath}`);
-        }
+        // Usa la función deleteFile para eliminar el objeto de S3
+        await deleteFile(filename);
+        console.log(`Archivo ${filename} eliminado de S3.`);
 
         const config = await getConfig();
         const newImagePaths = (config.imagePaths || []).filter(path => path !== imageUrl);
@@ -732,11 +709,11 @@ app.delete('/api/delete-image', authenticateToken, authorize([ROLES.SUPER_ADMIN/
         const updatedConfig = await updateConfig(config.messageTemplate, newImagePaths);
 
         res.status(200).json({
-            message: 'Imagen eliminada exitosamente del servidor y la configuración.',
+            message: 'Imagen eliminada exitosamente de S3 y la configuración.',
             updatedConfig: updatedConfig
         });
     } catch (error) {
-        console.error('Error al eliminar imagen:', error);
+        console.error('Error al eliminar imagen de S3:', error);
         res.status(500).json({ error: 'Error interno del servidor al eliminar imagen.' });
     }
 });

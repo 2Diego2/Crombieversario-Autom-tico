@@ -28,7 +28,7 @@
   --border-radius: 20px;
   --padding-box: 20px; /* Padding general para el body y espaciado */
   --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  --Fondo: url("./assets/FondoAzulCrombie.png");
+  --Fondo: url("https://crombieversario-aniversarios.s3.us-east-2.amazonaws.com/assets/FondoAzulCrombie-CilkiQ-W.png");
 
   /* Nuevas variables para la sidebar y gap */
   --sidebar-width-desktop: 280px; /* Ancho de sidebar para desktop */
@@ -50,7 +50,14 @@ img {
 
 body {
   font-family: var(--fonts);
-  background-image: url("./assets/FondoAzulCrombie.png"),url("./assets/CrombieDegradado.webp"), url("./assets/FondoAzulCrombie2.png");
+  
+  background-image:
+    url('https://crombieversario-aniversarios.s3.us-east-2.amazonaws.com/assets/FondoAzulCrombie-CilkiQ-W.png'),
+    url('https://crombieversario-aniversarios.s3.us-east-2.amazonaws.com/assets/CrombieDegradado-Coaj4TrH.webp'),
+    url('https://crombieversario-aniversarios.s3.us-east-2.amazonaws.com/assets/FondoAzulCrombie2-BNiRg9hW.png');
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-position: center center;
+
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
