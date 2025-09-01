@@ -13,7 +13,7 @@ const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = re
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 const app = express();
-const PORT = process.env.PORT || 3033;
+const PORT = process.env.PORT || 80;
 const s3 = new S3Client({
     region: process.env.AWS_S3_REGION
 });
@@ -595,6 +595,9 @@ app.use((req, res, next) => { // Este catch-all debería estar al final
         app.listen(PORT, () => {
             console.log(`Servidor corriendo en http://localhost:${PORT}`);
         });
+
+        require("./index.js");
+
     } catch (error) {
         console.error('Error al iniciar el servidor:', error.message);
         process.exit(1);

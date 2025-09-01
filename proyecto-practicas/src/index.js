@@ -1,7 +1,5 @@
 // index.js
-require("dotenv").config(); // Carga las variables de entorno al inicio
 const path = require("path");
-const fs = require("fs");
 const axios = require("axios"); // Para hacer peticiones HTTP a tu API local o a PeopleForce
 
 // Importa las funcionalidades de eventos y la base de datos
@@ -11,7 +9,6 @@ const {
   MensajeMail,
 } = require("./eventos");
 const {
-  connectDB,
   recordSentEmail,
   recordFailedEmail,
   checkIfSentToday,
@@ -116,22 +113,18 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
 cron.schedule(
   "00 08 * * 1-5",
   async () => {
-    // Conectar a la base de datos
-    await connectDB();
-    console.log("Base de datos conectada para la ejecución principal.");
+    console.log("Ejecutando cron de aniversarios...");
 
     let trabajadores = [];
     try {
       // Obtener trabajadores de la API local (que simula PeopleForce)
       // Asegúrate de que process.env.PORT y process.env.API_KEY estén definidos en tu .env
-      const apiUrl = `${process.env.API_BASE_URL}/trabajadores`;
+      const apiUrl = `${process.env.SERVER_BASE_URL}/trabajadores`;
       const apiKey = process.env.API_KEY;
 
       if (!apiKey) {
-        console.error(
-          "Error: API_KEY no definida en .env. No se pueden obtener trabajadores."
-        );
-        process.exit(1); // Sale si no hay API_KEY para la llamada
+        console.error("Error: API_KEY no definida en .env.");
+        return;
       }
 
       const response = await axios.get(apiUrl, {

@@ -1,2 +1,1 @@
-web: node server.js
-cron_worker: node index.js
+web: npm start
