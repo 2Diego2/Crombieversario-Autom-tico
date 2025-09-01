@@ -6,14 +6,21 @@ const crypto = require("crypto");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const updateEnvFile = require('./utils/saveEnv');
-const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, User, recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats, getLast7DaysTotals, findUserByEmail, createUser, updateUserRole } = require('./db'); 
+const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, User, recordEmailOpen, getYearlyEmailStats, getMonthlyEmailStats, getLast7DaysTotals, findUserByEmail, createUser, updateUserRole } = require('./db');
 const multer = require('multer');
 const fs = require('fs');
 const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
+const GoogleStrategy = require( 'passport-google-oauth20' ).Strategy;
+const findOrCreate = require('mongoose-findorcreate');
+const passport = require('passport');
+const session = require('express-session');
+
 const app = express();
 const PORT = process.env.PORT || 80;
+const PORTREACT = process.env.PORTREACT || 5173;
+
 const s3 = new S3Client({
     region: process.env.AWS_S3_REGION
 });
@@ -28,12 +35,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // Configuración CORS mejorada para permitir credenciales
 app.use((req, res, next) => {
-    const allowedOrigins = ['http://localhost:5173', 'Crombieversario.us-east-2.elasticbeanstalk.com']; // <-- ACTUALIZA TUS DOMINIOS
+    const allowedOrigins = ['http://localhost:5173', 'http://Crombieversario.us-east-2.elasticbeanstalk.com']; // <-- ACTUALIZA TUS DOMINIOS
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
       res.setHeader('Access-Control-Allow-Origin', origin);
     }
-    
+
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
@@ -53,6 +60,15 @@ const ROLES = {
     SUPER_ADMIN: 'super_admin',
     STAFF: 'staff'
 };
+
+// Usuarios
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Generar API Key si no existe
 console.log('API_KEY cargada desde .env:', process.env.API_KEY);
@@ -120,8 +136,84 @@ function authorize(requiredRoles) { // Ahora acepta un array de roles
     };
 }
 
-
 // --- Rutas de Autenticación ---
+
+// Usuarios
+
+// Passport Local Strategy (email + password)
+passport.use(User.createStrategy());
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await User.findById(id);
+        done(null, user);
+    } catch (err) {
+        done(err, null);
+    }
+});
+
+// Estrategia Google OAuth
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: `http://localhost:${PORT}/auth/google/dashboard`,
+}, async (accessToken, refreshToken, profile, done) => { // Añade `async`
+    try {
+        console.log('Verificando callback de Google:', profile);
+
+        // Busca al usuario por su Google ID
+        let user = await User.findOne({ googleId: profile.id });
+
+        if (!user) {
+            // Si el usuario no existe, lo crea
+            user = await User.create({
+                googleId: profile.id,
+                username: profile.displayName,
+                email: profile.emails && profile.emails[0] && profile.emails[0].value,
+                profileImageUrl: profile.photos && profile.photos[0] && profile.photos[0].value,
+            });
+        } else {
+            // Si el usuario ya existe, actualiza su imagen de perfil
+            // Esto asegura que siempre tengas la última imagen de perfil de Google
+            if (profile.photos && profile.photos[0] && profile.photos[0].value) {
+                user.profileImageUrl = profile.photos[0].value;
+                await user.save();
+            }
+        }
+
+        done(null, user); // Pasa el usuario a la siguiente etapa de Passport
+
+    } catch (err) {
+        done(err, null);
+    }
+}));
+
+
+// Rutas de autenticación
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+app.get('/auth/google/dashboard',
+    passport.authenticate('google', { failureRedirect: '/login', session: false }),
+    (req, res) => {
+        // Si la autenticación es exitosa, se llega a esta función.
+        const token = jwt.sign({
+            id: req.user._id,
+            email: req.user.email,
+            username: req.user.username,
+            role: req.user.role,
+        }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Extrae la URL de la imagen de perfil del objeto de usuario de la DB
+        const profileImageUrl = req.user.profileImageUrl || '';
+
+        // Redirige al frontend, incluyendo el token y la URL de la imagen
+        res.redirect(`http://localhost:${PORTREACT}/dashboard?token=${token}&profileImage=${encodeURIComponent(profileImageUrl)}`);
+    }
+);
 
 // Ruta para el Login
 app.post('/api/login', async (req, res) => {
@@ -148,14 +240,14 @@ app.post('/api/login', async (req, res) => {
             return res.status(400).json({ message: 'Credenciales inválidas.' });
         }
 
-        
+
         let finalProfileImageUrlForClient = user.profileImageUrl;
         // Ensure the stored URL, when sent to the client, is absolute
-        if (finalProfileImageUrlForClient) {
-            if (!finalProfileImageUrlForClient.startsWith('/')) {
-            finalProfileImageUrlForClient = `/${finalProfileImageUrlForClient}`;
-            }
-        } else {
+        if (finalProfileImageUrlForClient) {
+            if (!finalProfileImageUrlForClient.startsWith('/')) {
+                finalProfileImageUrlForClient = `/${finalProfileImageUrlForClient}`;
+            }
+        } else {
             // If profileImageUrl is null or undefined from the DB, use the default absolute path
             finalProfileImageUrlForClient = '/LogoSolo.jpg';
         }
@@ -249,13 +341,13 @@ app.post('/api/users/create', authenticateToken, authorize(ROLES.SUPER_ADMIN), a
         if (existingUser) {
             return res.status(409).json({ message: 'Este email ya está registrado.' });
         }
-        let finalProfileImageUrl;
-        if (profileImageUrl) {
-            finalProfileImageUrl = profileImageUrl.startsWith('/') ? profileImageUrl : `/${profileImageUrl}`;
-        } else {
-            finalProfileImageUrl = '/LogoSolo.jpg';
-        }
-        
+        let finalProfileImageUrl;
+        if (profileImageUrl) {
+            finalProfileImageUrl = profileImageUrl.startsWith('/') ? profileImageUrl : `/${profileImageUrl}`;
+        } else {
+            finalProfileImageUrl = '/LogoSolo.jpg';
+        }
+
         const newUser = await createUser(email, password, role, finalProfileImageUrl);
         res.status(201).json({ message: `Usuario ${role} creado exitosamente.`, userId: newUser._id });
 
@@ -281,14 +373,14 @@ app.put('/api/users/update-role-password', authenticateToken, authorize([ROLES.S
             return res.status(404).json({ message: 'Usuario no encontrado.' });
         }
 
-        let roleToSet = userToUpdate.role;
+        let roleToSet = userToUpdate.role;
         // Validar el nuevo rol si se proporciona
-        if (newRole) {
-            if (!Object.values(ROLES).includes(newRole)) {
-            return res.status(400).json({ message: `Rol inválido: ${newRole}. Roles permitidos: ${Object.values(ROLES).join(', ')}.` });
+        if (newRole) {
+            if (!Object.values(ROLES).includes(newRole)) {
+                return res.status(400).json({ message: `Rol inválido: ${newRole}. Roles permitidos: ${Object.values(ROLES).join(', ')}.` });
+            }
+            roleToSet = newRole;
         }
-            roleToSet = newRole;
-        }
 
         // Llamada a la función updateUserRole con email, nuevo rol y nueva contraseña (si existe)
         const updatedUser = await updateUserRole(email, roleToSet, newPassword);
@@ -307,23 +399,23 @@ app.put('/api/users/update-role-password', authenticateToken, authorize([ROLES.S
 // Rutas para la gestión de imágenes
 // Ruta para obtener URLs firmadas
 app.get(/^\/api\/get-signed-image-url\/(.+)/, authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-        const s3Key = req.params[0];
+    const s3Key = req.params[0];
 
-        if (!s3Key || !s3Key.startsWith("uploads/")) {
-            return res.status(400).json({ message: "Ruta de imagen inválida." });
-        }
+    if (!s3Key || !s3Key.startsWith("uploads/")) {
+        return res.status(400).json({ message: "Ruta de imagen inválida." });
+    }
 
-        try {
-            const command = new GetObjectCommand({
-                Bucket: s3Bucket,
-                Key: s3Key,
-            });
-            const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
-            res.json({ signedUrl });
-        } catch (error) {
-            console.error("Error al generar la URL firmada:", error);
-            res.status(500).json({ message: "No se pudo generar la URL de la imagen." });
-        }
+    try {
+        const command = new GetObjectCommand({
+            Bucket: s3Bucket,
+            Key: s3Key,
+        });
+        const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+        res.json({ signedUrl });
+    } catch (error) {
+        console.error("Error al generar la URL firmada:", error);
+        res.status(500).json({ message: "No se pudo generar la URL de la imagen." });
+    }
     }
 );
 
@@ -372,31 +464,31 @@ app.post("/api/upload-image/:anniversaryNumber", uploadToMemory.single("file"), 
 
 
 app.delete(/^\/api\/delete-image\/(.+)/, authenticateToken, authorize([ROLES.SUPER_ADMIN/*, ROLES.STAFF*/]), async (req, res) => {
-        const s3Key = req.params[0];
+    const s3Key = req.params[0];
 
-        if (!s3Key || !s3Key.startsWith("uploads/")) {
-            return res.status(400).json({ message: "Ruta de imagen inválida." });
-        }
+    if (!s3Key || !s3Key.startsWith("uploads/")) {
+        return res.status(400).json({ message: "Ruta de imagen inválida." });
+    }
 
-        try {
-            const command = new DeleteObjectCommand({
-                Bucket: s3Bucket,
-                Key: s3Key,
-            });
-            await s3.send(command);
+    try {
+        const command = new DeleteObjectCommand({
+            Bucket: s3Bucket,
+            Key: s3Key,
+        });
+        await s3.send(command);
 
-            const config = await getConfig();
-            const newImagePaths = (config.imagePaths || []).filter(
-                (path) => path !== s3Key
-            );
+        const config = await getConfig();
+        const newImagePaths = (config.imagePaths || []).filter(
+            (path) => path !== s3Key
+        );
 
-            await updateConfig(config.messageTemplate || "", newImagePaths);
+        await updateConfig(config.messageTemplate || "", newImagePaths);
 
-            res.json({ message: "Imagen eliminada con éxito." });
-        } catch (error) {
-            console.error("Error al eliminar imagen:", error);
-            res.status(500).json({ message: "No se pudo eliminar la imagen." });
-        }
+        res.json({ message: "Imagen eliminada con éxito." });
+    } catch (error) {
+        console.error("Error al eliminar imagen:", error);
+        res.status(500).json({ message: "No se pudo eliminar la imagen." });
+    }
     }
 );
 
@@ -405,78 +497,78 @@ app.delete(/^\/api\/delete-image\/(.+)/, authenticateToken, authorize([ROLES.SUP
 // Rutas para obtener datos y configuración
 // ENDPOINT para obtener trabajadores desde el archivo JSON local
 app.get('/trabajadores', async (req, res) => {
-    const trabajadoresPath = path.join(__dirname, '../data/trabajadores.json');
-    fs.readFile(trabajadoresPath, 'utf-8', async (err, data) => {
-        if (err) {
-            console.error('Error al leer trabajadores.json:', err);
-            return res.status(500).json({ error: 'No se pudo leer el archivo de trabajadores.' });
-        }
-        try {
-            const trabajadores = JSON.parse(data);
+    const trabajadoresPath = path.join(__dirname, '../data/trabajadores.json');
+    fs.readFile(trabajadoresPath, 'utf-8', async (err, data) => {
+        if (err) {
+            console.error('Error al leer trabajadores.json:', err);
+            return res.status(500).json({ error: 'No se pudo leer el archivo de trabajadores.' });
+        }
+        try {
+            const trabajadores = JSON.parse(data);
 
             // Obtener todos los usuarios del sistema de autenticación
             // Asegúrate de que User esté importado correctamente
-            const users = await User.find({}, 'email role').lean();
-            const userRolesMap = new Map(users.map(u => [u.email, u.role]));
+            const users = await User.find({}, 'email role').lean();
+            const userRolesMap = new Map(users.map(u => [u.email, u.role]));
 
             // Combinar datos de empleados con roles de usuario y añadir un 'id'
-            const empleadosConRoles = trabajadores.map(empleado => {
-                const role = userRolesMap.get(empleado.mail) || 'none';
-                return {
-                    ...empleado,
+            const empleadosConRoles = trabajadores.map(empleado => {
+                const role = userRolesMap.get(empleado.mail) || 'none';
+                return {
+                    ...empleado,
                     id: empleado.mail, // Usa el mail como ID único para React keys
-                    role
-                };
-            });
+                    role
+                };
+            });
 
-            res.json(empleadosConRoles);
-        } catch (parseErr) {
-            console.error('Error al parsear trabajadores.json o combinar datos:', parseErr);
-            res.status(500).json({ error: 'Error de formato en trabajadores.json o al procesar datos de usuario.' });
-        }
-    });
+            res.json(empleadosConRoles);
+        } catch (parseErr) {
+            console.error('Error al parsear trabajadores.json o combinar datos:', parseErr);
+            res.status(500).json({ error: 'Error de formato en trabajadores.json o al procesar datos de usuario.' });
+        }
+    });
 });
 
 //Endpoint para obtener los mails enviados desde la base de datos
 app.get('/api/aniversarios-enviados', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-    try {
-        const enviados = await SentLog.find({});
-        const enviadosOrdenados = enviados.sort((a, b) => new Date(b.sentDate) - new Date(a.sentDate));
+    try {
+        const enviados = await SentLog.find({});
+        const enviadosOrdenados = enviados.sort((a, b) => new Date(b.sentDate) - new Date(a.sentDate));
 
-        res.json(enviadosOrdenados);
-    } catch (error) {
-        console.error('Error al obtener aniversarios enviados:', error);
-        res.status(500).json({ error: 'Error al obtener aniversarios enviados.' });
-    }
+        res.json(enviadosOrdenados);
+    } catch (error) {
+        console.error('Error al obtener aniversarios enviados:', error);
+        res.status(500).json({ error: 'Error al obtener aniversarios enviados.' });
+    }
 });
 
 app.get('/api/aniversarios-error', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-    try {
+    try {
         // La consulta busca registros nuevos y antiguos.
-        const fallos = await FailedEmailLog.find({
-            $or: [
-                { status: 'failed' },
-                { status: { $exists: false } }
-            ]
-        });
-        
-        const fallosOrdenados = fallos.sort((a, b) => new Date(b.attemptDate) - new Date(a.attemptDate));
-        // El resto del código para formatear la respuesta se mantiene igual.
-        const formattedFallos = fallosOrdenados.map(fallo => ({
-            _id: fallo._id, // Es buena práctica pasar el ID para el 'key' de React
-            nombre: fallo.nombre,
-            apellido: fallo.apellido,
-            email: fallo.email,
-            years: fallo.years,
-            sentDate: fallo.attemptDate,
-            errorMessage: fallo.errorMessage
-        }));
-        res.json(formattedFallos);
+        const fallos = await FailedEmailLog.find({
+            $or: [
+                { status: 'failed' },
+                { status: { $exists: false } }
+            ]
+        });
 
-    } catch (error) {
-        console.error('Error al obtener aniversarios con error:', error);
-        res.status(500).json({ error: 'Error al obtener los registros de error.' });
-    }
+        const fallosOrdenados = fallos.sort((a, b) => new Date(b.attemptDate) - new Date(a.attemptDate));
+        // El resto del código para formatear la respuesta se mantiene igual.
+        const formattedFallos = fallosOrdenados.map(fallo => ({
+            _id: fallo._id, // Es buena práctica pasar el ID para el 'key' de React
+            nombre: fallo.nombre,
+            apellido: fallo.apellido,
+            email: fallo.email,
+            years: fallo.years,
+            sentDate: fallo.attemptDate,
+            errorMessage: fallo.errorMessage
+        }));
+        res.json(formattedFallos);
+
+    } catch (error) {
+        console.error('Error al obtener aniversarios con error:', error);
+        res.status(500).json({ error: 'Error al obtener los registros de error.' });
+    }
 });
 
 // ENDPOINTS para la configuración
@@ -521,10 +613,10 @@ app.get('/track/:email/:anniversaryNumber', async (req, res) => {
         await recordEmailOpen(decodedEmail, decodedAnniversaryNumber);
 
         // Sirve un GIF transparente de 1x1 pixel
-        const pixel = Buffer.from(
-            'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-            'base64'
-        );
+        const pixel = Buffer.from(
+            'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+            'base64'
+        );
         res.writeHead(200, {
             'Content-Type': 'image/gif',
             'Content-Length': pixel.length,
@@ -533,10 +625,10 @@ app.get('/track/:email/:anniversaryNumber', async (req, res) => {
     } catch (error) {
         console.error('Error al registrar apertura de email:', error);
         // Si hay un error, aún así sirve el pixel para no romper la visualización del correo
-        const pixel = Buffer.from(
-            'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-            'base64'
-        );
+        const pixel = Buffer.from(
+            'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+            'base64'
+        );
         res.writeHead(200, {
             'Content-Type': 'image/gif',
             'Content-Length': pixel.length,
@@ -547,11 +639,11 @@ app.get('/track/:email/:anniversaryNumber', async (req, res) => {
 
 // Rutas de estadísticas
 app.get('/api/email-stats/yearly', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-    console.log('Recibida petición GET /api/email-stats/yearly');
+    console.log('Recibida petición GET /api/email-stats/yearly');
     try {
         const stats = await getYearlyEmailStats();
         // Agregamos este console.log para ver el resultado de la función.
-        console.log('Datos de estadísticas anuales obtenidos:', stats); 
+        console.log('Datos de estadísticas anuales obtenidos:', stats);
         res.json(stats);
     } catch (error) {
         console.error('Error en el endpoint /api/email-stats/yearly:', error);
@@ -560,7 +652,7 @@ app.get('/api/email-stats/yearly', authenticateToken, authorize([ROLES.SUPER_ADM
 });
 
 app.get('/api/email-stats/monthly', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-  console.log('Recibida petición GET /api/email-stats/monthly ');
+    console.log('Recibida petición GET /api/email-stats/monthly ');
     const year = req.query.year || new Date().getFullYear();
     try {
         const stats = await getMonthlyEmailStats(year);
@@ -572,7 +664,7 @@ app.get('/api/email-stats/monthly', authenticateToken, authorize([ROLES.SUPER_AD
 });
 
 app.get('/api/email-stats/week', authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-  console.log('Recibida petición GET /api/email-stats/week ');
+    console.log('Recibida petición GET /api/email-stats/week ');
     try {
         const stats = await getLast7DaysTotals();
         res.json(stats);

@@ -18,9 +18,6 @@ function LoginForm({ onLoginSuccess }) {
     setError('');
     setLoading(true);
 
-  console.log("Frontend enviando:", { email, password }); // <-- ¡Añade esta línea!
-
-
     try {
       // Ajusta la URL de la API según sea necesario
       const response = await axios.post(`${API_BASE_URL}/api/login`, {

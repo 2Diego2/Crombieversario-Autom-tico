@@ -26,7 +26,7 @@ import { LuLogOut } from "react-icons/lu";
 import LogoCrombie from '../assets/Logo.png';
 
 
-function DashboardContent({ onLogout, userEmail, userRole, userProfileImage }) {
+function DashboardContent({ onLogout, userEmail, userName, userRole, userProfileImage }) {
   const location = useLocation();
 
   const { config, loading: configLoading, error: configError } = useConfig();
@@ -81,7 +81,7 @@ function DashboardContent({ onLogout, userEmail, userRole, userProfileImage }) {
               alt="Perfil del usuario"
               className="persona"
             />
-            <span className="perfil">{userEmail || 'Usuario'} - {userRole || 'Rol Desconocido'}</span>
+            <span className="perfil">{userName || userEmail ||'Usuario'} - {userRole || 'Rol Desconocido'}</span>
           </div>
           <button className="logout" onClick={onLogout}>
             <span className="logout2">
