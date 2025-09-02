@@ -30,7 +30,8 @@ function LoginForm({ onLoginSuccess }) {
         token,
         email: user.email,
         role: user.role,
-        profileImageUrl: user.profileImageUrl || null
+        profileImageUrl: user.profileImageUrl || null,
+        username: user.username
       });
 
     } catch (err) {

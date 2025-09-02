@@ -104,7 +104,7 @@ function requireApiKey(req, res, next) {
 
 
 // Dominio permitido para los correos (¡AHORA DESCOMENTADO Y EN UNA POSICIÓN CORRECTA!)
-// const ALLOWED_EMAIL_DOMAIN = '@crombie.dev'; 
+const ALLOWED_EMAIL_DOMAIN = '@crombie.dev'; 
 
 
 
@@ -157,12 +157,12 @@ function authorize(requiredRoles) { // Ahora acepta un array de roles
 
 // Ruta para el Login
 app.post('/api/login', async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password,username } = req.body;
 
     // 1. Validar dominio del correo
-    // if (!email || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
-    //     return res.status(400).json({ message: `Dominio de correo no permitido o email faltante. Debe ser ${ALLOWED_EMAIL_DOMAIN}` });
-    // }
+    if (!email || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
+         return res.status(400).json({ message: `Dominio de correo no permitido o email faltante. Debe ser ${ALLOWED_EMAIL_DOMAIN}` });
+     }
 
     try {
         // 2. Buscar usuario en la base de datos (usando la nueva función)
@@ -199,7 +199,8 @@ app.post('/api/login', async (req, res) => {
                 id: user._id,
                 email: user.email,
                 role: user.role,
-                profileImageUrl: finalProfileImageUrlForClient // Send the absolute URL
+                profileImageUrl: finalProfileImageUrlForClient,
+                username:user.username // Send the absolute URL
             }
         });
 
@@ -290,13 +291,13 @@ app.get('/auth/google/dashboard',
 // Ruta inicial para crear el primer/segundo super_admin (¡USAR CON CUIDADO Y LUEGO PROTEGER/ELIMINAR!)
 // Puedes dejarla como '/api/register-admin' o renombrarla a algo más específico como '/api/initial-admin-setup'
 app.post('/api/register-admin', requireApiKey, async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password,username } = req.body;
     // Aquí no necesitas el campo 'role' en req.body, siempre será 'super_admin'
     // para las cuentas iniciales que configurarán el sistema.
 
-    // if (!email || !password || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
-    //     return res.status(400).json({ message: 'Email, contraseña o dominio inválido.' });
-    // }
+     if (!email || !password || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
+         return res.status(400).json({ message: 'Email, contraseña o dominio inválido.' });
+     }
 
     try {
         const existingUser = await findUserByEmail(email);
@@ -309,7 +310,7 @@ app.post('/api/register-admin', requireApiKey, async (req, res) => {
 
         // Siempre crea como 'super_admin' con esta ruta inicial
         const newUser = await createUser(email, passwordHash, ROLES.SUPER_ADMIN);*/
-        const newUser = await createUser(email, password, ROLES.SUPER_ADMIN);
+        const newUser = await createUser(email, password, ROLES.SUPER_ADMIN,username);
         res.status(201).json({ message: `Usuario ${ROLES.SUPER_ADMIN} creado exitosamente.`, userId: newUser._id });
 
     } catch (error) {
@@ -318,13 +319,13 @@ app.post('/api/register-admin', requireApiKey, async (req, res) => {
     }
 });
 app.post('/api/register-staff', requireApiKey, async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password,username } = req.body;
     // Aquí no necesitas el campo 'role' en req.body, siempre será 'super_admin'
     // para las cuentas iniciales que configurarán el sistema.
 
-    // if (!email || !password || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
-    //     return res.status(400).json({ message: 'Email, contraseña o dominio inválido.' });
-    // }
+     if (!email || !password || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
+         return res.status(400).json({ message: 'Email, contraseña o dominio inválido.' });
+     }
 
     try {
         const existingUser = await findUserByEmail(email);
@@ -337,7 +338,7 @@ app.post('/api/register-staff', requireApiKey, async (req, res) => {
 
         // Siempre crea como 'super_admin' con esta ruta inicial
         const newUser = await createUser(email, passwordHash, ROLES.SUPER_ADMIN);*/
-        const newUser = await createUser(email, password, ROLES.STAFF);
+        const newUser = await createUser(email, password, ROLES.STAFF,username);
         res.status(201).json({ message: `Usuario ${ROLES.STAFF} creado exitosamente.`, userId: newUser._id });
 
     } catch (error) {
@@ -348,12 +349,12 @@ app.post('/api/register-staff', requireApiKey, async (req, res) => {
 
 // RUTA PARA QUE UN SUPER_ADMIN CREE OTROS USUARIOS (staff o super_admin)
 app.post('/api/users/create', authenticateToken, authorize(ROLES.SUPER_ADMIN), async (req, res) => {
-    const { email, password, role, profileImageUrl } = req.body;
+    const { email, password, role, profileImageUrl,username } = req.body;
 
     // Validaciones: email, password, dominio
-    // if (!email || !password || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
-    //     return res.status(400).json({ message: 'Email, contraseña o dominio inválido.' });
-    // }
+     if (!email || !password || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
+         return res.status(400).json({ message: 'Email, contraseña o dominio inválido.' });
+     }
 
     // Validar el rol que se intenta asignar
     if (!Object.values(ROLES).includes(role)) { // Asegura que el rol sea uno de los definidos
@@ -373,7 +374,7 @@ app.post('/api/users/create', authenticateToken, authorize(ROLES.SUPER_ADMIN), a
         }
         
         //const newUser = await createUser(email, password, role, finalProfileImageUrl);
-        const newUser = await createUser(email, password, role, finalProfileImageUrl);
+        const newUser = await createUser(email, password, role, finalProfileImageUrl,username);
         res.status(201).json({ message: `Usuario ${role} creado exitosamente.`, userId: newUser._id });
 
     } catch (error) {

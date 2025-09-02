@@ -101,6 +101,7 @@ function EmpleadosPage({ userRole }) {
             password: password,
             role: selectedRole,
             profileImageUrl: currentEmployee.imagen,
+            username: `${cirrentEmployee.nombre} ${cirrentEmployee.apellido}`,   
           },
           {
             headers: getAuthHeader(),
