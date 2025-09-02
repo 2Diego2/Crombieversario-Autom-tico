@@ -3,14 +3,16 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import useAuth from './useAuth';
 
-/**
- * Custom hook para obtener y gestionar la configuración de la aplicación
- * (plantilla de mensaje y rutas de imagen).
- * Se basa en el JWT almacenado en localStorage para la autenticación.
- */
+// Determinar API_BASE_URL con fallback seguro
+const DEFAULT_API = 'http://localhost:3033';
+const ENV_BASE = (import.meta.env.VITE_API_BASE_URL || '').trim();
+
 function useConfig() {
-  // Usamos la variable de entorno de Vite.
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = (ENV_BASE || DEFAULT_API).replace(/\/+$/, ''); // sin slash final
+  // DEBUG: un solo console log al montar (evita spam)
+  useEffect(() => {
+    console.log('useConfig - API_BASE_URL =', API_BASE_URL);
+  }, [API_BASE_URL]);
 
   const [config, setConfig] = useState({ messageTemplate: "", imagePaths: [] });
   const [loading, setLoading] = useState(true);
@@ -18,20 +20,20 @@ function useConfig() {
 
   const { getAuthHeader, handleAuthError } = useAuth();
 
-
   const fetchConfigData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/config`, {
-        headers: getAuthHeader(), // Usar getAuthHeader de useAuth
+      const url = `${API_BASE_URL}/api/config`;
+      console.log('[useConfig] fetch', url);
+      const response = await axios.get(url, {
+        headers: getAuthHeader(),
+        timeout: 8000
       });
-      setConfig(response.data);
+      setConfig(response.data || { messageTemplate: "", imagePaths: [] });
     } catch (err) {
       console.error("Error al cargar la configuración:", err);
-      // La función handleAuthError de useAuth ya maneja la redirección y el mensaje de error
       handleAuthError(err);
-      // Si quieres mostrar un mensaje de error específico en este hook para otros errores, hazlo aquí
       if (!axios.isAxiosError(err) || (err.response?.status !== 401 && err.response?.status !== 403)) {
         setError("Error en la petición: " + (err.response?.data?.message || err.message));
       }
@@ -40,29 +42,20 @@ function useConfig() {
     }
   }, [API_BASE_URL, getAuthHeader, handleAuthError]);
 
-  // Efecto para cargar la configuración al montar el componente
   useEffect(() => {
-    // Obtener el token dentro del useEffect para que se vuelva a ejecutar si cambia.
-    const token = localStorage.getItem('jwtToken');
-    
-    if (token) {
-        fetchConfigData();
-    } else {
-        // En caso de que no haya token, establece loading en falso para evitar
-        // que el componente se quede en estado de carga.
-        setLoading(false);
-    }
-}, [fetchConfigData]);
+    // solo si hay una URL válida
+    fetchConfigData();
+  }, [fetchConfigData]);
 
-  // Funciones para modificar la configuración
+  // APIs auxiliares (corregí formato headers)
   const updateConfigApi = useCallback(async (messageTemplate, imagePaths) => {
     setError(null);
     try {
       const response = await axios.put(`${API_BASE_URL}/api/config`,
         { messageTemplate, imagePaths },
-        { headers: getAuthHeader() } // Usar getAuthHeader de useAuth
+        { headers: getAuthHeader() }
       );
-      setConfig(response.data); // Actualizar el estado con la nueva config
+      setConfig(response.data);
       return response.data;
     } catch (err) {
       console.error("Error al actualizar la configuración:", err);
@@ -81,7 +74,7 @@ function useConfig() {
         formData,
         {
           headers: {
-            ...getAuthHeader(), // Usar getAuthHeader de useAuth
+            ...getAuthHeader(),
             'Content-Type': 'multipart/form-data'
           }
         }
@@ -108,7 +101,6 @@ function useConfig() {
       throw err;
     }
   }, [API_BASE_URL, getAuthHeader, handleAuthError]);
-
 
   return {
     config,

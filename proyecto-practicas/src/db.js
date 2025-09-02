@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: false },
     role: { type: String, enum: ['super_admin', 'staff'], default: 'staff' }, // Cambiado a 'staff' como rol base
-    profileImageUrl: { type: String, default: 'LogoSolo.jpg' },
+    profileImageUrl: { type: String, default: '/LogoSolo.jpg' },
     username: { type: String}, //para guardar el usuario de google
 }, { timestamps: true });
 userSchema.plugin(passportLocalMongoose, { usernameField: 'email' });
@@ -28,7 +28,9 @@ const User = mongoose.model('User', userSchema);
  */
 async function findUserByEmail(email) {
     try {
-        const user = await User.findOne({ email });
+        if (!email || typeof email !== 'string') return null;
+        const normalized = email.toLowerCase().trim();
+        const user = await User.findOne({ email: normalized });
         return user;
     } catch (error) {
         console.error('Error al buscar usuario por email:', error);
@@ -43,25 +45,38 @@ async function findUserByEmail(email) {
  * @param {string} [role='admin_interfaz'] El rol del usuario.
  * @returns {Promise<Object>} El objeto del usuario creado.
  */
-async function createUser(email, password, role = 'staff', profileImageUrl = 'LogoSolo.jpg') {
-    try {
-        const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = new User({ email, passwordHash: passwordHash, role, profileImageUrl });
-        await newUser.save();
-        return newUser;
-    } catch (error) {
-        console.error('Error al crear usuario:', error);
-        throw error;
-    }
+async function createUser(email, passwordOrHash, role = 'staff', profileImageUrl = '/LogoSolo.jpg', username) {
+    try {
+        const normalizedEmail = (typeof email === 'string') ? email.toLowerCase().trim() : email;
+        let passwordHash;
+
+        // Detecta hash bcrypt (ej. $2a$ , $2b$ , $2y$)
+        if (typeof passwordOrHash === 'string' && /^\$2[aby]\$/.test(passwordOrHash)) {
+            passwordHash = passwordOrHash;
+        } else {
+            passwordHash = await bcrypt.hash(passwordOrHash, 10);
+        }
+        const newUser = new User({ email: normalizedEmail, passwordHash, role, profileImageUrl, username });
+        await newUser.save();
+        return newUser;
+    } catch (error) {
+        console.error('Error al crear usuario:', error);
+        throw error;
+    }
 }
 
 async function updateUserRole(email, newRole, newPassword = null) {
     try {
         const update = { role: newRole };
         if (newPassword) {
-            update.passwordHash = await bcrypt.hash(newPassword, 10);
+            if (typeof newPassword === 'string' && /^\$2[aby]\$/.test(newPassword)) {
+                update.passwordHash = newPassword;
+            } else {
+                update.passwordHash = await bcrypt.hash(newPassword, 10);
+            }
         }
-        const user = await User.findOneAndUpdate({ email }, update, { new: true });
+        const normalizedEmail = (typeof email === 'string') ? email.toLowerCase().trim() : email;
+        const user = await User.findOneAndUpdate({ email: normalizedEmail }, update, { new: true });
         return user;
     } catch (error) {
         console.error('Error al actualizar rol de usuario:', error);

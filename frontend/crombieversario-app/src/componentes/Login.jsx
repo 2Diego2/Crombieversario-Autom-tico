@@ -32,7 +32,8 @@ function LoginForm({ onLoginSuccess }) {
         token,
         email: user.email,
         role: user.role,
-        profileImageUrl: user.profileImageUrl || null // Asegúrate de pasar la imagen o null si no existe
+        profileImageUrl: user.profileImageUrl || null, // Asegúrate de pasar la imagen o null si no existe
+        username: user.username
       });
 
     } catch (err) {
