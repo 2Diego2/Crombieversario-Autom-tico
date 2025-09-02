@@ -4,46 +4,43 @@ import axios from 'axios';
 import './Login.css';
 import GoogleLogo from '../assets/GoogleLogo.png';
 
-
 function LoginForm({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
+  // Define la URL base de la API usando la variable de entorno
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      // Ajusta la URL de la API según sea necesario
-      const response = await axios.post('http://localhost:3033/api/login', {
+      // CAMBIO 1: Usa la variable de entorno para la URL de la API
+      const response = await axios.post(`${API_BASE_URL}/api/login`, {
         email,
         password,
       });
 
-      // Asegúrate de que 'user' en la respuesta del servidor contenga 'profileImageUrl'
-      const { token, user } = response.data; // user debería ser un objeto como { email, role, profileImageUrl }
-
+      const { token, user } = response.data;
       onLoginSuccess({
         token,
         email: user.email,
         role: user.role,
-        profileImageUrl: user.profileImageUrl || null // Asegúrate de pasar la imagen o null si no existe
+        profileImageUrl: user.profileImageUrl || null
       });
 
     } catch (err) {
       console.error('Error de inicio de sesión:', err);
       if (err.response) {
-        // El servidor respondió con un código de estado fuera del rango 2xx
-        setError(err.response.data.message || 'Error de autenticación. Verifica tus credenciales.');
+        setError(err.response.data.message || 'Error de autenticación.');
       } else if (err.request) {
-        // La solicitud fue hecha pero no se recibió respuesta
-        setError('No hay respuesta del servidor. Intenta de nuevo más tarde.');
+        setError('No hay respuesta del servidor.');
       } else {
-        // Algo más causó el error
-        setError('Error al iniciar sesión. Intenta de nuevo.');
+        setError('Error al iniciar sesión.');
       }
     } finally {
       setLoading(false);
@@ -55,20 +52,18 @@ function LoginForm({ onLoginSuccess }) {
       <div className="login-box">
         <h2>Iniciar Sesión</h2>
         
-        {/*login con google*/}
-        <a href="http://localhost:3033/auth/google" className="btn btn-google">
+        {/* CAMBIO 2: Usa la variable de entorno para el login con Google */}
+        <a href={`${API_BASE_URL}/auth/google`} className="btn btn-google">
           <img src={GoogleLogo} alt="Logo de Google"/>
           <span>Continuar con Google</span>
         </a>
 
-        {/*divisor*/}
         <div className="divider">
           <hr />
           <span>O</span>
           <hr />
         </div>
 
-        {/*formulario*/}
         <form onSubmit={handleLogin} className="login-form">
           {error && <p className="error-message">{error}</p>}
           <div className="form-group">
@@ -100,10 +95,8 @@ function LoginForm({ onLoginSuccess }) {
           </button>
         </form>
         
-        {/* ========= ENLACE A REGISTRO ========= */}
         <p className='register-prompt'>
-        
-          ¿No tienes una cuenta? <a href="http://localhost:3033/auth/google">Regístrate con Google</a> 
+          ¿No tienes una cuenta? <a href={`${API_BASE_URL}/auth/google`}>Regístrate con Google</a> 
         </p>
       </div>
     </div>

@@ -107,12 +107,12 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
     await recordSentEmail(empleado.nombre, empleado.apellido, empleado.email, empleado.nroAniversario);
   } catch (error) {
     console.error(
-      `Error enviando email o registrando log para ${empleado.mail}:`,
+      `Error enviando email o registrando log para ${empleado.email}:`,
       error
     );
 
     // 6. Registrar los envios fallidos
-    await recordFailedEmail(empleado.nombre, empleado.apellido, empleado.mail, empleado.nroAniversario, error.message);
+    await recordFailedEmail(empleado.nombre, empleado.apellido, empleado.email, empleado.nroAniversario, error.message);
   }
 });
 
