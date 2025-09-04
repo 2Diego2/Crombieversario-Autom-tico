@@ -706,8 +706,9 @@ app.get('/api/email-stats/week', authenticateToken, authorize([ROLES.SUPER_ADMIN
 });
 
 // Catch-all para rutas no encontradas
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/crombieversario-app/dist', 'index.html'));
+app.use((req, res, next) => { // Este catch-all debería estar al final
+    console.log(`❌ 404 Not Found: Request to ${req.method} ${req.originalUrl} did not match any routes.`);
+    res.status(404).json({ error: 'Endpoint no encontrado.' });
 });
 
 (async () => {
