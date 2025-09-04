@@ -91,7 +91,7 @@ async function MensajeMail(nombre, nroAniversario, empleadoEmail) {
     const nombreArchivoEsperado = `${nroAniversario}.png`;
     // Asegúrate de que config.imagePaths contiene la URL relativa de la imagen como '/uploads/16.png'
     imageUrlFromDb = (config.imagePaths || []).find(
-      (ruta) => path.basename(ruta) === nombreArchivoEsperado
+      (ruta) => ruta.endsWith(`/uploads/${nombreArchivoEsperado}`)
     );
     if (!imageUrlFromDb) {
       console.warn(
@@ -162,21 +162,18 @@ async function obtenerImagenesParaAniversario(nroAniversario) {
         const config = await getConfig();
         
         // La clave S3 está guardada en la base de datos como 'uploads/5.png', 'uploads/6.png', etc.
-        const s3Key = config.imagePaths.find(path => path.includes(`${nroAniversario}.png`));
-        
-        if (s3Key) {
-            // Genera una URL firmada directamente desde Node.js sin usar el endpoint de tu servidor
-            const command = new GetObjectCommand({
-                Bucket: s3Bucket,
-                Key: s3Key,
-            });
-            const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
-            return signedUrl;
+        const nombreArchivoEsperado = `${nroAniversario}.png`;
+        const imageUrl = (config.imagePaths || []).find(
+            (ruta) => ruta.endsWith(`/uploads/${nombreArchivoEsperado}`)
+        );
 
-        } else {
-            console.warn(`[ADVERTENCIA] No se encontró una imagen para el aniversario ${nroAniversario} años en la configuración.`);
-            return null;
-        }
+    if (imageUrl) {
+        // La URL ya es pública, la devolvemos directamente
+        return imageUrl;
+    } else {
+        console.warn(`[ADVERTENCIA] No se encontró una imagen para el aniversario ${nroAniversario} años en la configuración.`);
+        return null;
+    }
     } catch (error) {
         console.error("Error al obtener la imagen para aniversario:", error);
         return null;

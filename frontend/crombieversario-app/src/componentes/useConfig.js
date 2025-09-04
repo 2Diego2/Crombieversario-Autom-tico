@@ -30,7 +30,22 @@ function useConfig() {
         headers: getAuthHeader(),
         timeout: 8000
       });
-      setConfig(response.data || { messageTemplate: "", imagePaths: [] });
+
+      const imagePaths = response.data.imagePaths || [];
+      const sortedImagePaths = imagePaths.sort((a, b) => {
+        // Extrae el número del aniversario del nombre del archivo (ej. '18' de '18.png')
+        const yearA = parseInt(a.match(/(\d+)\.png$/)[1]);
+        const yearB = parseInt(b.match(/(\d+)\.png$/)[1]);
+        return yearA - yearB;
+      });
+
+      const updatedConfig = {
+        ...response.data,
+        imagePaths: sortedImagePaths
+      };
+
+      setConfig(updatedConfig);
+      
     } catch (err) {
       console.error("Error al cargar la configuración:", err);
       handleAuthError(err);
@@ -64,10 +79,10 @@ function useConfig() {
     }
   }, [API_BASE_URL, getAuthHeader, handleAuthError]);
 
-  const uploadImageApi = useCallback(async (file, anniversaryNumber) => {
+const uploadImageApi = useCallback(async (file, anniversaryNumber) => {
     setError(null);
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('file', file); 
 
     try {
       const response = await axios.post(`${API_BASE_URL}/api/upload-image/${anniversaryNumber}`,

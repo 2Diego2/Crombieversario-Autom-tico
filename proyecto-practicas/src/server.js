@@ -10,7 +10,7 @@ const { connectDB, getConfig, updateConfig, SentLog, FailedEmailLog, User, recor
 const multer = require('multer');
 const fs = require('fs');
 const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
-const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+// const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 const GoogleStrategy = require( 'passport-google-oauth20' ).Strategy;
 const findOrCreate = require('mongoose-findorcreate');
@@ -29,16 +29,17 @@ const s3Bucket = process.env.AWS_S3_BUCKET_NAME;
 // Middleware para servir archivos estáticos (MANTENEMOS TU RUTA ORIGINAL)
 app.use(express.static(path.join(__dirname, '../frontend/crombieversario-app/dist')));
 app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static('public'));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Configuración CORS mejorada para permitir credenciales
 app.use((req, res, next) => {
-    const allowedOrigins = ['http://localhost:5173', 'http://Crombieversario.us-east-2.elasticbeanstalk.com']; // <-- ACTUALIZA TUS DOMINIOS
+    const allowedOrigins = ['http://localhost:5173', 'http://crombieversario-interfaz.s3-website.us-east-2.amazonaws.com']; 
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Origin', origin);
     }
 
     res.header('Access-Control-Allow-Credentials', 'true');
@@ -419,26 +420,26 @@ app.put('/api/users/update-role-password', authenticateToken, authorize([ROLES.S
 
 // Rutas para la gestión de imágenes
 // Ruta para obtener URLs firmadas
-app.get(/^\/api\/get-signed-image-url\/(.+)/, authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
-    const s3Key = req.params[0];
+// app.get(/^\/api\/get-signed-image-url\/(.+)/, authenticateToken, authorize([ROLES.SUPER_ADMIN, ROLES.STAFF]), async (req, res) => {
+//     const s3Key = req.params[0];
 
-    if (!s3Key || !s3Key.startsWith("uploads/")) {
-        return res.status(400).json({ message: "Ruta de imagen inválida." });
-    }
-
-    try {
-        const command = new GetObjectCommand({
-            Bucket: s3Bucket,
-            Key: s3Key,
-        });
-        const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
-        res.json({ signedUrl });
-    } catch (error) {
-        console.error("Error al generar la URL firmada:", error);
-        res.status(500).json({ message: "No se pudo generar la URL de la imagen." });
-    }
-    }
-);
+//     if (!s3Key || !s3Key.startsWith("uploads/")) {
+//         return res.status(400).json({ message: "Ruta de imagen inválida." });
+//     }
+    
+//     try {
+//         const command = new GetObjectCommand({
+//             Bucket: s3Bucket,
+//             Key: s3Key,
+//         });
+//         const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+//         res.json({ signedUrl });
+//     } catch (error) {
+//         console.error("Error al generar la URL firmada:", error);
+//         res.status(500).json({ message: "No se pudo generar la URL de la imagen." });
+//     }
+//     }
+// );
 
 
 
@@ -468,15 +469,17 @@ app.post("/api/upload-image/:anniversaryNumber", uploadToMemory.single("file"), 
         });
         await s3.send(command);
 
+        const publicUrl = `https://${s3Bucket}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${s3Key}`;
+
         // Guardar SOLO el s3Key en la DB
         const config = await getConfig();
         const newImagePaths = [...(config.imagePaths || [])];
-        if (!newImagePaths.includes(s3Key)) {
-            newImagePaths.push(s3Key);
+        if (!newImagePaths.includes(publicUrl)) {
+            newImagePaths.push(publicUrl);
         }
-        await updateConfig(config.messageTemplate || "", newImagePaths);
+await updateConfig(config.messageTemplate || "", newImagePaths);
 
-        res.json({ message: "Imagen subida y guardada con éxito.", path: s3Key });
+res.json({ message: "Imagen subida y guardada con éxito.", path: publicUrl });
     } catch (error) {
         console.error("Error al subir imagen:", error);
         res.status(500).json({ message: "No se pudo subir la imagen." });
@@ -484,34 +487,41 @@ app.post("/api/upload-image/:anniversaryNumber", uploadToMemory.single("file"), 
 });
 
 
-app.delete(/^\/api\/delete-image\/(.+)/, authenticateToken, authorize([ROLES.SUPER_ADMIN/*, ROLES.STAFF*/]), async (req, res) => {
-    const s3Key = req.params[0];
+app.delete("/api/delete-image", authenticateToken, authorize([ROLES.SUPER_ADMIN/*, ROLES.STAFF*/]), async (req, res) => {
+    console.log('Cuerpo de la solicitud DELETE:', req.body); 
+    
+    // El frontend envía la URL de la imagen en el cuerpo de la solicitud
+    const { imageUrl } = req.body; 
 
-    if (!s3Key || !s3Key.startsWith("uploads/")) {
-        return res.status(400).json({ message: "Ruta de imagen inválida." });
-    }
+    // Extraer la clave de S3 de la URL completa que se recibe del frontend
+    try {
+        const url = new URL(imageUrl);
+        const s3Key = url.pathname.substring(1); // Elimina el '/' inicial
 
-    try {
-        const command = new DeleteObjectCommand({
-            Bucket: s3Bucket,
-            Key: s3Key,
-        });
-        await s3.send(command);
+        if (!s3Key || !s3Key.startsWith("uploads/")) {
+            return res.status(400).json({ message: "Ruta de imagen inválida." });
+        }
 
-        const config = await getConfig();
-        const newImagePaths = (config.imagePaths || []).filter(
-            (path) => path !== s3Key
-        );
+        const command = new DeleteObjectCommand({
+            Bucket: s3Bucket,
+            Key: s3Key,
+        });
+        await s3.send(command);
 
-        await updateConfig(config.messageTemplate || "", newImagePaths);
+        const config = await getConfig();
+        const newImagePaths = (config.imagePaths || []).filter(
+            // Filtra la ruta que coincide con la URL completa que envió el frontend
+            (path) => path !== imageUrl
+        );
 
-        res.json({ message: "Imagen eliminada con éxito." });
-    } catch (error) {
-        console.error("Error al eliminar imagen:", error);
-        res.status(500).json({ message: "No se pudo eliminar la imagen." });
-    }
-    }
-);
+        await updateConfig(config.messageTemplate || "", newImagePaths);
+
+        res.json({ message: "Imagen eliminada con éxito." });
+    } catch (error) {
+        console.error("Error al eliminar imagen:", error);
+        res.status(500).json({ message: "No se pudo eliminar la imagen." });
+    }
+});
 
 
 
@@ -696,9 +706,8 @@ app.get('/api/email-stats/week', authenticateToken, authorize([ROLES.SUPER_ADMIN
 });
 
 // Catch-all para rutas no encontradas
-app.use((req, res, next) => { // Este catch-all debería estar al final
-    console.log(`❌ 404 Not Found: Request to ${req.method} ${req.originalUrl} did not match any routes.`);
-    res.status(404).json({ error: 'Endpoint no encontrado.' });
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/crombieversario-app/dist', 'index.html'));
 });
 
 (async () => {
