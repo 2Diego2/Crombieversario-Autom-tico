@@ -1,10 +1,12 @@
 // src/componentes/LoginForm.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
+import useConfig from '../componentes/useConfig'; 
 import './Login.css';
 import GoogleLogo from '../assets/GoogleLogo.png';
 
 function LoginForm({ onLoginSuccess }) {
+  const { API_BASE_URL } = useConfig();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +21,7 @@ function LoginForm({ onLoginSuccess }) {
     setLoading(true);
 
     try {
-      // CAMBIO 1: Usa la variable de entorno para la URL de la API
+      // Ajusta la URL de la API según sea necesario
       const response = await axios.post(`${API_BASE_URL}/api/login`, {
         email,
         password,
@@ -30,7 +32,8 @@ function LoginForm({ onLoginSuccess }) {
         token,
         email: user.email,
         role: user.role,
-        profileImageUrl: user.profileImageUrl || null
+        profileImageUrl: user.profileImageUrl || null, // Asegúrate de pasar la imagen o null si no existe
+        username: user.username
       });
 
     } catch (err) {
@@ -52,18 +55,21 @@ function LoginForm({ onLoginSuccess }) {
       <div className="login-box">
         <h2>Iniciar Sesión</h2>
         
-        {/* CAMBIO 2: Usa la variable de entorno para el login con Google */}
+        {/*login con google*/}
+        {/* CORRECCIÓN AQUÍ: Usa API_BASE_URL */}
         <a href={`${API_BASE_URL}/auth/google`} className="btn btn-google">
           <img src={GoogleLogo} alt="Logo de Google"/>
           <span>Continuar con Google</span>
         </a>
 
+        {/*divisor*/}
         <div className="divider">
           <hr />
           <span>O</span>
           <hr />
         </div>
 
+        {/*formulario*/}
         <form onSubmit={handleLogin} className="login-form">
           {error && <p className="error-message">{error}</p>}
           <div className="form-group">
@@ -75,7 +81,7 @@ function LoginForm({ onLoginSuccess }) {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="login-input"
-              placeholder="tu@gmail.com"
+              placeholder="tu@crombie.dev"
             />
           </div>
           <div className="form-group">
@@ -95,8 +101,11 @@ function LoginForm({ onLoginSuccess }) {
           </button>
         </form>
         
+        {/* ========= ENLACE A REGISTRO ========= */}
         <p className='register-prompt'>
-          ¿No tienes una cuenta? <a href={`${API_BASE_URL}/auth/google`}>Regístrate con Google</a> 
+        
+          ¿No tienes una cuenta? {/* CORRECCIÓN AQUÍ: Usa API_BASE_URL */}
+          <a href={`${API_BASE_URL}/auth/google`}>Regístrate con Google</a> 
         </p>
       </div>
     </div>

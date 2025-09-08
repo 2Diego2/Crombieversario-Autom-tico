@@ -9,16 +9,14 @@
   --textoSecundario: #5A6374; /* gris azulado suave */
 
   /* Acentos vivos inspirados en crombie.dev */
-  --acentoPrimario: #ffffff;  /* azul verdoso claro y moderno */
+  --acentoPrimario: #ffffff;  
   --acentoPrimHover: #1BABCD; /* hover sutil sobre primario */
   --acentoSecundario: #FF9500;/* amarillo-naranja vibrante y cálido */
 
   /* Estados internos */
-  --colorAdmin: #FF9500;
   --colorMailError: #FFF1E5;
   --colorLogOut: #D43C3C;
-  --colorVerMas: var(--acentoSecundario);
-   --colorCrombieVioleta: #80319b;
+  --colorCrombieVioleta: #80319b;
   --colorCrombieCeleste: #25b2e2;
   --colorCrombieAmarillo: #ffb12a;
   --colorCrombieRosa: #ee326c;
@@ -80,6 +78,7 @@ body {
   max-width: 1600px; /* Limita el ancho máximo del dashboard */
   min-height: calc(100vh - (2 * var(--padding-box))); /* Ajusta la altura mínima para el contenido */
   gap: var(--grid-gap); /* Espacio entre los items del grid */
+  box-sizing: border-box;
 
   /* MOBILE FIRST: Default layout para pantallas pequeñas (columnas apiladas) */
   display: grid;
@@ -100,7 +99,7 @@ aside.div1 {
   display: flex;
   flex-direction: column;
   padding: var(--padding-box);
-  background-color: var(--colorCaja);
+  background-color: var(--colorCajaAlt);
   border-radius: var(--border-radius);
   z-index: 100; /* Asegura que esté por encima de otros elementos */
   grid-area: sidebar; /* Asigna al área 'sidebar' */
@@ -116,10 +115,11 @@ aside.div1 {
   width: 100%;
   max-width: 300px;
   display: block;
-  margin: 0 auto 20px auto; /* Centrar y añadir margen inferior */
+  margin: auto; /* Centrar y añadir margen inferior */
 }
 
 .side-bar {
+  padding-top: 20px;
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -146,14 +146,15 @@ aside.div1 {
 
 .menu-item:hover {
   background-color: var(--acentoPrimario);
-  color: rgb(0, 0, 0);
   transition: all 0.3s ease;
   transform: translateY(0);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.menu-item:hover::after {
-  left: 130%;
+.menu-item.active-menu-item,
+.menu-item:focus {
+  background-color: var(--acentoPrimario); /* Activo también con el color principal */
+  outline: none;
 }
 
 .footer-aside {
@@ -229,14 +230,11 @@ aside.div1 {
 
 
 .div2, .div3, .div4, .div5 { /* aside.div1 ya tiene sus estilos */
-  background-color: var(--colorCaja);
+  background-color: var(--colorCajaAlt);
   color: var(--textoPrincipal);
   box-shadow: var(--box-shadow);
   border-radius: var(--border-radius);
   padding: var(--padding-box);
-}
-.div4, .div5 {
-  background-color: var(--colorCajaAlt);
 }
 
 /* Asignación de áreas de grid para cada div */
@@ -255,6 +253,11 @@ aside.div1 {
   gap: 15px;
   margin-top: 10px;
   padding: 10px 0;
+  padding-left: 20px;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  box-shadow: none;
+  margin-bottom: 0;
 }
 
 .perfil-info2 > div {
@@ -284,22 +287,18 @@ h2, .menu-item, .perfil-info {
 }
 
 .verMas {
-  border-radius: 12px;
-  background: var(--colorCrombieVioleta);
-  outline: none;
+  border: none;
   cursor: pointer;
-  color: var(--colorCaja);
+  padding: 8px 16px;
+  background-color: var(--colorCrombieVioleta);
+  color: white;
   margin-top: 10px;
   align-self: flex-end;
-   transition: all 0.3s ease;
-  transform: translateY(0);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
 }
 
 .verMas:hover {
-  color: var(--colorCaja);
-  transform: translateY(-2px);
-  box-shadow: 0 7px 14px rgba(138, 66, 255, 0.3);
+  background-color: #68287e;
 }
 
 
@@ -335,12 +334,13 @@ h2, .menu-item, .perfil-info {
 }
 
 .main-content-pages {
-  grid-area: content-pages; /* Nueva área para cuando no es el dashboard principal */
+  grid-area: stats; /* Nueva área para cuando no es el dashboard principal */
   display: flex;
   flex-direction: column;
+  width: 100%;
   height: 100%;
   overflow-y: auto;
-  background-color: var(--colorCaja);
+  background-color: var(--colorCajaAlt);
   border-radius: var(--border-radius);
   padding: var(--padding-box);
 }
@@ -428,4 +428,67 @@ h2, .menu-item, .perfil-info {
     aside.div1 {
     width: var(--sidebar-width-desktop); /* Mantiene el ancho */
   }
+}
+
+@media (max-width: 768px) {
+
+  /* Sidebar ocupa todo el ancho */
+aside.div1 {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto; /* centra horizontalmente */
+}
+
+
+  /* Contenido principal y secciones del dashboard */
+  .main-content-pages,
+  .div2,
+  .div3,
+  .div4,
+  .div5,
+  .calendario-page-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 10px; /* espacio lateral para evitar que quede pegado */
+    box-sizing: border-box;
+  }
+
+.tablaMails {
+  width: 100%;
+  max-width: 600px; /* opcional: limitar en desktop */
+  margin: 0 auto;   /* centrar en pantallas grandes */
+}
+
+  /* Próximos eventos en Dashboard: scroll vertical limitado */
+  .div4 {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  /* Calendario FullCalendar ajustado */
+  .fullcalendar-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow-x: auto; /* permite hacer scroll lateral si el calendario es muy ancho */
+  }
+
+  /* Lista de eventos debajo del calendario: scroll vertical */
+  .empleados-table-scroll-container2 {
+    max-height: 300px;
+    overflow-y: auto;
+    width: 100%;
+    min-height: 150px;
+  }
+
+  .perfil-info2{
+    padding-left: 15px;
+  }
+
+  html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+}
 }

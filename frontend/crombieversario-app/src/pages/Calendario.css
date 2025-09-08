@@ -1,66 +1,43 @@
 /* src/pages/CalendarioPage.css */
 .calendario-page-container {
-    padding: var(--padding-box);
-    background-color: var(--colorCaja);
-    box-sizing: border-box;
-    width: 100%;
-    /* Puedes ajustar el display si quieres que el calendario y otros elementos se organicen de forma específica */
+  padding: var(--padding-box);
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .calendario-page-container h1 {
-    margin-bottom: 20px;
-    padding: 10px;
-    text-align: center;
-    color: #333;
-    font-size: 1.8em;
+  margin-bottom: 20px;
+  padding: 10px;
+  text-align: center;
+  color: #333;
+  font-size: 2em;
 }
 
-/* Estilo para el contenedor de FullCalendar */
 .fullcalendar-wrapper {
-    max-width: 900px; /* Limita el ancho del calendario para mejor visualización */
-    margin: 0 auto 30px auto; /* Centra el calendario y añade espacio inferior */
-    overflow: hidden; /* Importante para que los bordes redondeados se vean bien */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.empleados-table-scroll-container2 {
-  overflow-y: auto;
-  margin-top: 10px;
-}
-
-.empleados-table {
   width: 100%;
-  border-collapse: collapse;
+  max-width: 900px;
+  margin: 0 auto 30px auto;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 80vh;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 
-/* Estilo general para cada chunk del header */
+/* ========================================================= */
+/* ESTILOS DEL HEADER (Barra superior)                       */
+/* ========================================================= */
 .fc-toolbar-chunk {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-/* Estilo para el chunk de la izquierda (prev, next, today) */
-.fc-header-toolbar .fc-toolbar-chunk:first-child {
-  padding: 5px;
-  border-radius: 5px;
-  font-size: 14px;
-  margin-top: 20px;
-  gap: 0px;
-}
-
-/* Estilo para el chunk del centro (título) */
-.fc-header-toolbar .fc-toolbar-chunk:nth-child(2) {
-  font-size: 1.2em;
-  font-weight: bold;
-  justify-content: center;
-  flex: 1;
-  font-size: 14px;
-  margin-top: 20px;
-}
-
-/* Estilo para el chunk de la derecha (vista) */
+.fc-header-toolbar .fc-toolbar-chunk:first-child,
+.fc-header-toolbar .fc-toolbar-chunk:nth-child(2),
 .fc-header-toolbar .fc-toolbar-chunk:last-child {
   padding: 5px;
   border-radius: 5px;
@@ -71,15 +48,14 @@
   border-radius: 8px !important;
 }
 
-.fc .fc-prev-button,
-.fc .fc-next-button {
-  display: flex;
-  align-items: center;
+.fc-header-toolbar .fc-toolbar-chunk:nth-child(2) {
+  font-size: 1.2em;
+  font-weight: bold;
   justify-content: center;
-  height: 32px;   /* Asegura altura consistente */
-  min-width: 32px;
+  flex: 1;
 }
 
+/* Estilos de los botones */
 .fc .fc-button {
   background-color: var(--colorCrombieVioleta);
   border-color: var(--colorCrombieVioleta);
@@ -97,33 +73,13 @@
 /*-------*/
 
 .fc .fc-button:hover,
-.fc .fc-button:focus {
-  background-color: var(--colorCrombieRosa);
-  border-color: var(--colorCrombieRosa);
-  color: white;
-}
-
+.fc .fc-button:focus,
 .fc .fc-button-active,
 .fc .fc-button.fc-button-active,
 .fc .fc-button-primary:not(:disabled).fc-button-active,
-.fc .fc-button-primary:not(:disabled):active {
-  background-color: var(--colorCrombieRosa);
-  border-color: var(--colorCrombieRosa);
-  color: #fff;
-  box-shadow: none;
-    transition: all 0.3s ease;
-  transform: translateY(0);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 1);
-}
-
-/* Fuerza el color del botón "today" activo y normal */
+.fc .fc-button-primary:not(:disabled):active,
 .fc .fc-button.fc-today-button,
-.fc .fc-button-primary.fc-today-button {
-  background-color: var(--colorCrombieRosa) !important;
-  border-color: var(--colorCrombieRosa) !important;
-  color: white !important;
-}
-
+.fc .fc-button-primary.fc-today-button,
 .fc .fc-button.fc-today-button.fc-button-active,
 .fc .fc-button-primary.fc-today-button.fc-button-active {
   background-color: var(--colorCrombieRosa) !important;
@@ -131,47 +87,157 @@
   color: white !important;
 }
 
+
+/* ========================================================= */
+/* ESTILOS DEL CONTENIDO (Celdas, eventos y más...)          */
+/* ========================================================= */
+
+/* Contenedor de cada celda del día */
+.fc .fc-daygrid-day-frame {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 80px;
+  height: auto !important;
+  padding: 2px;
+}
+
+/* Número del día */
+.fc .fc-daygrid-day-top {
+  font-size: 14px !important;
+  margin-bottom: 2px;
+}
+
+/* Estilo para un evento individual */
+.fc .fc-daygrid-event {
+  font-size: 13px !important;
+  padding: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 14px;
+  color: #ffffff;
+  /* Puedes usar cualquier color, como blanco */
+  background-color: var(--colorCrombieVioleta);
+  /* Puedes cambiar también el color de fondo */
+}
+
+/* ⚠️ Esta nueva regla asegura que el color del texto se aplique */
 .fc-event-title.fc-sticky {
-  border-radius: 5px;
-  padding: 2px 5px;
-  font-size: 0.85em;
-} 
-
-/* Estilos para la lista de eventos si la mantienes */
-.events-list {
-  margin-top: 40px;
-  border-top: 1px solid #eee;
-  padding-top: 20px;
+  color: var(--colorCaja) !important;
 }
 
-.events-list h2 {
-  margin-bottom: 20px;
-  text-align: center;
+/* Estilo para el link "+X more" */
+.fc .fc-daygrid-more-link {
+  font-size: 11px !important;
+  margin-top: auto !important;
+  align-self: flex-start;
+  white-space: nowrap;
+  color: var(--colorCrombieVioleta);
+  cursor: pointer;
+  padding: 0 1px;
+  text-decoration: underline;
 }
 
-/* Reutiliza estilos del dashboard para los items de evento */
-.perfil-info2 {
-    display: flex;
+.fc-daygrid-event-harness {
+  min-height: 15px;
+}
+
+
+/* ========================================================= */
+/* AJUSTES PARA MOBILE (Solo lo necesario)                   */
+/* ========================================================= */
+@media (max-width: 768px) {
+
+  /* Header en formato columna */
+  .fc-header-toolbar {
+    flex-direction: column !important;
     align-items: center;
+    gap: 0;
+    padding-top: 10px !important;
+  }
+
+  .fc-header-toolbar .fc-toolbar-chunk:first-child {
+    order: 1;
+  }
+
+  .fc-header-toolbar .fc-toolbar-chunk:last-child {
+    order: 2;
+  }
+
+  .fc-header-toolbar .fc-toolbar-chunk:nth-child(2) {
+    order: 3;
+    font-size: 1rem;
+  }
+
+  .fc-header-toolbar .fc-toolbar-chunk {
+    margin: 0 !important;
+  }
+
+  /* Contenedor principal y celda */
+  .fc {
+    width: 100% !important;
+    font-size: 0.85rem;
+  }
+
+  .fc-toolbar {
+    flex-wrap: wrap;
     gap: 5px;
+  }
+
+  /* ---------------------------------------------------- */
+  /* ✅ Solución para la posición y texto del "+X more"  */
+  /* ---------------------------------------------------- */
+
+  /* Ajusta el alto de las celdas para que el contenido quepa */
+  .fc-daygrid-day-frame {
+    /* Aumentamos un poco la altura para evitar que se salga */
+    min-height: 45px !important;
+    /* ajusta el tamaño */
+    padding: 2px 0 !important;
+    max-height: 45px;
+  }
+
+  .fc-daygrid-table {
+    min-width: 320px;
+    /* ✅ Valor mínimo que asegura que el texto quepa. Puedes ajustarlo. */
+  }
+
+  /* Reduce el alto de cada fila para que el calendario no sea enorme */
+  .fc-scrollgrid-sync-table tr {
+    height: 45px !important;
+  }
+
+  /* Asegura que el número del día esté en la posición correcta */
+  .fc .fc-daygrid-day-top {
+    font-size: 11px !important;
+    margin-bottom: 2px;
+  }
+
+  /* Estilo para el link "+X more" */
+  .fc-daygrid-more-link {
+    /* * Ajustamos el font-size para que el texto "more" no se corte.
+    * Si aún se corta, puedes reducirlo un poco más (ej. 9px).
+    */
+    font-size: 5px !important;
+    margin-top: 2px;
+    color: var(--colorCrombieVioleta);
+    cursor: pointer;
+    text-decoration: underline;
+    /* Evita que se salga el texto del borde */
+    white-space: nowrap;
+  }
+
+  /* Ajuste del margen para mobile si fuera necesario */
+  .events-list {
+    margin-top: 20px;
+    /* O un valor menor si quieres menos espacio en mobile */
+    margin-bottom: 12px;
+  }
+
+  .events-list h2 {
     margin-bottom: 15px;
-    padding: 10px;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-}
+    /* Aumenta este valor para más separación en mobile */
+  }
 
-.persona2 {
-    height: 40px;
-    width: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.empleado {
-    font-weight: 600;
-}
-
-.ciudadYLugar {
-    font-size: 0.9em;
-    color: #777;
 }

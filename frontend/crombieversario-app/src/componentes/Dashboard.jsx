@@ -26,9 +26,7 @@ import { LuLogOut } from "react-icons/lu";
 import LogoCrombie from '../assets/Logo.png';
 
 
-
-
-function DashboardContent({ onLogout, userEmail, userName , userRole, userProfileImage }) {
+function DashboardContent({ onLogout, userEmail, userName, userRole, userProfileImage }) {
   const location = useLocation();
 
   const { config, loading: configLoading, error: configError } = useConfig();

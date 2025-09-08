@@ -1,10 +1,12 @@
 // src/pages/EditorMensaje.jsx
 import React, { useState, useEffect } from "react";
 import useConfig from "../componentes/useConfig";
-import { toast } from "react-toastify";
+// import useAuth from "../componentes/useAuth";
+// import { toast } from "react-toastify";
+// import axios from "axios";
 import "./EditorMensaje.css";
 
-function EditorMensaje() {
+function EditorMensaje(userRole) {
   const {
     config,
     loading,
@@ -12,33 +14,57 @@ function EditorMensaje() {
     updateConfigApi,
     uploadImageApi,
     deleteImageApi,
-    // No necesitamos refetchConfig directamente aquí a menos que quieras un botón de recarga manual
+    refetchConfig,
   } = useConfig();
-
-  // Estados internos para cambios locales antes de guardar, y para la selección de archivos
+  // Usa el hook de autenticación para acceder a las funciones
+  // const { getAuthHeader } = useAuth(); 
+  // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  
   const [messageTemplate, setMessageTemplate] = useState("");
-  const [imagePaths, setImagePaths] = useState([]);
+  // const [signedUrls, setSignedUrls] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
   const [anniversaryNumber, setAnniversaryNumber] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [localError, setLocalError] = useState(null); // Usaremos un error local para mensajes específicos de la UI
+  const [localError, setLocalError] = useState(null);
 
-  // Inicializa los estados locales una vez que la configuración se carga desde el hook
   useEffect(() => {
     if (config) {
       setMessageTemplate(config.messageTemplate || "");
-      setImagePaths(config.imagePaths || []); // Actualiza imagePaths cuando config cambia
     }
-  }, [config]); // Depende de 'config'
+  }, [config]);
 
-  // Sincroniza el error del hook con el error local
-  useEffect(() => {
-    if (error) {
-      setLocalError(error);
-    } else {
-      setLocalError(null);
-    }
-  }, [error]);
+  // useEffect(() => {
+  //   if (config?.imagePaths && config.imagePaths.length > 0) {
+  //     const fetchUrls = async () => {
+  //       const newSignedUrls = {};
+  //       for (const fullPath of config.imagePaths) {
+  //         try {
+  //           const s3Key = fullPath.split(".amazonaws.com/")[1] || fullPath;
+
+  //           // Haz la petición a la API con los encabezados de autenticación
+  //           const response = await axios.get(
+  //             `${API_BASE_URL}/api/get-signed-image-url/${s3Key}`,
+  //             {
+  //               headers: getAuthHeader(),
+  //             }
+  //           );
+  //           newSignedUrls[fullPath] = response.data.signedUrl;
+  //         } catch (err) {
+  //           console.error(
+  //             `Error al obtener URL firmada para ${fullPath}:`,
+  //             err
+  //           );
+  //           newSignedUrls[fullPath] = null;
+  //         }
+  //       }
+  //       setSignedUrls(newSignedUrls);
+  //     };
+  //     fetchUrls();
+  //   } else {
+  //     setSignedUrls({});
+  //   }
+  //   // Asegúrate de que las dependencias estén correctas.
+  // }, [config, API_BASE_URL, getAuthHeader]);
 
   const handleSaveMessage = async () => {
      
@@ -46,14 +72,14 @@ function EditorMensaje() {
     setLocalError(null); // Limpiar errores previos al guardar
     setSuccessMessage("");
     try {
-      await updateConfigApi(messageTemplate, imagePaths);
+      await updateConfigApi(messageTemplate, config.imagePaths || []);
       setSuccessMessage(
         "Mensaje y configuración de imágenes guardados exitosamente!"
       );
     } catch (err) {
       setLocalError(
         "Error al guardar la configuración: " +
-          (err.response?.data?.message || err.message)
+        (err.response?.data?.message || err.message)
       );
       console.error("Error al guardar configuración:", err);
     }
@@ -98,6 +124,7 @@ function EditorMensaje() {
       setSelectedFile(null);
       setAnniversaryNumber("");
       setSuccessMessage("Imagen subida y agregada exitosamente!");
+      await refetchConfig();
     } catch (err) {
       setLocalError(
         "Error al subir imagen: " + (err.response?.data?.message || err.message)
@@ -113,10 +140,11 @@ function EditorMensaje() {
     try {
       await deleteImageApi(imageUrlToDelete);
       setSuccessMessage("Imagen eliminada exitosamente!");
+      await refetchConfig();
     } catch (err) {
       setLocalError(
         "Error al eliminar imagen: " +
-          (err.response?.data?.message || err.message)
+        (err.response?.data?.message || err.message)
       );
       console.error("Error al eliminar imagen:", err);
     }
@@ -146,18 +174,9 @@ function EditorMensaje() {
     );
   }
 
-  // Si está cargando O el objeto config aún no está disponible (puede ser la primera carga)
-  if (
-    loading ||
-    !config ||
-    (Object.keys(config).length === 0 &&
-      !messageTemplate &&
-      imagePaths.length === 0)
-  ) {
+  if (loading || !config) {
     return <p>Cargando configuración...</p>;
   }
-
-  // --- Fin de la lógica de renderizado inicial ---
 
   return (
     <div className="Principal">
@@ -190,16 +209,18 @@ function EditorMensaje() {
         <h3>Imágenes del Mensaje:</h3>
 
         <div className="divImg">
-          {imagePaths.length === 0 ? (
+          {config.imagePaths?.length === 0 ? (
             <p style={{ color: "#666" }}>No hay imágenes configuradas.</p>
           ) : (
-            imagePaths.map((path, index) => {
-              const fileName = path.substring(path.lastIndexOf("/") + 1);
+            config.imagePaths.map((path) => {
+              const fileName = path.split("/").pop();
               const anniversaryNum = fileName.split(".")[0];
+              const urlToDisplay = path; // Simplemente usamos la ruta completa
+
               return (
                 <div key={path} className="img">
                   <img
-                    src={path}
+                    src={urlToDisplay}
                     alt={`Aniversario ${anniversaryNum}`}
                     className="imagenes"
                   />
@@ -255,7 +276,6 @@ function EditorMensaje() {
           >
             {loading ? "Subiendo..." : "Subir Imagen"}
           </button>
-          {/* El mensaje de error local se muestra aquí */}
           {localError && (
             <div className="error">
               {localError}

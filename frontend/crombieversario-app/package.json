@@ -17,6 +17,11 @@
     "@fullcalendar/timegrid": "^6.1.18",
     "axios": "^1.10.0",
     "jwt-decode": "^4.0.0",
+<<<<<<< HEAD
+=======
+    "mongoose-findorcreate": "^4.0.0",
+    "passport-local-mongoose": "^8.0.0",
+>>>>>>> a20280a08fa0e5876305639398a83d24f3ca9d34
     "react": "^19.1.0",
     "react-aside": "^0.0.1-security",
     "react-dom": "^19.1.0",

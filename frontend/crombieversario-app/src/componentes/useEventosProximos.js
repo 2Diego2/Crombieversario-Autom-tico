@@ -14,27 +14,12 @@ const useEventosProximos = () => {
     setError(null); // Limpiar errores previos
 
     try {
-      // Usamos la variable de entorno para la URL.
-      // Si API_BASE_URL es "/api", la petición será a /api/trabajadores
-      // Si es "http://localhost:3033/api", la petición será a http://localhost:3033/api/trabajadores
-      // Como tu ruta backend es /trabajadores (no /api/trabajadores) deberíamos ajustar la URL.
-      // Si `/trabajadores` es la ruta raíz en tu Express, entonces:
-      // const response = await fetch(`${API_BASE_URL}/../trabajadores`); // Esto es un poco hacky si API_BASE_URL es /api
-      // La mejor forma es si la ruta en tu backend se convierte a /api/trabajadores
-      // Por ahora, si tu proxy está configurado para /api, la llamada directa a /trabajadores NO pasará por el proxy.
-      // Lo más limpio es que tu backend exponga /api/trabajadores si todas las APIs van bajo /api.
-      // Asumiendo que /trabajadores es una excepción o que tu proxy de Vite maneja un / al inicio:
-      // Para consistencia con /api, vamos a usar ${API_BASE_URL.replace('/api', '')}/trabajadores
-      // O, más simple, si el endpoint es `/trabajadores` y no está bajo `/api` en tu backend y no pasa por el proxy,
-      // tendrás que hardcodearlo de nuevo o usar otra variable de entorno.
-
-      // Opción 1: Si /trabajadores en tu backend NO lleva /api delante, y el proxy lo maneja directamente (añadirlo a vite.config.js)
-      // fetch('/trabajadores');
-      // O si tu API_BASE_URL es 'http://localhost:3033/api', entonces la URL sería:
-      const fullUrl = API_BASE_URL.endsWith('/api')
-        ? `${API_BASE_URL.replace('/api', '')}/trabajadores` // Para que sea http://localhost:3033/trabajadores
-        : `${API_BASE_URL}/trabajadores`; // Si API_BASE_URL ya es http://localhost:3033/
-
+      // Asume que la URL base termina en una barra, o no, y añade la ruta de la API.
+      const fullUrl = `${API_BASE_URL.endsWith('/') 
+        ? API_BASE_URL 
+        : API_BASE_URL + '/'}` + 'trabajadores';
+      
+      console.log("Intentando obtener datos de la URL:", fullUrl); // <-- Agrega esta línea
       const response = await fetch(fullUrl);
 
       if (!response.ok) {
@@ -74,7 +59,7 @@ const useEventosProximos = () => {
             id: `cumple-${trabajador.nombre}-${trabajador.apellido}-${birthDay}-${birthMonth}`,
             title: `🥳 Cumpleaños de ${trabajador.nombre} ${trabajador.apellido}`,
             date: birthdayDateStr,
-            color: '#80319b', 
+            color: '#80319b',
             allDay: true,
             type: 'cumpleanios',
             empleado: `${trabajador.nombre} ${trabajador.apellido}`,
@@ -109,7 +94,7 @@ const useEventosProximos = () => {
             id: `aniversario-${trabajador.nombre}-${trabajador.apellido}-${entryDay}-${entryMonth}`,
             title: `🎉 Aniversario de ${trabajador.nombre} ${trabajador.apellido}`,
             date: anniversaryDateStr,
-            color: '#ee326c', 
+            color: '#ee326c',
             allDay: true,
             type: 'aniversario',
             empleado: `${trabajador.nombre} ${trabajador.apellido}`,

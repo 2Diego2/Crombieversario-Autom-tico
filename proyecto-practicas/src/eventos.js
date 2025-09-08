@@ -7,11 +7,19 @@ const weekDay = require("dayjs/plugin/weekday");
 const path = require("path");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
+const axios = require("axios"); // Asegúrate de importar axios si aún no lo has hecho
+const S3Client = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { GetObjectCommand } = require('@aws-sdk/client-s3');
 
 dayjs.extend(weekDay); // Extend dayjs with the weekday plugin
 
 class AniversarioEmitter extends EventEmitter {}
 const aniversarioEmitter = new AniversarioEmitter();
+const s3 = new S3Client.S3Client({
+    region: process.env.AWS_S3_REGION
+});
+const s3Bucket = process.env.AWS_S3_BUCKET_NAME;
 
 async function buscarAniversarios(trabajadores) {
   const hoy = dayjs().startOf("day");
@@ -83,7 +91,7 @@ async function MensajeMail(nombre, nroAniversario, empleadoEmail) {
     const nombreArchivoEsperado = `${nroAniversario}.png`;
     // Asegúrate de que config.imagePaths contiene la URL relativa de la imagen como '/uploads/16.png'
     imageUrlFromDb = (config.imagePaths || []).find(
-      (ruta) => path.basename(ruta) === nombreArchivoEsperado
+      (ruta) => ruta.endsWith(`/uploads/${nombreArchivoEsperado}`)
     );
     if (!imageUrlFromDb) {
       console.warn(
@@ -149,18 +157,27 @@ async function MensajeMail(nombre, nroAniversario, empleadoEmail) {
 
 // Ahora, para los aniversarios, busca la imagen en la base de datos (config.imagePaths)
 async function obtenerImagenesParaAniversario(nroAniversario) {
-  const { getConfig } = require("./db.js");
-  try {
-    const config = await getConfig();
-    // Busca la imagen correspondiente por nombre
-    const nombreArchivo = `${nroAniversario}.png`;
-    const ruta = (config.imagePaths || []).find((ruta) =>
-      ruta.includes(nombreArchivo)
-    );
-    return ruta ? [ruta] : [];
-  } catch (e) {
-    return [];
-  }
+    const { getConfig } = require("./db.js");
+    try {
+        const config = await getConfig();
+        
+        // La clave S3 está guardada en la base de datos como 'uploads/5.png', 'uploads/6.png', etc.
+        const nombreArchivoEsperado = `${nroAniversario}.png`;
+        const imageUrl = (config.imagePaths || []).find(
+            (ruta) => ruta.endsWith(`/uploads/${nombreArchivoEsperado}`)
+        );
+
+    if (imageUrl) {
+        // La URL ya es pública, la devolvemos directamente
+        return imageUrl;
+    } else {
+        console.warn(`[ADVERTENCIA] No se encontró una imagen para el aniversario ${nroAniversario} años en la configuración.`);
+        return null;
+    }
+    } catch (error) {
+        console.error("Error al obtener la imagen para aniversario:", error);
+        return null;
+    }
 }
 
 module.exports = { aniversarioEmitter, buscarAniversarios, MensajeMail };

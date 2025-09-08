@@ -1,13 +1,19 @@
 // index.js
-require("dotenv").config(); // Carga las variables de entorno al inicio
 const path = require("path");
-const fs = require("fs");
 const axios = require("axios"); // Para hacer peticiones HTTP a tu API local o a PeopleForce
 const mongoose = require("mongoose"); 
 
 // Importa las funcionalidades de eventos y la base de datos
-const {  aniversarioEmitter,  buscarAniversarios,  MensajeMail } = require("./eventos");
-const { connectDB, recordSentEmail, recordFailedEmail, checkIfSentToday } = require("./db");
+const {
+  aniversarioEmitter,
+  buscarAniversarios,
+  MensajeMail,
+} = require("./eventos");
+const {
+  recordSentEmail,
+  recordFailedEmail,
+  checkIfSentToday,
+} = require("./db");
 const nodemailer = require("nodemailer");
 const cron = require("node-cron");
 
@@ -57,35 +63,15 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
     empleado.email
   ); // Adjust MensajeMail to take nroAniversario
 
-  // 3. Preparar los adjuntos de las imágenes (de la base de datos)
+  // 3. Preparar los adjuntos de las imágenes (ahora apuntando a tu API de backend)
   let attachments = [];
-  if (empleado.imagen && empleado.imagen.length > 0) {
-    const UPLOADS_PHYSICAL_DIR = path.resolve(
-      __dirname,
-      "..",
-      "public",
-      "uploads"
-    );
-
-    const imageRelativeUrl = empleado.imagen[0];
-    const imageFileName = path.basename(imageRelativeUrl);
-    const physicalImagePath = path.join(UPLOADS_PHYSICAL_DIR, imageFileName);
-
-    console.log(
-      `[DEBUG PATH] Intentando leer imagen desde esta ruta: "${physicalImagePath}"`
-    );
-
-    if (fs.existsSync(physicalImagePath)) {
-      attachments.push({
-        filename: imageFileName,
-        path: physicalImagePath,
-        cid: "aniversario_image",
-      });
-    } else {
-      console.warn(
-        `[ERROR] Imagen física no encontrada en: ${physicalImagePath}. No se adjuntará la imagen al correo.`
-      );
-    }
+  // `empleado.imagen` ya contiene la URL firmada de S3 que se generó en eventos.js
+  if (empleado.imagen) { // La validación de la longitud de la cadena no es necesaria aquí
+    attachments.push({
+      filename: `${empleado.nroAniversario}.png`,
+      path: empleado.imagen, // Usa la URL firmada directamente
+      cid: "aniversario_image",
+    });
   } else {
     console.log(
       `No hay imagen configurada para el aniversario de ${empleado.nombre} (${empleado.nroAniversario} años).`
@@ -104,7 +90,12 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
     console.log("Email enviado:", info.messageId);
 
     // 5. Registrar el envío en la base de datos
-    await recordSentEmail(empleado.nombre, empleado.apellido, empleado.email, empleado.nroAniversario);
+    await recordSentEmail(
+      empleado.nombre,
+      empleado.apellido,
+      empleado.mail,
+      empleado.nroAniversario
+    );
   } catch (error) {
     console.error(
       `Error enviando email o registrando log para ${empleado.email}:`,
@@ -112,32 +103,32 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
     );
 
     // 6. Registrar los envios fallidos
-    await recordFailedEmail(empleado.nombre, empleado.apellido, empleado.email, empleado.nroAniversario, error.message);
+    await recordFailedEmail(
+      empleado.nombre,
+      empleado.apellido,
+      empleado.mail,
+      empleado.nroAniversario,
+      error.message
+    );
   }
 });
 
 // --- Función Principal de Ejecución ---
 cron.schedule(
-  "22 12 * * 1-5",
+  "00 08 * * 1-5",
   async () => {
-    // Conectar a la base de datos
-    await connectDB();
-    console.log("Base de datos conectada para la ejecución principal.");
+    console.log("Ejecutando cron de aniversarios...");
 
     let trabajadores = [];
     try {
       // Obtener trabajadores de la API local (que simula PeopleForce)
       // Asegúrate de que process.env.PORT y process.env.API_KEY estén definidos en tu .env
-      const apiUrl = `http://localhost:${
-        process.env.PORT || 3033
-      }/trabajadores`;
+      const apiUrl = `${process.env.SERVER_BASE_URL}/trabajadores`;
       const apiKey = process.env.API_KEY;
 
       if (!apiKey) {
-        console.error(
-          "Error: API_KEY no definida en .env. No se pueden obtener trabajadores."
-        );
-        process.exit(1); // Sale si no hay API_KEY para la llamada
+        console.error("Error: API_KEY no definida en .env.");
+        return;
       }
 
       const response = await axios.get(apiUrl, {

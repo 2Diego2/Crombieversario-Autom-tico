@@ -4,7 +4,6 @@ const bcrypt = require('bcryptjs');
 const passportLocalMongoose = require('passport-local-mongoose');
 const findOrCreate = require('mongoose-findorcreate');
 
-
 // *Definición de Esquemas y Modelos*
 
 // Esquema para Colaboradores
@@ -13,8 +12,8 @@ const userSchema = new mongoose.Schema({
     googleId: {type: String, unique: true, sparse: true}, // Permite que algunos usuarios no tengan Google ID
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: false },
-    role: { type: String, enum: ['super_admin', 'staff'], default: 'super_admin' }, // Cambiado a 'staff' como rol base
-    profileImageUrl: { type: String, default: 'LogoSolo.jpg' },
+    role: { type: String, enum: ['super_admin', 'staff'], default: 'staff' }, // Cambiado a 'staff' como rol base
+    profileImageUrl: { type: String, default: '/LogoSolo.jpg' },
     username: { type: String}, //para guardar el usuario de google
 }, { timestamps: true });
 userSchema.plugin(passportLocalMongoose, { usernameField: 'email' });
@@ -30,7 +29,9 @@ const User = mongoose.model('User', userSchema);
 
 /*async function findUserByEmail(email) {
     try {
-        const user = await User.findOne({ email });
+        if (!email || typeof email !== 'string') return null;
+        const normalized = email.toLowerCase().trim();
+        const user = await User.findOne({ email: normalized });
         return user;
     } catch (error) {
         console.error('Error al buscar usuario por email:', error);
@@ -57,18 +58,25 @@ async function findUserByEmail(email) {
  * @param {string} [role='admin_interfaz'] El rol del usuario.
  * @returns {Promise<Object>} El objeto del usuario creado.
  */
-
-/*async function createUser(email, password, role = 'staff', profileImageUrl = 'LogoSolo.jpg') { // Cambiado default a 'staff' si ese es el rol base
+async function createUser(email, passwordOrHash, role = 'staff', profileImageUrl = '/LogoSolo.jpg', username) {
     try {
-        const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = new User({ email, passwordHash, role, profileImageUrl });
+        const normalizedEmail = (typeof email === 'string') ? email.toLowerCase().trim() : email;
+        let passwordHash;
+
+        // Detecta hash bcrypt (ej. $2a$ , $2b$ , $2y$)
+        if (typeof passwordOrHash === 'string' && /^\$2[aby]\$/.test(passwordOrHash)) {
+            passwordHash = passwordOrHash;
+        } else {
+            passwordHash = await bcrypt.hash(passwordOrHash, 10);
+        }
+        const newUser = new User({ email: normalizedEmail, passwordHash, role, profileImageUrl, username });
         await newUser.save();
         return newUser;
     } catch (error) {
         console.error('Error al crear usuario:', error);
         throw error;
     }
-}*/
+}
 
 async function createUser(email, passwordOrHash, role = 'staff', profileImageUrl = 'LogoSolo.jpg') {
     try {
@@ -109,43 +117,6 @@ async function updateUserRole(email, newRole, newPassword = null) {
         throw error;
     }
 }
-
-
-
-/*async function createUser(email, passwordOrHash, role = 'staff', profileImageUrl = 'LogoSolo.jpg') {
-    try {
-        let passwordHash;
-
-        // Detecta si ya está hasheada (bcrypt empieza con $2a$ o $2b$ o $2y$)
-        if (typeof passwordOrHash === 'string' && passwordOrHash.startsWith('$2')) {
-            passwordHash = passwordOrHash;
-        } else {
-            passwordHash = await bcrypt.hash(passwordOrHash, 10);
-        }
-
-        const newUser = new User({ email, passwordHash, role, profileImageUrl });
-        await newUser.save();
-        return newUser;
-    } catch (error) {
-        console.error('Error al crear usuario:', error);
-        throw error;
-    }
-}*/
-
-
-/*async function updateUserRole(email, newRole, newPassword = null) {
-    try {
-        const update = { role: newRole };
-        if (newPassword) {
-            update.passwordHash = await bcrypt.hash(newPassword, 10);
-        }
-        const user = await User.findOneAndUpdate({ email }, update, { new: true });
-        return user;
-    } catch (error) {
-        console.error('Error al actualizar rol de usuario:', error);
-        throw error;
-    }
-}*/
 
 // Esquema para Logs de Correos Enviados
 // Este esquema define la estructura de los documentos en tu colección 'sent_logs'

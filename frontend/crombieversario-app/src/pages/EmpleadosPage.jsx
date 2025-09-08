@@ -101,6 +101,7 @@ function EmpleadosPage({ userRole }) {
             password: password,
             role: selectedRole,
             profileImageUrl: currentEmployee.imagen,
+            username: `${currentEmployee.nombre} ${currentEmployee.apellido}`,
           },
           {
             headers: getAuthHeader(),
@@ -186,7 +187,7 @@ function EmpleadosPage({ userRole }) {
               // <<< ¡CAMBIO AQUÍ! Mapear sobre empleadosFiltrados
               empleadosFiltrados.map((empleado) => (
                 <tr key={empleado.id}>
-                  <td>
+                  <td data-label="Empleados">
                     <div className="nombreEmpleado">
                       <img
                         src={
@@ -205,13 +206,13 @@ function EmpleadosPage({ userRole }) {
                       </div>
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Fecha de ingreso">
                     <span className="fechaIngreso">
                       {empleado.fechaEntrada}
                     </span>
                   </td>
                   {userRole === "super_admin" && (
-                    <td>
+                    <td data-label="Rol">
                       <select
                         value={empleado.role}
                         onChange={(e) =>
