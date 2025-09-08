@@ -58,15 +58,28 @@ app.use(express.urlencoded({ extended: true }));
 
 // Configuración CORS
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
-    res.header('Access-Control-Allow-Credentials', true); // Importante para cookies/sesiones si las usas
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-    }
-    next();
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'https://d15s18756z785b.cloudfront.net',
+    'http://crombieversario-aniversarios.s3-website.us-east-2.amazonaws.com',
+    'https://crombieversario-aniversarios.s3.us-east-2.amazonaws.com'
+  ];
+
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
 });
+
 
 console.log('API_KEY cargada desde .env:', process.env.API_KEY);
 
@@ -218,7 +231,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: `http://localhost:${PORT}/auth/google/dashboard`,
+  callbackURL: `${process.env.API_BASE_URL}/auth/google/dashboard`,
 }, async (accessToken, refreshToken, profile, done) => { // Añade `async`
     try {
         console.log('Verificando callback de Google:', profile);
@@ -724,7 +737,7 @@ app.delete('/api/delete-image', authenticateToken, authorize([ROLES.SUPER_ADMIN]
 (async () => {
     try {
         await connectDB();
-        app.listen(PORT, () => {
+        app.listen(PORT, '0.0.0.0', () => {
             console.log(`Servidor corriendo en http://localhost:${PORT}`);
         });
     } catch (error) {

@@ -111,13 +111,13 @@ async function MensajeMail(nombre, nroAniversario, empleadoEmail) {
   // Asegurarte de que server.js esté corriendo.
   // Ejecutar ngrok http 3033 (o el puerto de tu servidor).
   // ngrok te dará una nueva URL pública.
-  // Tendrás que actualizar esa nueva URL en tu archivo .env (la variable SERVER_BASE_URL) para que los correos que envíes usen la URL correcta de ngrok para esa sesión.
+  // Tendrás que actualizar esa nueva URL en tu archivo .env (la variable API_BASE_URL) para que los correos que envíes usen la URL correcta de ngrok para esa sesión.
   //const trackingPixelUrl = `http://localhost:${process.env.PORT || 3033}/track/${encodedEmail}/${encodedAnniversaryNumber}`;
   //const trackingPixelUrl = `https://7c5beb79e7f1.ngrok-free.app/track/${encodedEmail}/${encodedAnniversaryNumber}`;
  
-  const baseUrl = process.env.SERVER_BASE_URL;
+  const baseUrl = process.env.API_BASE_URL;
   if (!baseUrl) {
-    console.error("ERROR: La variable SERVER_BASE_URL no está definida en el archivo .env");
+    console.error("ERROR: La variable API_BASE_URL no está definida en el archivo .env");
     // Puedes decidir cómo manejar este error, quizás devolviendo el HTML sin el pixel.
   }
 
