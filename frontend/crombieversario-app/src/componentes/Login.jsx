@@ -62,14 +62,12 @@ function LoginForm({ onLoginSuccess }) {
           <span>Continuar con Google</span>
         </a>
 
-        {/*divisor*/}
         <div className="divider">
           <hr />
           <span>O</span>
           <hr />
         </div>
 
-        {/*formulario*/}
         <form onSubmit={handleLogin} className="login-form">
           {error && <p className="error-message">{error}</p>}
           <div className="form-group">
@@ -101,7 +99,6 @@ function LoginForm({ onLoginSuccess }) {
           </button>
         </form>
         
-        {/* ========= ENLACE A REGISTRO ========= */}
         <p className='register-prompt'>
         
           ¿No tienes una cuenta? {/* CORRECCIÓN AQUÍ: Usa API_BASE_URL */}

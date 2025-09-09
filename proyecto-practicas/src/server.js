@@ -423,13 +423,13 @@ app.post('/api/register-staff', requireApiKey, async (req, res) => {
     }
 });
 app.post('/api/register-staff', requireApiKey, async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password,username } = req.body;
     // Aquí no necesitas el campo 'role' en req.body, siempre será 'super_admin'
     // para las cuentas iniciales que configurarán el sistema.
 
-    // if (!email || !password || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
-    //     return res.status(400).json({ message: 'Email, contraseña o dominio inválido.' });
-    // }
+     if (!email || !password || !email.endsWith(ALLOWED_EMAIL_DOMAIN)) {
+         return res.status(400).json({ message: 'Email, contraseña o dominio inválido.' });
+     }
 
     try {
         const existingUser = await findUserByEmail(email);
@@ -442,7 +442,7 @@ app.post('/api/register-staff', requireApiKey, async (req, res) => {
 
         // Siempre crea como 'super_admin' con esta ruta inicial
         const newUser = await createUser(email, passwordHash, ROLES.SUPER_ADMIN);*/
-        const newUser = await createUser(email, password, ROLES.STAFF);
+        const newUser = await createUser(email, password, ROLES.STAFF,username);
         res.status(201).json({ message: `Usuario ${ROLES.STAFF} creado exitosamente.`, userId: newUser._id });
 
     } catch (error) {
