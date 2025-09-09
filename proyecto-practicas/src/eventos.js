@@ -21,7 +21,48 @@ const s3 = new S3Client.S3Client({
 });
 const s3Bucket = process.env.AWS_S3_BUCKET_NAME;
 
-async function buscarAniversarios(trabajadores) {
+const PEOPLE_API_URL = process.env.PEOPLEFORCE_API_URL;
+const PEOPLE_API_KEY = process.env.PEOPLEFORCE_API_KEY;
+
+async function obtenerTrabajadoresPeople() {
+  if(!PEOPLE_API_KEY || !PEOPLE_API_URL){
+    console.error("Error. Las credenciales de PeopleForce no estan configuradas en el .env");
+  }
+  try {
+    const response = await axios.get(`${PEOPLE_API_URL}`, {
+      headers: {
+        'Authorization': `Bearer ${PEOPLE_API_KEY}`
+      }
+    });
+    const empleadosDesdeApi = response.data.data;
+    //Mapeo de datos.--Estructura de datos de PeopleForce
+    const trabajadoresCrombie = empleadosDesdeApi.map(empleado => {
+      return {
+        nombre: empleado.first_name,
+        apellido: empleado.last_name,
+        mail: empleado.email,
+        fechaEntrada: empleado.hired_date
+      };
+    });
+    console.log(`Se obtuvieron ${trabajadoresCrombie.lenght} trabajadores desde PeopleForce.`);
+    return trabajadoresCrombie;
+  } catch (error){
+    console.log("Fallo la obtencion de datos desde la API de PeopleForce:", error.response ? error.response.data : error.message);
+  }
+}
+
+
+async function buscarAniversarios() {
+  //Obtiene los trabajadores directamente desde la API
+  const trabajadorse = await obtenerTrabajadoresPeople();
+  //Si no se obtuvieron trabajadores..  
+  if (!trabajadores || trabajadores.length === 0) {
+    console.log("No se procesarán aniversarios porque no se obtuvieron trabajadores.");
+    aniversarioEmitter.emit("sinAniversarios");
+    return;
+  }
+  //---
+  
   const hoy = dayjs().startOf("day");
   let aniversariosProximosEncontrados = 0;
 

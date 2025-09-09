@@ -30,9 +30,6 @@ function useConfig() {
         headers: getAuthHeader(),
         timeout: 8000
       });
-<<<<<<< HEAD
-      setConfig(response.data || { messageTemplate: "", imagePaths: [] });
-=======
 
       const imagePaths = response.data.imagePaths || [];
       const sortedImagePaths = imagePaths.sort((a, b) => {
@@ -49,7 +46,6 @@ function useConfig() {
 
       setConfig(updatedConfig);
       
->>>>>>> a20280a08fa0e5876305639398a83d24f3ca9d34
     } catch (err) {
       console.error("Error al cargar la configuración:", err);
       handleAuthError(err);

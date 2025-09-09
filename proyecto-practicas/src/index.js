@@ -150,8 +150,8 @@ cron.schedule(
       );
     }
 
-    // Buscar y procesar aniversarios con los trabajadores obtenidos
-    await buscarAniversarios(trabajadores);
+    // Buscar y procesar aniversarios con los trabajadores obtenidos, ahora desde PeopleForce
+    await buscarAniversarios();
 
     // Considera cómo terminar el proceso si esto es un script de ejecución única.
     // Si es un servicio cron, puede que quieras que termine automáticamente aquí.

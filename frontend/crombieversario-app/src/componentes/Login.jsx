@@ -6,7 +6,7 @@ import './Login.css';
 import GoogleLogo from '../assets/GoogleLogo.png';
 
 function LoginForm({ onLoginSuccess }) {
-  const { API_BASE_URL } = useConfig();
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
