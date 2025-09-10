@@ -1,20 +1,44 @@
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap");
+
 :root {
-  --colorFondo: #f6f6f3;
-  --colorCaja: #ffffff;
-  --hover: #f0f0f0;
-  --colorAdmin: #ffcd71;
-  --colorMailError: #fff7e8;
-  --colorLogOut: #ba3030;
-  --colorVerMas: #734a00;
-  --border-radius: 25px;
-  --padding-box: 20px;
-  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  --fonts: "Source Sans Pro", sans-serif;
+  --colorCaja: #FAFAFB;       /* gris muy claro */
+  --colorCajaAlt: #FFFFFF;    /* blanco puro para jerarquía */
+
+  --textoPrincipal: #1d293a;  /* casi negro con matiz azulado */
+  --textoSecundario: #5A6374; /* gris azulado suave */
+
+  /* Acentos vivos inspirados en crombie.dev */
+  --acentoPrimario: #ffffff;  
+  --acentoPrimHover: #1BABCD; /* hover sutil sobre primario */
+  --acentoSecundario: #FF9500;/* amarillo-naranja vibrante y cálido */
+
+  /* Estados internos */
+  --colorMailError: #FFF1E5;
+  --colorLogOut: #D43C3C;
+  --colorCrombieVioleta: #80319b;
+  --colorCrombieCeleste: #25b2e2;
+  --colorCrombieAmarillo: #ffb12a;
+  --colorCrombieRosa: #ee326c;
+  --colorCrombieVerde: #1bb55f;
+
+  /* Diseño */
+  --border-radius: 20px;
+  --padding-box: 20px; /* Padding general para el body y espaciado */
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --Fondo: url("https://crombieversario-aniversarios.s3.us-east-2.amazonaws.com/assets/FondoAzulCrombie-CilkiQ-W.png");
+
+  /* Nuevas variables para la sidebar y gap */
+  --sidebar-width-desktop: 280px; /* Ancho de sidebar para desktop */
+  --sidebar-width-tablet: 240px; /* Ancho de sidebar para tablet */
+  --grid-gap: 20px; /* Espacio entre los elementos del grid */
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  color: var(--textoPrincipal);
 }
 
 img {
@@ -23,59 +47,82 @@ img {
 }
 
 body {
+  font-family: var(--fonts);
+  
+  background-image:
+    url('https://crombieversario-aniversarios.s3.us-east-2.amazonaws.com/assets/FondoAzulCrombie-CilkiQ-W.png'),
+    url('https://crombieversario-aniversarios.s3.us-east-2.amazonaws.com/assets/CrombieDegradado-Coaj4TrH.webp'),
+    url('https://crombieversario-aniversarios.s3.us-east-2.amazonaws.com/assets/FondoAzulCrombie2-BNiRg9hW.png');
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-position: center center;
+
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   background-color: var(--colorFondo);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  padding: var(--padding-box);
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  height: 100%;
-  min-height: 0;
-}
 
-.parent {
-  display: grid;
-  grid-template-columns: 280px repeat(4, 1fr); 
-  grid-template-rows: auto; 
-  gap: 20px;
   width: 100%;
-  max-width: 1200px;
-  min-height: calc(100vh - 40px);
-  height: 100%;
-
-  grid-template-areas:
-    "sidebar stats stats stats stats"
-    "sidebar mails-sent mails-sent mail-imgs mail-imgs"
-    "sidebar events events mail-message mail-message";
+  min-height: 100vh;
+  display: flex; /* Para centrar el .parent */
+  justify-content: center; /* Centra horizontalmente el .parent */
+  align-items: flex-start; /* Alinea al inicio verticalmente (arriba) */
+  padding: var(--padding-box); /* Este padding creará el "margen" alrededor del layout completo */
+  overflow-y: auto; /* Permite scroll en el body si el contenido es muy largo */
 }
 
-/*caja side-bar*/
+/* Contenedor principal del dashboard (Grid Layout) */
+.parent {
+  position: relative; /* Contexto para elementos posicionados si es necesario */
+  width: 100%; /* Ocupa el 100% del espacio disponible dentro del padding del body */
+  max-width: 1600px; /* Limita el ancho máximo del dashboard */
+  min-height: calc(100vh - (2 * var(--padding-box))); /* Ajusta la altura mínima para el contenido */
+  gap: var(--grid-gap); /* Espacio entre los items del grid */
+  box-sizing: border-box;
+
+  /* MOBILE FIRST: Default layout para pantallas pequeñas (columnas apiladas) */
+  display: grid;
+  grid-template-columns: 1fr; /* Una sola columna para todo el contenido */
+  grid-template-rows: auto;
+  grid-template-areas:
+    "sidebar"
+    "stats"
+    "mails-sent"
+    "mail-imgs"
+    "events"
+    "mail-message"
+    "content-pages";
+}
+
+/* Caja de la barra lateral (sidebar) */
 aside.div1 {
-  grid-area: sidebar;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   padding: var(--padding-box);
-  gap: 20px;
-  background-color: var(--colorCaja);
+  background-color: var(--colorCajaAlt);
   border-radius: var(--border-radius);
-  height: auto; 
-  min-height: 100%; 
+  z-index: 100; /* Asegura que esté por encima de otros elementos */
+  grid-area: sidebar; /* Asigna al área 'sidebar' */
+
+  width: 100%;
+  position: relative; /* Importante: Vuelve a ser un elemento de flujo normal */
+  height: auto; /* La altura se ajusta al contenido */
+  min-height: 100px; /* Un min-height para asegurar visibilidad inicial en móvil */
+  margin-bottom: var(--grid-gap);
 }
 
-.logo.crombie {
-  width: 100%; /* El logo ocupará el 100% del ancho de su contenedor (el aside) */
-  max-width: 300px; /* Limita el tamaño máximo del logo */
-  display: block; /* Asegurarse de que es un bloque */
-  margin-left: auto; /* Centrar horizontalmente */
-  margin-right: auto;
+.logo-crombie { /* Ajustado de .logo.crombie a .logo-crombie según Dashboard.jsx */
+  width: 100%;
+  max-width: 300px;
+  display: block;
+  margin: auto; /* Centrar y añadir margen inferior */
 }
 
 .side-bar {
+  padding-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 15px; 
+  gap: 15px;
   width: 100%;
 }
 
@@ -84,7 +131,7 @@ aside.div1 {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  color: var(--text-color-primary);
+  color: var(--textoPrincipal); /* Usar variable para consistencia */
   background: none;
   border: none;
   cursor: pointer;
@@ -98,97 +145,119 @@ aside.div1 {
 }
 
 .menu-item:hover {
-  background-color: var(--hover);
+  background-color: var(--acentoPrimario);
+  transition: all 0.3s ease;
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .menu-item.active-menu-item,
 .menu-item:focus {
-  background-color: var(--hover);
+  background-color: var(--acentoPrimario); /* Activo también con el color principal */
   outline: none;
 }
 
 .footer-aside {
   margin-top: auto;
-  padding: var(--padding-box);
+  padding-top: var(--padding-box);
   border-top: 1px solid #eee;
   width: 100%;
   box-sizing: border-box;
-  display: flex; 
-  flex-direction: column; 
-  gap: 10px; 
-  align-items: flex-start;
+
+  /* Layout responsivo: fila en desktop, columna en móvil */
+  display: flex;
+  flex-wrap: wrap;          /* permite que el contenido baje a la siguiente línea */
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
+/* Contenedor que agrupa avatar + texto de perfil */
 .perfil-info {
   display: flex;
-  gap: 20px; 
-  align-items: center; 
-  width: 100%;
-}
-
-.perfil {
-  display: flex;
   align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;    /* ocupa espacio disponible */
+  min-width: 0;      /* IMPORTANT: permite que el texto haga ellipsis dentro de flex */
 }
 
+/* Avatar responsivo (escalable) */
 .persona {
-  height: 40px;
-  width: 40px;
+  height: clamp(36px, 6vw, 56px); /* escala entre 36px y 56px según ancho */
+  width: clamp(36px, 6vw, 56px);
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;    /* no se encoge a 0px */
 }
 
+/* Texto del perfil: truncar en una línea cuando es necesario */
+.perfil {
+  font-size: 0.95rem;
+  line-height: 1.3;
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 64px);
+}
+/* Botón de logout: ocupa su sitio a la derecha en pantallas grandes */
 .logout {
-  margin-top: 15px; 
-  width: auto; 
-  padding: 8px 15px; 
+  padding: 8px 14px;
   cursor: pointer;
+  background: none;
+  border: 1px solid var(--colorLogOut);
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  flex: 0 0 auto;
+  /* Si queda en la misma línea que .perfil-info, se mantendrá a la derecha.
+     En caso de wrap, aparecerá debajo (por el flex-wrap). */
 }
 
+/* Alineación interna del texto + icono del logout */
 .logout2 {
-  color: var(--colorLogOut);
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
+  color: var(--colorLogOut);
   font-weight: 500;
 }
+.logout:hover {
+    background-color: var(--colorLogOut);
+}
+.logout:hover .logout2 {
+    color: white; /* Texto blanco al hacer hover en el botón logout */
+}
 
-.div2,
-.div3,
-.div4,
-.div5 {
-  background-color: var(--colorCaja);
+
+.div2, .div3, .div4, .div5 { /* aside.div1 ya tiene sus estilos */
+  background-color: var(--colorCajaAlt);
+  color: var(--textoPrincipal);
+  box-shadow: var(--box-shadow);
   border-radius: var(--border-radius);
   padding: var(--padding-box);
-  display: flex;
-  flex-direction: column;
 }
 
-/*caja estadísticas*/
-.div2 {
-  grid-area: stats;
-}
+/* Asignación de áreas de grid para cada div */
+.div2 { grid-area: stats; }
+.div3 { grid-area: mails-sent; }
+.div4 { grid-area: events; }
+.div5 { grid-area: mail-message; }
 
-/*caja mails enviados*/
-.div3 {
-  grid-area: mails-sent;
-}
-
-.div2 h2,
-.div3 h2,
-.div4 h2,
-.div5 h2 {
-  margin-bottom: 15px; /* Espacio debajo de los títulos de las secciones */
+.div2 h2,.div3 h2,.div4 h2,.div5 h2 {
+  margin-bottom: 15px;
 }
 
 .perfil-info2 {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-top: 10px; /* Ajustado el margen superior */
-  margin-left: 0; /* Eliminar margin-left fijo */
-  padding: 10px 0; /* Padding para el área de info */
-  overflow-y: auto; 
+  margin-top: 10px;
+  padding: 10px 0;
+  padding-left: 20px;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  box-shadow: none;
+  margin-bottom: 0;
 }
 
 .perfil-info2 > div {
@@ -201,7 +270,7 @@ aside.div1 {
   width: 40px;
   border-radius: 50%;
   object-fit: cover;
-  flex-shrink: 0; 
+  flex-shrink: 0;
 }
 
 .ciudadYLugar {
@@ -210,50 +279,51 @@ aside.div1 {
   color: #666;
 }
 
+h2, .menu-item, .perfil-info {
+  color: var(--textoPrincipal);
+}
+.letra-secundaria {
+  color: var(--textoSecundario);
+}
+
 .verMas {
   border: none;
-  background: none;
-  outline: none;
   cursor: pointer;
-  color: var(--colorVerMas);
-  margin-top: 10px; /* Espacio superior */
+  padding: 8px 16px;
+  background-color: var(--colorCrombieVioleta);
+  color: white;
+  margin-top: 10px;
   align-self: flex-end;
+  border-radius: 20px;
 }
 
-.imagenCrombie {
-  grid-area: mail-imgs;
-  padding: var(--padding-box);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
+.verMas:hover {
+  background-color: #68287e;
 }
 
+
+/* El elemento fijo - fondo animado */
 .coloresCrombie {
-  width: 110px;
-  height: auto;
-  object-fit: contain;
-  margin: auto;
+  position: fixed;
+  justify-content: center;
+  top: 40%;
+  left: 55%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: slideLogo 6s ease-in-out infinite;
+  z-index: -1; /* detrás del .parent */
 }
 
-.div4 {
-  grid-area: events;
-}
-
-.div5 {
-  display: flex;
-  grid-area: mail-message;
-  height: 100%;
-  min-height: 0;
+@keyframes slideLogo {
+ 0%   { transform: translate(0, 0) rotate(0deg); }
+  25%  { transform: translate(90px, -200px) rotate(1deg); }
+  50%  { transform: translate(106px, 0) rotate(0deg); }
+  75%  { transform: translate(50px, 5px) rotate(-1deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 .mensajeEstilo{
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: none;
-  background-color: #f8f8f8;
-  border: 1px solid #ddd;
+  border: 1px solid #ecebeb;
   padding: 15px;
   border-radius: 5px;
   overflow-y: auto;  /*Añade scroll si el contenido es muy largo */
@@ -264,176 +334,161 @@ aside.div1 {
 }
 
 .main-content-pages {
-  grid-column: 2 / -1; 
-  grid-row: 1 / -1; 
+  grid-area: stats; /* Nueva área para cuando no es el dashboard principal */
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow-y: auto;
-  background-color: var(--colorCaja);
-  border-radius: var(--border-radius);
-  padding: var(--padding-box);
   width: 100%;
   height: 100%;
+  overflow-y: auto;
+  background-color: var(--colorCajaAlt);
+  border-radius: var(--border-radius);
+  padding: var(--padding-box);
 }
 
-/* Responsive */
-@media (max-width: 1200px) {
+/* MEDIA QUERIES PARA RESPONSIVIDAD */
+
+/* Pequeñas tablets y pantallas hasta 1023px (móvil ya definido por defecto) */
+@media (min-width: 768px) {
   .parent {
-    grid-template-columns: 250px 1fr 1fr; /* Reduce el tamaño de la sidebar, menos columnas */
-    grid-template-areas:
-      "sidebar stats stats"
-      "sidebar mails-sent mail-imgs"
-      "sidebar events mail-message";
-    gap: 15px; /* Reduce un poco el gap */
-  }
-
-  .logo.crombie {
-    max-width: 180px;
-  }
-
-  .coloresCrombie {
-    width: 100px;
-  }
-}
-
-/* Para tablets (ej. 768px - 1023px) */
-@media (max-width: 992px) {
-  .parent {
-    grid-template-columns: 220px 1fr 1fr; /* Sidebar más pequeña, 2 columnas para el contenido */
-    grid-template-areas:
-      "sidebar stats stats"
-      "sidebar mails-sent mail-imgs"
-      "sidebar events mail-message";
-    gap: 15px;
-  }
-
-  .logo.crombie {
-    max-width: 90px;
-  }
-
-}
-
-/* Para teléfonos móviles y tablets pequeñas (ej. 480px - 767px) */
-@media (max-width: 768px) {
-  body {
-    padding: 10px; /* Reduce el padding del body */
-  }
-
-  .parent {
-    grid-template-columns: 1fr; /* Una sola columna para todo */
-    grid-template-rows: auto; /* Todas las filas se ajustan al contenido */
+    grid-template-columns: 1fr; /* Mantenemos una columna principal, sidebar sigue arriba */
     grid-template-areas:
       "sidebar"
       "stats"
       "mails-sent"
       "mail-imgs"
       "events"
-      "mail-message"; /* Apila todas las secciones */
-    gap: 10px; /* Reduce el gap */
-    max-width: 95%; /* Ocupa más ancho en pantallas pequeñas */
-    min-height: auto; /* Deja que la altura sea automática */
-    margin: 0; /* Elimina márgenes extra */
+      "mail-message"; /* Sigue apilado, pero con más espacio */
   }
 
   aside.div1 {
-    width: 100%; /* La sidebar ocupa todo el ancho */
-    flex-direction: row; /* La sidebar puede volverse horizontal en móviles (o quedarse vertical, según prefieras) */
-    flex-wrap: wrap; /* Permitir que los elementos de la sidebar se envuelvan */
-    justify-content: center; /* Centrar elementos en la sidebar */
-    align-items: center; /* Centrar verticalmente */
-    text-align: center;
-    gap: 10px; /* Reduce el gap */
-    padding: 15px;
-  }
-
-  .logo.crombie {
-    max-width: 250px; /* Logo más pequeño */
-    margin-bottom: 0; /* No hay margen inferior si la sidebar se hace horizontal */
-  }
-
-  .side-bar {
-    flex-direction: row; /* Los ítems del menú se ponen en fila */
-    flex-wrap: wrap; /* Si hay muchos, que se envuelvan */
-    justify-content: center; /* Centra los ítems del menú */
-    gap: 10px;
-    padding: 0;
     width: 100%;
-  }
-
-  .menu-item {
-    font-size: 1rem;
-    padding: 8px 10px;
-    flex-shrink: 0; /* Evita que se encojan demasiado */
-  }
-  
-  .menu-item svg {
-    display: none; /* Oculta los iconos para ahorrar espacio */
-  }
-
-  .footer-aside {
-    flex-direction: column; /* Vuelve a apilar en el footer para móviles */
-    align-items: center; 
-    padding-top: 10px;
-  }
-
-  .perfil-info {
-    align-items: center;
-    gap: 10px;
-  }
-
-  .perfil {
-    text-align: center;
-  }
-
-  .logout {
-    margin-top: 10px;
-  }
-
-  .div2, .div3, .div4, .div5, .imagenCrombie {
-    padding: 15px; /* Reduce el padding de las cajas de contenido */
-  }
-
-  .coloresCrombie {
-    width: 80px; /* Imágenes de crombie más pequeñas */
-  }
-
-  .main-content-pages {
-    grid-column: 1 / -1; /* Ocupa todo el ancho en una sola columna */
-    grid-row: auto; /* Se ajusta a su contenido, no ocupa altura fija */
-    height: auto; /* Importante */
-    padding: 15px;
+    position: relative;
+    height: auto;
+    min-height: 100px;
   }
 }
 
-/* Para teléfonos móviles muy pequeños (ej. 375px o menos) */
-@media (max-width: 480px) {
-  body {
-    padding: 5px;
-  }
+/* Desktop pequeño (1024px a 1439px) */
+@media (min-width: 1024px) {
   .parent {
-    gap: 8px;
+    /* Sidebar en la primera columna, luego 3 columnas para el contenido principal */
+    grid-template-columns: var(--sidebar-width-desktop) repeat(4, 1fr); /* 280px sidebar + 4 columnas iguales */
+    grid-template-areas:
+      "sidebar stats stats stats stats"              /* stats ocupa 4 columnas */
+      "sidebar mails-sent mails-sent mail-imgs mail-imgs" /* mails-sent y mail-imgs ocupan 2 columnas cada uno */
+      "sidebar events events mail-message mail-message";
   }
+
   aside.div1 {
-    padding: 10px;
+    position: sticky;
+    top: var(--padding-box); /* Se pega al top con el padding del body */
+    height: calc(100vh - (2 * var(--padding-box))); /* Ocupa la altura disponible */
+    margin-bottom: 0; /* No hay margen inferior cuando está al lado */
   }
-  .logo.crombie {
-    max-width: 200px;
+
+  .main-content-pages {
+    /* Para pantallas de 1024px, la página de contenido ocupa las 3 columnas restantes */
+    grid-column: 2 / -1; /* Ocupa desde la segunda columna hasta el final */
+    grid-row: 1 / -1; /* Ocupa todas las filas */
   }
-  .side-bar {
-    gap: 8px;
+}
+
+/* Desktop mediano (1440px a 1700px) */
+@media (min-width: 1440px) {
+  .parent {
+    /* Sidebar más ancha, luego 4 columnas para el contenido principal */
+    grid-template-columns: var(--sidebar-width-desktop) repeat(4, 1fr); /* 280px sidebar + 4 columnas iguales */
+    grid-template-areas:
+      "sidebar stats stats stats stats"              /* stats ocupa 4 columnas */
+      "sidebar mails-sent mails-sent mail-imgs mail-imgs" /* mails-sent y mail-imgs ocupan 2 columnas cada uno */
+      "sidebar events events mail-message mail-message"; /* events y mail-message ocupan 2 columnas cada uno */
   }
-  .menu-item {
-    font-size: 0.85rem;
-    padding: 6px 8px;
+
+  aside.div1 {
+    width: var(--sidebar-width-desktop); /* Ancho específico para este breakpoint */
   }
-  .div2, .div3, .div4, .div5, .imagenCrombie {
-    padding: 10px;
+
+  .main-content-pages {
+    /* Para pantallas de 1440px, la página de contenido ocupa las 4 columnas restantes */
+    grid-column: 2 / -1;
+    grid-row: 1 / -1;
   }
-  .coloresCrombie {
-    width: 70px;
+}
+
+/* Desktop grande (mayor a 1700px, hasta max-width) */
+@media (min-width: 1701px) { /* Ajustado para que el max-width del parent funcione */
+    .parent {
+        /* Mantiene el mismo layout de 1440px pero se estira hasta el max-width */
+        grid-template-columns: var(--sidebar-width-desktop) repeat(4, 1fr);
+        grid-template-areas:
+            "sidebar stats stats stats stats"
+            "sidebar mails-sent mails-sent mail-imgs mail-imgs"
+            "sidebar events events mail-message mail-message";
+    }
+    aside.div1 {
+    width: var(--sidebar-width-desktop); /* Mantiene el ancho */
   }
-  .perfil-info2 {
-    gap: 10px;
+}
+
+@media (max-width: 768px) {
+
+  /* Sidebar ocupa todo el ancho */
+aside.div1 {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto; /* centra horizontalmente */
+}
+
+
+  /* Contenido principal y secciones del dashboard */
+  .main-content-pages,
+  .div2,
+  .div3,
+  .div4,
+  .div5,
+  .calendario-page-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 10px; /* espacio lateral para evitar que quede pegado */
+    box-sizing: border-box;
   }
+
+.tablaMails {
+  width: 100%;
+  max-width: 600px; /* opcional: limitar en desktop */
+  margin: 0 auto;   /* centrar en pantallas grandes */
+}
+
+  /* Próximos eventos en Dashboard: scroll vertical limitado */
+  .div4 {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  /* Calendario FullCalendar ajustado */
+  .fullcalendar-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow-x: auto; /* permite hacer scroll lateral si el calendario es muy ancho */
+  }
+
+  /* Lista de eventos debajo del calendario: scroll vertical */
+  .empleados-table-scroll-container2 {
+    max-height: 300px;
+    overflow-y: auto;
+    width: 100%;
+    min-height: 150px;
+  }
+
+  .perfil-info2{
+    padding-left: 15px;
+  }
+
+  html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+}
 }

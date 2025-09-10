@@ -1,27 +1,9 @@
-:root {
-  --colorFondo: #f6f6f3;
-  --colorCaja: #ffffff;
-  --hover: #f0f0f0;
-  --colorAdmin: #ffcd71;
-  --colorMailError: #fff7e8;
-  --colorLogOut: #ba3030;
-  --colorVerMas: #734a00;
-  --colorCrombieVioleta: #80319b;
-  --colorCrombieCeleste: #25b2e2;
-  --colorCrombieAmarillo: #ffb12a;
-  --colorCrombieRosa: #ee326c;
-  --colorCrombieVerde: #1bb55f;
-  --border-radius: 25px;
-  --padding-box: 20px;
-  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+
 
 .empleados-page {
   padding: 20px;
   background-color: var(--colorCaja);
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin: 20px;
   flex-grow: 1; /* Permite que el contenedor ocupe el espacio disponible */
   display: flex;
   flex-direction: column;
@@ -30,7 +12,7 @@
 
 .empleados-page h1 {
   font-size: 2em;
-  color: #333;
+  color: var(--textoPrincipal);
   margin-bottom: 15px;
 }
 
@@ -82,12 +64,10 @@
   table-layout: fixed; /* Ayuda a que las columnas tengan anchos fijos */
 }
 
-
-
 /* Estilos para las celdas de la tabla actualizados */
 .empleados-table th, .empleados-table td {
   background-color: #ffffff;
-  padding: 2px; /* Padding actualizado a 2px */
+  padding: 10px 15px;
   text-align: left;
   /* Mantener el border-bottom para th para la línea divisoria */
   border-bottom: 2px solid #e0e0e0; /* Para th */
@@ -121,6 +101,13 @@
   display: flex;
   align-items: center;
   gap: 12px; /* Espaciado entre la foto y la info del empleado */
+}
+
+.nombreEmpleado .infoEmpleado {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; 
+  overflow: hidden;
 }
 
 /* Renombrado de .empleado-avatar a .fotoEmpleado */
@@ -178,41 +165,63 @@
   font-weight: bold;
 }
 
+.role-select{
+  padding: 8px;
+  border-radius: 5px;
+  font-family: var(--fonts);
+  font-size: 1em;
+  background-color: var(--colorCaja);
+ }
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .empleados-page {
-    margin: 10px;
-    padding: 15px;
-  }
+    .empleados-table thead {
+        display: none;
+    }
 
-  .empleados-page h1 {
-    font-size: 1.8em;
-  }
+    .empleados-table, .empleados-table tbody, .empleados-table tr, .empleados-table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
 
-  .buscador2 {
-    max-width: 100%;
-  }
+    .empleados-table tr {
+        margin-bottom: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+    }
 
-  .empleados-table-scroll-container {
-    max-height: calc(100vh - 200px); /* Ajusta para pantallas más pequeñas */
-  }
+    .nombreEmpleado {
+      padding-top: 30px;
+    }
+    
+    .empleados-table td {
+        padding: 10px 15px;
+        border: none;
+        position: relative;
+        text-align: right;
+    }
 
-  .empleados-table th, .empleados-table td {
-    padding: 10px 15px;
-  }
+    .empleados-table th {
+        padding: 10px 15px; /* Asegúrate de que este padding sea suficiente */
+    }
 
-  .fotoEmpleado { /* Usar el nuevo nombre de clase */
-    width: 35px;
-    height: 35px;
-  }
-
-  .infoEmpleado span:first-child {
-    font-size: 0.9em;
-  }
-
-  .empleadoEmail, .fechaIngreso {
-    font-size: 0.8em;
-  }
+    .empleados-table td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        text-transform: uppercase;
+        position: absolute;
+        left: 15px;
+        text-align: left;
+    }
+    
+    .empleados-table td:nth-of-type(1)::before { content: "Empleado"; }
+    .empleados-table td:nth-of-type(2)::before { content: "Fecha de Ingreso"; }
+    .empleados-table td:nth-of-type(3)::before { content: "Rol"; }
+    
+    .role-select {
+        margin-top: 5px;
+    }
 }
 
 @media (max-width: 480px) {

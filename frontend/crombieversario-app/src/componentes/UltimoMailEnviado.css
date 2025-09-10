@@ -1,0 +1,20 @@
+.info-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px;
+  background-color: #f9f9f9;
+}
+
+.columna-izquierda,
+.columna-derecha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.columna-izquierda p,
+.columna-derecha p {
+  margin: 0;
+}
+

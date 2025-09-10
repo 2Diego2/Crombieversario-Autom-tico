@@ -1,0 +1,148 @@
+.MailsEnviados {
+  padding: 20px;
+}
+
+.mails {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  font-size: 1.5rem;
+}
+
+.tabla {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.tablaMails {
+  font-size: 14px;
+  border-collapse: collapse;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tablaMails thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  color: #555;
+  font-weight: bold;
+  padding: 12px 11px;
+}
+
+.tablaMails th,
+.tablaMails td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.tablaMails th {
+  background-color: #f3f4f6;
+  font-weight: 500;
+  background-color: #cca8d8;
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+  /* Habilita el scroll vertical si el contenido excede la altura máxima */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  flex-grow: 1;
+  /* Permite que el contenedor ocupe el espacio restante verticalmente */
+}
+
+/* --- Mobile --- */
+@media (max-width: 768px) {
+
+  .tabla {
+    width: 90%;
+    /* ocupa casi toda la pantalla en mobile */
+    max-width: 700px;
+    /* tope en desktop */
+    margin: 0 auto;
+    /* centra el contenedor horizontalmente */
+  }
+
+
+  .tablaMails {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+    /* Evita que las celdas se expandan más allá del contenedor */
+    word-wrap: break-word;
+    /* Permite romper palabras largas */
+    overflow: hidden;
+    /* Evita overflow horizontal */
+  }
+
+  .tablaMails thead {
+    display: none;
+    /* Oculta encabezados en mobile */
+  }
+
+  .tablaMails tbody,
+  .tablaMails tr {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .tablaMails tr {
+    margin-bottom: 15px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #fff;
+    box-sizing: border-box;
+  }
+
+  .tablaMails td {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: none;
+    position: relative;
+    word-break: break-word;
+    /* <-- Corta palabras largas */
+    overflow-wrap: break-word;
+    /* <-- Adicional para soportar más navegadores */
+    white-space: normal;
+    /* <-- Permite múltiples líneas */
+    box-sizing: border-box;
+
+  }
+
+  .tablaMails td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    display: block;
+    margin-bottom: 4px;
+    color: #555;
+  }
+
+  .tablaMails::-webkit-scrollbar {
+    width: 0px;
+    /* Oculta la barra de desplazamiento */
+    background: transparent;
+  }
+
+
+  .MailsEnviados {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    /* centra horizontalmente */
+    text-align: center;
+  }
+
+  html,
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+  }
+}

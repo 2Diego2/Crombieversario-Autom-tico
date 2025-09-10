@@ -115,7 +115,7 @@ aniversarioEmitter.on("aniversario", async (empleado) => {
 
 // --- Función Principal de Ejecución ---
 cron.schedule(
-  "08 00* * 1-5",
+  "00 08 * * 1-5",
   async () => {
     console.log("Ejecutando cron de aniversarios...");
 

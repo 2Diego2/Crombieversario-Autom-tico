@@ -1,101 +1,155 @@
-.mensaje-editable{
+
+.Principal {
     padding: 20px;
     max-width: 800px;
     margin: auto;
+    
 }
 
-.edicion-mensaje{
-    margin-bottom: 30px;
+.botonCerrar {
+    background: none;
+    border: none;
+    color: red;
+    font-size: 1.2em;
+    cursor: pointer;
+    margin-left: 10px;
 }
 
-.mensaje-crombieversario{
+.mensaje {
     display: block;
     margin-bottom: 8px;
     font-weight: bold;
 }
 
-.message-template {
+.mensajeTemplate {
     width: 100%;
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    background-color: white;
 }
 
-.guardar-mensaje {
+.botonGuardar {
     margin-top: 15px;
     padding: 10px 20px;
+    font-size: 16px;
     background-color: var(--colorCrombieVioleta);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+}
+.botonGuardar:hover {
+            transition: all 0.3s ease;
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 1);
 }
 
-.gestion-imagenes {
-    margin-top: 20px;
+.success {
+    margin-top: 35px;
+    color: green; 
+    font-weight: bold;
 }
 
-.caja-imagenes {
+.divImg {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
-    border: 1px solid #eee;
-    padding: 15px;
+    border: 1px solid #eee; 
+    padding: 15px; 
     border-radius: 4px;
     min-height: 120px;
     align-items: center;
 }
 
-.disposicion-imagenes {
+.img {
     position: relative;
     border: 1px solid #ddd;
     border-radius: 4px;
     overflow: hidden;
 }
 
-.boton-eliminar-imagen {
+.imagenes {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    display: block;
+}
+
+.botonDelete {
     position: absolute;
     top: 5px;
     right: 5px;
-    width: 22px;
-    height: 22px;
-    background-color: red;
+    background: rgba(255,0,0,0.7);
     color: white;
     border: none;
     border-radius: 50%;
-    cursor: pointer;
-    padding: 0;
+    width: 25px;
+    height: 25px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    font-size: 1.1em;    /* Ajusta el tamaño de la cruz */
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
     line-height: 1;
 }
 
-.subir-imagen {
+.etiqueta {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    background-color: rgba(0,0,0,0.6);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 0.8em;
+}
+
+.divSubir {
     margin-top: 20px;
     border-top: 1px solid #eee;
     padding-top: 20px;
+    align-items: center; 
+    display: grid;
 }
 
-.custom-file-label {
+.numero {
+    margin-left: 10px; 
+    padding: 5px;
+    width: 80px;
+}
+
+.botonSubir {
     display: inline-block;
+    margin-top: 10px;
     padding: 10px 20px;
-    background-color: var(--colorCrombieVioleta);
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.custom-file-label:hover{
-    background-color: #a084e8;
-}
-.boton-subir-imagen {
-    padding: 10px 20px;
+    font-size: 14px;
+    width: 130px;
+    font-weight: bold;
     background-color: var(--colorCrombieVioleta);
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    margin-left: 10px;
+}
+
+.select {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 5px;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+    border: 1px solid red;
+    border-radius: 5px;
+    background-color: #ffe0e0;
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
