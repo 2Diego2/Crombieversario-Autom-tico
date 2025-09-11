@@ -375,7 +375,6 @@ app.get('/auth/google/dashboard',
 
 
 // Ruta inicial para crear el primer/segundo super_admin (¡USAR CON CUIDADO Y LUEGO PROTEGER/ELIMINAR!)
-// Puedes dejarla como '/api/register-admin' o renombrarla a algo más específico como '/api/initial-admin-setup'
 app.post('/api/register-admin', requireApiKey, async (req, res) => {
     const { email, password, username } = req.body;
     // Aquí no necesitas el campo 'role' en req.body, siempre será 'super_admin'
@@ -390,8 +389,8 @@ app.post('/api/register-admin', requireApiKey, async (req, res) => {
         if (existingUser) {
             return res.status(409).json({ message: 'Este email ya está registrado.' });
         }
-        const newUser = await createUser(email, password, ROLES.SUPER_ADMIN, username);
-        res.status(201).json({ message: `Usuario ${ROLES.SUPER_ADMIN} creado exitosamente.`, userId: newUser._id });
+        const newUser = await createUser(email, password, ROLES.STAFF, username);
+        res.status(201).json({ message: `Usuario ${ROLES.STAFF} creado exitosamente.`, userId: newUser._id });
 
     } catch (error) {
         console.error('Error al registrar usuario admin:', error);
