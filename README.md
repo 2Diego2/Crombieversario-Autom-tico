@@ -32,14 +32,14 @@ Crombieversario Automático es una plataforma para automatizar el envío de corr
     npm run dev
 
 ## Uso
-# Accede a la interfaz web en http://localhost:5173.
-# Configura el mensaje de aniversario desde el editor.
-# Visualiza estadísticas de correos enviados y errores.
-# Administra empleados y revisa próximos eventos.
-# El backend expone una API REST para operaciones administrativas y automatización.
+## Accede a la interfaz web en http://localhost:5173.
+## Configura el mensaje de aniversario desde el editor.
+## Visualiza estadísticas de correos enviados y errores.
+## Administra empleados y revisa próximos eventos.
+## El backend expone una API REST para operaciones administrativas y automatización.
 
 ## Contribuciones
-# Haz un fork del repositorio.
+### Haz un fork del repositorio.
 # Crea una rama nueva para tu funcionalidad: git checkout -b feature/nueva-funcionalidad
 # Realiza tus cambios y haz commit.
 # Envía un pull request describiendo tu aporte.
