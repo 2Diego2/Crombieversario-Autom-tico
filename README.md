@@ -6,7 +6,9 @@ Crombieversario Automático es una plataforma para automatizar el envío de corr
 
 ## Instalación
 **Descargar e instalar Node.js**
- 
+
+    Ve a la página oficial de Node.js: https://nodejs.org
+    Descarga la versión recomendada para tu sistema operativo (LTS es la versión estable y recomendada para producción).
     node -v
     npm -v
 1. **Clona el repositorio:**
