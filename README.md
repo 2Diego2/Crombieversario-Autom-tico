@@ -49,3 +49,5 @@ Crombieversario Automático es una plataforma para automatizar el envío de corr
 ### Backend: Node.js, Express, MongoDB, Mongoose, Nodemailer
 ### Frontend: React, Vite
 ### Otros: AWS S3, Ngrok, Passport.js, dotenv, cron, CSS
+
+
