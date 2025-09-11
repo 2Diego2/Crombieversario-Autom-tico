@@ -5,7 +5,10 @@
 Crombieversario Automático es una plataforma para automatizar el envío de correos de aniversario y cumpleaños a empleados de Crombie. El sistema integra datos de empleados, genera mensajes personalizados y administra el historial de envíos y errores, ahorrando tiempo al área de marketing y mejorando la experiencia de los colaboradores.
 
 ## Instalación
-
+**Descargar e instalar Node.js**
+ 
+    node -v
+    npm -v
 1. **Clona el repositorio:**
    ```sh
    git clone https://github.com/tu-usuario/crombieversario-automatico.git
