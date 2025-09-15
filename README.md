@@ -2,7 +2,7 @@
 
 ## Descripción
 
-Crombieversario Automático es una plataforma para automatizar el envío de correos de aniversario y cumpleaños a empleados de Crombie. El sistema integra datos de empleados, genera mensajes personalizados y administra el historial de envíos y errores, ahorrando tiempo al área de marketing y mejorando la experiencia de los colaboradores.
+Crombieversario Automático es una plataforma para automatizar el envío de correos de aniversario a empleados de Crombie. El sistema integra datos de empleados, genera mensajes personalizados y administra el historial de envíos y errores, ahorrando tiempo al área de marketing y mejorando la experiencia de los colaboradores.
 
 ## Instalación
 **Descargar e instalar Node.js**
