@@ -7,8 +7,5 @@
 
 # Ignorar archivos temporales
 *.log
-*.env
 
-# Si usás Vite o React
-/frontend/crombieversario-app/.env
-/frontend/crombieversario-app/.vite
+
