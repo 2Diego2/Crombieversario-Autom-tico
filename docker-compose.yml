@@ -1,0 +1,68 @@
+services:
+  # Base de Datos MongoDB
+  mongodb:
+    image: mongo:latest
+    container_name: crombie_mongodb
+    # Mapea un volumen para persistir los datos
+    volumes:
+      - mongodb_data:/data/db
+    # Expone el puerto 27017 internamente (opcionalmente puedes mapearlo a un puerto del host)
+    ports:
+      - "27017:27017"
+    environment:
+      # Puedes configurar un usuario/contraseña si lo deseas, pero para desarrollo no es estrictamente necesario
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    restart: always  # Aquí estaba fuera de lugar, lo moví al nivel correcto
+
+  # Backend (Node.js + Express)
+  backend:
+    build:
+      context: ./backend # Ubicación del Dockerfile del backend
+      dockerfile: Dockerfile
+    container_name: crombie_backend
+    ports:
+      - "3033:3033" # Mapea el puerto del backend (3033)
+    volumes:
+      # Monta la carpeta de subidas de imágenes para persistencia y acceso
+      - ./backend/public/uploads:/app/public/uploads
+      # Monta el código fuente para desarrollo (opcional, útil para hot-reloading si lo tienes)
+      # - ./backend/src:/app/src
+    environment:
+      # Pasa variables de entorno, incluyendo la URL de conexión a la DB
+      # El host es el nombre del servicio de la base de datos en Docker Compose
+      MONGO_URI: ${MONGO_URI}
+      NODE_ENV: production
+      # Otras variables que uses en tu .env (API Key, SMTP, etc.)
+      API_KEY: ${API_KEY}
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_PASS}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      API_BASE_URL: ${API_BASE_URL}
+      # ... otras variables de tu .env
+    depends_on:
+      - mongodb
+    dns:
+      - 8.8.8.8 
+    restart: always  # Aquí también lo moví al nivel correcto
+
+  # Frontend (React + Vite)
+  frontend:
+    build:
+      context: ./frontend/crombieversario-app # Ubicación del Dockerfile del frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${API_BASE_URL}
+    container_name: crombie_frontend
+    ports:
+      - "80:80" # Sirve el frontend en el puerto 80 estándar
+    depends_on:
+      - backend
+    restart: always  # Aquí lo mismo, ajustado al nivel adecuado
+
+# Volúmenes para persistir datos
+volumes:
+  mongodb_data:
+  # volumen_uploads: # Opcional si solo quieres persistencia para la DB

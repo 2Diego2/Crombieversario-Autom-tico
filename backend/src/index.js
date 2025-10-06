@@ -2,6 +2,7 @@
 const path = require("path");
 const axios = require("axios"); // Para hacer peticiones HTTP a tu API local o a PeopleForce
 const mongoose = require("mongoose"); 
+require ('./server.js');//Ahora inicia server.js tmb
 
 // Importa las funcionalidades de eventos y la base de datos
 const {

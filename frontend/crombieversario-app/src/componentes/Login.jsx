@@ -13,7 +13,7 @@ function LoginForm({ onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
   
   // Define la URL base de la API usando la variable de entorno
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  //const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,7 +22,7 @@ function LoginForm({ onLoginSuccess }) {
 
     try {
       // Ajusta la URL de la API según sea necesario
-      const response = await axios.post(`${API_BASE_URL}/api/login`, {
+      const response = await axios.post("/api/login", {
         email,
         password,
       });
@@ -56,8 +56,8 @@ function LoginForm({ onLoginSuccess }) {
         <h2>Iniciar Sesión</h2>
         
         {/*login con google*/}
-        {/* CORRECCIÓN AQUÍ: Usa API_BASE_URL */}
-        <a href={`${API_BASE_URL}/auth/google`} className="btn btn-google">
+
+        <a href= "/auth/google" className="btn btn-google">
           <img src={GoogleLogo} alt="Logo de Google"/>
           <span>Continuar con Google</span>
         </a>
@@ -101,8 +101,8 @@ function LoginForm({ onLoginSuccess }) {
         
         <p className='register-prompt'>
         
-          ¿No tienes una cuenta? {/* CORRECCIÓN AQUÍ: Usa API_BASE_URL */}
-          <a href={`${API_BASE_URL}/auth/google`}>Regístrate con Google</a> 
+          ¿No tienes una cuenta? 
+          <a href="/auth/google">Regístrate con Google</a> 
         </p>
       </div>
     </div>

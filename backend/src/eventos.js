@@ -3,7 +3,7 @@ require("dotenv").config();
 const mongoService = require("./db.js");
 const EventEmitter = require("events");
 const dayjs = require("dayjs");
-const weekDay = require("dayjs/plugin/weekday");
+const weekDay = require("dayjs/plugin/weekday.js");
 const path = require("path");
 const nodemailer = require("nodemailer");
 const fs = require("fs");

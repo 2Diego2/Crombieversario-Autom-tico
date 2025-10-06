@@ -5,7 +5,7 @@ import useAuth from './useAuth';
 
 // Determinar API_BASE_URL con fallback seguro
 const DEFAULT_API = 'http://localhost:3033';
-const ENV_BASE = (import.meta.env.VITE_API_BASE_URL || '').trim();
+const ENV_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3033/api').trim();
 
 function useConfig() {
   const API_BASE_URL = (ENV_BASE || DEFAULT_API).replace(/\/+$/, ''); // sin slash final

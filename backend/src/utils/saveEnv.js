@@ -5,7 +5,7 @@ const fs = require('fs');
 
 // Función para actualizar el archivo .env
 function updateEnvFile(key, value) {
-  // Ruta al archivo .env en la raíz del proyecto (proyecto-practica)
+  // Ruta al archivo .env en la raíz del proyecto (backend)
  const envPath = path.resolve(__dirname, '../../.env'); // Subimos un nivel con '../' para acceder a la raíz
   let envContent = '';
 
