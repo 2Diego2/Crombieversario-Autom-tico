@@ -80,7 +80,7 @@ AWS_ACCESS_KEY_ID: ID de acceso AWS
 AWS_SECRET_ACCESS_KEY: Clave secreta AWS
 AWS_S3_REGION: Región (us-east-2)
 AWS_S3_BUCKET_NAME: Nombre del bucket
-
+````
 **Google OAuth :**
 ````
 GOOGLE_CLIENT_ID: ID de cliente OAuth
@@ -131,8 +131,6 @@ Flujo de automatización:
 -Registro de errores en errorLogs
 ````
 **Endpoints de la API**
-````
-````
 *Autenticación*
 ````
 POST /api/users/create: Crear nuevo usuario 
@@ -157,7 +155,6 @@ GET /api/email-stats/monthly?year=YYYY: Estadísticas mensuales por año
 GET /trabajadores: Obtener lista de empleados
 ````
 *Autenticación requerida: Todos los endpoints requieren token JWT en el header Authorization useConfig.js:30.*
-
 *Tecnologías utilizadas*
 ````
 Backend: Node.js, Express, MongoDB, Mongoose, Nodemailer
