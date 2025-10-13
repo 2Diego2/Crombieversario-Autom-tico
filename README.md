@@ -1,4 +1,7 @@
 # Crombieversario Automático
+## Documentacion completa
+https://app.devin.ai/wiki/2Diego2/Crombieversario-Autom-tico
+
 ## Descripción
 Crombieversario Automático es una plataforma full-stack que integra datos de empleados desde PeopleForce API, genera mensajes personalizados con imágenes almacenadas en AWS S3, y administra el historial de envíos y errores mediante MongoDB README.md:5 . El sistema ahorra tiempo al área de marketing y mejora la experiencia de los colaboradores.
 ## Características 
