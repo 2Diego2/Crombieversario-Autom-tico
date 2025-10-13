@@ -46,17 +46,10 @@ Calendario de eventos: Visualización de próximos cumpleaños y aniversarios.
 ````
 Crea un archivo .env en backend/ con las siguientes variables:
 ````
-````
-````
 **Gmail (Nodemailer) :**
-````
-````
 ````
 GMAIL_USER: Cuenta de Gmail para enviar correos
 GMAIL_APP_PASSWORD: Contraseña de aplicación de Google (no la contraseña normal)
-
-````
-````
 ````
 **MongoDB:**
 ````
@@ -64,48 +57,34 @@ MONGO_URI: Cadena de conexión (MongoDB Atlas recomendado o local)
 DB_NAME: Nombre de la base de datos
 ````
 ````
-````
-
-````
-````
 **PeopleForce API :**
+````
 ````
 PEOPLEFORCE_API_KEY: Clave API de PeopleForce
 PEOPLEFORCE_API_URL: URL del endpoint de empleados
-
-````
-````
 ````
 **Servidor:**
 ````
 PORT: Puerto del backend (default: 3033)
 SERVER_BASE_URL: URL base del servidor
 FRONTEND_BASE_URL: URL del frontend
-
-````
-````
 ````
 **Seguridad:**
 ````
 JWT_SECRET: Secreto para tokens JWT
 API_KEY: Clave API interna
 ````
-
 **AWS S3 :**
 ````
 AWS_ACCESS_KEY_ID: ID de acceso AWS
 AWS_SECRET_ACCESS_KEY: Clave secreta AWS
 AWS_S3_REGION: Región (us-east-2)
 AWS_S3_BUCKET_NAME: Nombre del bucket
-````
-````
-````
+
 **Google OAuth :**
 ````
 GOOGLE_CLIENT_ID: ID de cliente OAuth
 GOOGLE_CLIENT_SECRET: Secreto de cliente OAuth
-````
-````
 ````
 **Configuración con Docker**
 ````
