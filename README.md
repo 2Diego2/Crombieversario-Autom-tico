@@ -155,7 +155,7 @@ GET /api/email-stats/monthly?year=YYYY: Estadísticas mensuales por año
 GET /trabajadores: Obtener lista de empleados
 ````
 *Autenticación requerida: Todos los endpoints requieren token JWT en el header Authorization useConfig.js:30.*
-*Tecnologías utilizadas*
+**Tecnologías utilizadas**
 ````
 Backend: Node.js, Express, MongoDB, Mongoose, Nodemailer
 Frontend: React, Vite
